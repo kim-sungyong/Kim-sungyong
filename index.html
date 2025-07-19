@@ -3,471 +3,618 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>간단 스케줄 관리 (확장)</title>
+    <title>스케줄 관리 앱</title>
     <style>
-        :root {
-            /* 기본 라이트 테마 */
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --text-color: #333;
-            --header-color: #2c3e50;
-            --input-border: #ddd;
-            --button-bg: #3498db;
-            --button-hover-bg: #2980b9;
-            --calendar-nav-bg: #3498db;
-            --calendar-th-bg: #ecf0f1;
-            --calendar-td-bg: #fdfdfd;
-            --calendar-td-hover-bg: #e0f2f7;
-            --today-bg: #fff9c4;
-            --today-border: #fdd835;
-            --has-schedule-bg: #d1ecf1;
-            --schedule-summary-color: #4a6a8b;
-            --schedule-item-bg: #ecf0f1;
-            --delete-btn-bg: #e74c3c;
-            --delete-btn-hover-bg: #c0392b;
-            --no-schedule-color: #7f8c8d;
-            --setting-border: #eee;
+        /* 기본 스타일 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 라이트 테마 (기본) */
+        body.light-theme {
+            background-color: #f4f7f6;
+            color: #333;
         }
 
         /* 다크 테마 */
         body.dark-theme {
-            --bg-color: #2c3e50;
-            --container-bg: #34495e;
-            --text-color: #ecf0f1;
-            --header-color: #ecf0f1;
-            --input-border: #555;
-            --button-bg: #3498db;
-            --button-hover-bg: #2980b9;
-            --calendar-nav-bg: #22313f;
-            --calendar-th-bg: #4a6a8b;
-            --calendar-td-bg: #3b5978;
-            --calendar-td-hover-bg: #4a6a8b;
-            --today-bg: #5a5a3a;
-            --today-border: #fdd835;
-            --has-schedule-bg: #4a6a8b;
-            --schedule-summary-color: #bdc3c7;
-            --schedule-item-bg: #4a6a8b;
-            --delete-btn-bg: #e74c3c;
-            --delete-btn-hover-bg: #c0392b;
-            --no-schedule-color: #bdc3c7;
-            --setting-border: #555;
+            background-color: #2c3e50; /* 어두운 남색 계열 */
+            color: #ecf0f1; /* 밝은 회색 */
+        }
+        body.dark-theme .container,
+        body.dark-theme .calendar-header,
+        body.dark-theme .calendar-weekdays,
+        body.dark-theme .calendar-days td,
+        body.dark-theme .schedule-section,
+        body.dark-theme .input-group,
+        body.dark-theme #scheduleList h2,
+        body.dark-theme .schedule-item,
+        body.dark-theme .settings-section,
+        body.dark-theme #noScheduleMessage {
+            background-color: #34495e; /* 약간 더 밝은 어두운 남색 */
+            border-color: #4a667f;
+            color: #ecf0f1;
+        }
+        body.dark-theme button,
+        body.dark-theme input[type="text"],
+        body.dark-theme input[type="date"],
+        body.dark-theme input[type="time"],
+        body.dark-theme input[type="number"],
+        body.dark-theme select,
+        body.dark-theme textarea {
+            background-color: #2b3b4a;
+            color: #ecf0f1;
+            border-color: #55708a;
+        }
+        body.dark-theme button:hover {
+            background-color: #4a667f;
+        }
+        body.dark-theme .calendar-days td.today {
+            background-color: #f39c12; /* 오늘 날짜 하이라이트 */
+            color: #fff;
+        }
+        body.dark-theme .calendar-days td.has-schedule {
+            background-color: #3d5975; /* 스케줄 있는 날짜 */
+        }
+        body.dark-theme .calendar-days td.today.has-schedule {
+            background-color: #e67e22; /* 오늘 + 스케줄 */
+        }
+        body.dark-theme .schedule-item .action-buttons button {
+            background-color: #55708a;
+            color: #ecf0f1;
+        }
+        body.dark-theme .schedule-item .action-buttons button.delete-btn {
+            background-color: #c0392b;
+        }
+        body.dark-theme .schedule-item .action-buttons button.edit-btn {
+            background-color: #27ae60;
+        }
+        body.dark-theme .tel-link,
+        body.dark-theme .nav-link {
+            color: #3498db; /* 링크 색상 */
+        }
+        body.dark-theme a {
+            color: #3498db;
         }
 
-        /* 블루-그린 테마 */
-        body.blue-green-theme {
-            --bg-color: #e0f2f7;
-            --container-bg: #ffffff;
-            --text-color: #2e8b57; /* SeaGreen */
-            --header-color: #2e8b57;
-            --input-border: #a2d9ce;
-            --button-bg: #20b2aa; /* LightSeaGreen */
-            --button-hover-bg: #1a8f87;
-            --calendar-nav-bg: #20b2aa;
-            --calendar-th-bg: #c1e7e7;
-            --calendar-td-bg: #f5fdfd;
-            --calendar-td-hover-bg: #a2d9ce;
-            --today-bg: #ffe0b2; /* Light Orange */
-            --today-border: #ffb74d;
-            --has-schedule-bg: #b2e0e0;
-            --schedule-summary-color: #2e8b57;
-            --schedule-item-bg: #e0f2f7;
-            --delete-btn-bg: #e74c3c;
-            --delete-btn-hover-bg: #c0392b;
-            --no-schedule-color: #7f8c8d;
-            --setting-border: #a2d9ce;
-        }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 15px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            -webkit-user-select: none; /* iOS Safari */
-            -moz-user-select: none;    /* Firefox */
-            -ms-user-select: none;     /* Internet Explorer/Edge */
-            user-select: none;         /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-            transition: background-color 0.3s, color 0.3s;
-        }
         .container {
-            max-width: 650px;
+            max-width: 900px;
             margin: 20px auto;
-            background-color: var(--container-bg);
             padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        h1, h2, h3 {
-            text-align: center;
-            color: var(--header-color);
-            margin-bottom: 25px;
-            font-size: 1.8em;
-            transition: color 0.3s;
-        }
-        h2 {
-            font-size: 1.5em;
-            margin-top: 30px;
-            border-top: 2px solid var(--setting-border);
-            padding-top: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            flex-grow: 1; /* 컨테이너가 가능한 공간을 차지하도록 */
         }
 
-        /* --- 캘린더 스타일 --- */
-        .calendar-nav {
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        body.dark-theme h1,
+        body.dark-theme h2 {
+            color: #ecf0f1;
+        }
+
+        /* 캘린더 섹션 */
+        .calendar-section {
+            margin-bottom: 30px;
+        }
+
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            background-color: var(--calendar-nav-bg);
-            color: white;
-            padding: 10px 15px;
+            margin-bottom: 15px;
+            background-color: #e9eff3;
+            padding: 10px 20px;
             border-radius: 8px;
-            transition: background-color 0.3s;
-        }
-        .calendar-nav button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .calendar-nav button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .calendar-nav h2 {
-            margin: 0;
-            font-size: 1.4em;
-            color: white; /* 캘린더 헤더는 항상 흰색 */
-        }
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        .calendar th, .calendar td {
-            border: 1px solid var(--input-border);
-            padding: 5px;
-            text-align: center;
-            vertical-align: top;
-            height: 90px;
-            box-sizing: border-box;
-            font-size: 0.9em;
-            overflow: hidden;
-            position: relative;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-        .calendar th {
-            background-color: var(--calendar-th-bg);
-            color: var(--text-color);
-            padding: 8px;
-            font-size: 1em;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .calendar td {
-            background-color: var(--calendar-td-bg);
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .calendar td:hover {
-            background-color: var(--calendar-td-hover-bg);
-        }
-        .calendar td.today {
-            background-color: var(--today-bg);
-            border-color: var(--today-border);
-        }
-        .calendar td.has-schedule {
-            background-color: var(--has-schedule-bg);
-        }
-        .calendar td .day-number {
-            font-weight: bold;
-            font-size: 1.1em;
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-color);
-        }
-        .calendar td.empty-day {
-            background-color: var(--bg-color); /* 빈 날짜는 배경색과 동일하게 */
-            cursor: default;
-        }
-        .calendar td.empty-day:hover {
-            background-color: var(--bg-color);
-        }
-        .schedule-summary {
-            font-size: 0.8em;
-            color: var(--schedule-summary-color);
-            margin-top: 5px;
-            line-height: 1.2;
-            word-break: break-all;
-        }
-        .schedule-summary p {
-            margin: 2px 0;
-        }
-        .schedule-count {
-            display: inline-block;
-            background-color: #28a745; /* 스케줄 개수는 고정 색상 */
-            color: white;
-            font-size: 0.7em;
-            padding: 2px 5px;
-            border-radius: 3px;
-            margin-left: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* --- 스케줄 추가/목록 스타일 --- */
-        .schedule-section {
-            margin-top: 30px;
-            border-top: 2px solid var(--setting-border);
-            padding-top: 20px;
+        .calendar-header button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
         }
+
+        .calendar-header button:hover {
+            background-color: #2980b9;
+        }
+
+        #currentMonthYear {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        body.dark-theme #currentMonthYear {
+            color: #ecf0f1;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* 고정 너비 열 */
+        }
+
+        .calendar-weekdays th {
+            background-color: #f0f0f0;
+            padding: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-days td {
+            padding: 10px 0;
+            text-align: center;
+            vertical-align: top; /* 스케줄 내용 상단 정렬 */
+            border: 1px solid #eee;
+            min-height: 80px; /* 각 셀의 최소 높이 */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        .calendar-days td:hover {
+            background-color: #eaf1f6;
+        }
+        
+        .calendar-days td.empty-day {
+            background-color: #f9f9f9;
+            cursor: default;
+        }
+        body.dark-theme .calendar-days td.empty-day {
+            background-color: #2d3b48;
+        }
+
+        .calendar-days td.today {
+            background-color: #ffeaa7; /* 오늘 날짜 하이라이트 */
+            font-weight: bold;
+            border: 2px solid #f39c12;
+            box-sizing: border-box; /* 패딩, 보더 포함 넓이 계산 */
+        }
+
+        .calendar-days td .day-number {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        body.dark-theme .calendar-days td .day-number {
+            color: #ecf0f1;
+        }
+
+        .calendar-days td.has-schedule {
+            background-color: #dbe9f3; /* 스케줄 있는 날짜 */
+        }
+        .calendar-days td.today.has-schedule {
+            background-color: #f7d794; /* 오늘 + 스케줄 */
+        }
+
+        .schedule-summary {
+            font-size: 0.8em;
+            color: #555;
+            line-height: 1.3;
+            word-break: break-all; /* 긴 텍스트 줄바꿈 */
+        }
+        body.dark-theme .schedule-summary {
+            color: #aebfd0;
+        }
+        .schedule-summary p {
+            margin: 0;
+            padding: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
+        }
+
+        /* 스케줄 입력 폼 */
+        .schedule-form, .settings-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+        }
+        body.dark-theme .schedule-form,
+        body.dark-theme .settings-section {
+            background-color: #3a506a;
+        }
+
         .input-group {
             margin-bottom: 15px;
         }
+
         .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: var(--text-color);
+            color: #555;
         }
+        body.dark-theme .input-group label {
+            color: #ecf0f1;
+        }
+
+        .input-group input[type="text"],
         .input-group input[type="date"],
         .input-group input[type="time"],
-        .input-group input[type="text"],
         .input-group input[type="number"],
         .input-group select,
         .input-group textarea {
-            width: calc(100% - 20px);
+            width: calc(100% - 22px); /* 패딩, 보더 고려 */
             padding: 10px;
-            border: 1px solid var(--input-border);
+            border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
-            box-sizing: border-box;
-            background-color: var(--calendar-td-bg); /* input 배경색도 테마에 맞춤 */
-            color: var(--text-color);
-            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
-        .input-group input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
+
+        .input-group textarea {
+            resize: vertical; /* 세로 크기 조절 가능 */
+            min-height: 60px;
         }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
         .button-group {
-            text-align: center;
-            margin-top: 25px;
+            display: flex;
+            gap: 10px; /* 버튼 사이 간격 */
+            justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+            margin-top: 20px;
         }
+
         .button-group button {
-            background-color: var(--button-bg);
+            background-color: #28a745;
             color: white;
-            padding: 12px 25px;
             border: none;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1.1em;
-            transition: background-color 0.3s ease;
-            margin: 0 5px;
-        }
-        .button-group button:hover {
-            background-color: var(--button-hover-bg);
-        }
-        .schedule-list {
-            margin-top: 30px;
-            border-top: 2px solid var(--setting-border);
-            padding-top: 20px;
-        }
-        .schedule-item {
-            background-color: var(--schedule-item-bg);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            position: relative;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        .schedule-item h3 {
-            margin-top: 0;
-            color: var(--header-color);
-            font-size: 1.3em;
-            border-bottom: 1px dashed var(--input-border); /* 구분선도 테마에 맞춤 */
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-        .schedule-item p {
-            margin: 5px 0;
-            font-size: 0.95em;
-            line-height: 1.4;
-            color: var(--text-color);
-        }
-        .schedule-item .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: var(--delete-btn-bg);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: background-color 0.3s ease;
-        }
-        .schedule-item .delete-btn:hover {
-            background-color: var(--delete-btn-hover-bg);
-        }
-        .no-schedule {
-            text-align: center;
-            color: var(--no-schedule-color);
-            padding: 20px;
-            font-style: italic;
-            transition: color 0.3s;
+            transition: background-color 0.2s ease;
         }
 
-        /* 네비게이션 링크 스타일 */
-        .nav-link, .tel-link {
-            color: #3498db;
+        .button-group button:hover {
+            background-color: #218838;
+        }
+
+        #cancelEditBtn {
+            background-color: #6c757d;
+            display: none; /* 초기에는 숨김 */
+        }
+        #cancelEditBtn:hover {
+            background-color: #5a6268;
+        }
+        #clearInputBtn {
+            background-color: #007bff;
+        }
+        #clearInputBtn:hover {
+            background-color: #0056b3;
+        }
+
+        /* 스케줄 목록 */
+        #scheduleList {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-theme #scheduleList {
+            background-color: #34495e;
+        }
+
+        #scheduleList h2 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            text-align: left;
+        }
+        body.dark-theme #scheduleList h2 {
+            color: #ecf0f1;
+            border-bottom-color: #4a667f;
+        }
+
+        #noScheduleMessage {
+            text-align: center;
+            color: #777;
+            font-style: italic;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none; /* 초기에는 숨김 */
+        }
+        body.dark-theme #noScheduleMessage {
+            background-color: #2d3b48;
+            color: #aebfd0;
+        }
+
+        .schedule-item {
+            background-color: #fefefe;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        body.dark-theme .schedule-item {
+            background-color: #3a506a;
+            border-color: #4a667f;
+        }
+
+        .schedule-item p {
+            margin: 0 0 8px 0;
+            color: #444;
+        }
+        body.dark-theme .schedule-item p {
+            color: #ecf0f1;
+        }
+        .schedule-item p:last-child {
+            margin-bottom: 0;
+        }
+        .schedule-item strong {
+            color: #2c3e50;
+        }
+        body.dark-theme .schedule-item strong {
+            color: #ecf0f1;
+        }
+
+        .schedule-item .action-buttons {
+            margin-top: 15px;
+            text-align: right;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        body.dark-theme .schedule-item .action-buttons {
+            border-top-color: #4a667f;
+        }
+
+        .schedule-item .action-buttons button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .schedule-item .action-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .schedule-item .action-buttons .edit-btn {
+            background-color: #28a745;
+        }
+        .schedule-item .action-buttons .edit-btn:hover {
+            background-color: #218838;
+        }
+
+        .schedule-item .action-buttons .delete-btn {
+            background-color: #dc3545;
+        }
+        .schedule-item .action-buttons .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .tel-link, .nav-link {
+            color: #007bff;
             text-decoration: underline;
             cursor: pointer;
         }
-        .nav-link:hover, .tel-link:hover {
-            color: #2980b9;
+        .tel-link:hover, .nav-link:hover {
+            color: #0056b3;
+        }
+        body.dark-theme .tel-link, body.dark-theme .nav-link {
+            color: #9ad2ff;
+        }
+        body.dark-theme .tel-link:hover, body.dark-theme .nav-link:hover {
+            color: #6cbfff;
         }
 
         /* 설정 섹션 */
         .settings-section {
             margin-top: 30px;
-            border-top: 2px solid var(--setting-border);
-            padding-top: 20px;
-            text-align: left;
+            margin-bottom: 20px; /* 하단 여백 추가 */
         }
-        .settings-section label {
-            margin-right: 15px;
-            font-weight: normal;
-        }
-        .settings-section input[type="radio"] {
-            margin-right: 5px;
-        }
-        .settings-section h3 {
+        .settings-section h2 {
             text-align: left;
             margin-bottom: 15px;
-            font-size: 1.2em;
-            color: var(--header-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
-        .settings-group {
-            margin-bottom: 20px;
+        body.dark-theme .settings-section h2 {
+            border-bottom-color: #4a667f;
+        }
+        .settings-option {
+            margin-bottom: 15px;
+        }
+        .settings-option h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        body.dark-theme .settings-option h3 {
+            color: #ecf0f1;
+        }
+        .settings-option label {
+            margin-right: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+        .settings-option input[type="radio"] {
+            margin-right: 5px;
+            transform: scale(1.2);
+        }
+        
+        /* 푸터 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            background-color: #e9eff3;
+            color: #555;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+        }
+        body.dark-theme footer {
+            background-color: #2b3b4a;
+            color: #aebfd0;
+            border-top-color: #4a667f;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>나의 스케줄 관리</h1>
+        <h1>나만의 스케줄러</h1>
 
-        <div class="calendar-section">
-            <div class="calendar-nav">
-                <button onclick="prevMonth()"><</button>
+        <section class="calendar-section">
+            <div class="calendar-header">
+                <button onclick="prevMonth()">&lt; 이전 달</button>
                 <h2 id="currentMonthYear"></h2>
-                <button onclick="nextMonth()">></button>
+                <button onclick="nextMonth()">다음 달 &gt;</button>
             </div>
-            <table class="calendar" id="calendar">
-                <thead>
+            <table class="calendar-table">
+                <thead class="calendar-weekdays">
                     <tr>
-                        <th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th>
+                        <th>일</th>
+                        <th>월</th>
+                        <th>화</th>
+                        <th>수</th>
+                        <th>목</th>
+                        <th>금</th>
+                        <th>토</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="calendar-days">
                     </tbody>
             </table>
-        </div>
+        </section>
 
-        <hr>
-
-        <div class="schedule-section">
-            <h2>스케줄 추가 / 상세보기</h2>
-            
-            <div class="input-group">
-                <label for="companyName">업체명:</label>
-                <input type="text" id="companyName" placeholder="예: (주)ABC 건설">
-            </div>
+        <section class="schedule-form">
+            <h2>스케줄 입력</h2>
             <div class="input-group">
                 <label for="scheduleDate">날짜:</label>
-                <input type="date" id="scheduleDate" value="">
+                <input type="date" id="scheduleDate">
             </div>
-
             <div class="input-group">
                 <label for="scheduleTime">시간:</label>
                 <input type="time" id="scheduleTime">
             </div>
-
             <div class="input-group">
-                <label for="location">장소:</label>
-                <input type="text" id="location" placeholder="예: 강남역 카페">
+                <label for="location">장소 (필수):</label>
+                <input type="text" id="location" placeholder="방문 장소를 입력하세요">
             </div>
-            
+            <div class="input-group">
+                <label for="companyName">업체명:</label>
+                <input type="text" id="companyName" placeholder="업체명을 입력하세요 (선택 사항)">
+            </div>
             <div class="input-group">
                 <label for="address">주소:</label>
-                <input type="text" id="address" placeholder="예: 서울 강남구 테헤란로 123">
+                <input type="text" id="address" placeholder="정확한 주소를 입력하세요">
             </div>
-
             <div class="input-group">
                 <label for="phoneNumber">전화번호:</label>
-                <input type="text" id="phoneNumber" placeholder="예: 010-1234-5678 (숫자만 입력 권장)">
+                <input type="text" id="phoneNumber" placeholder="연락처를 입력하세요 (예: 010-1234-5678)">
             </div>
-
             <div class="input-group">
                 <label for="paymentAmount">결제 금액:</label>
-                <input type="number" id="paymentAmount" placeholder="예: 15000">
+                <input type="number" id="paymentAmount" value="0" min="0">
             </div>
-
+            <div class="checkbox-group">
+                <input type="checkbox" id="paymentStatus">
+                <label for="paymentStatus">입금 완료</label>
+            </div>
             <div class="input-group">
-                <label for="paymentStatus">입금 완료 여부:</label>
-                <input type="checkbox" id="paymentStatus"> 완료
+                <label for="taskType">작업 종류 (필수):</label>
+                <input type="text" id="taskType" placeholder="수리, 설치, 점검 등">
             </div>
-
-            <div class="input-group">
-                <label for="taskType">작업 종류:</label>
-                <input type="text" id="taskType" placeholder="예: 미팅, 서류 작업">
-            </div>
-
             <div class="input-group">
                 <label for="taskContent">작업 내용:</label>
-                <textarea id="taskContent" rows="3" placeholder="자세한 작업 내용을 입력하세요."></textarea>
+                <textarea id="taskContent" placeholder="자세한 작업 내용을 입력하세요 (선택 사항)"></textarea>
             </div>
-
             <div class="button-group">
-                <button onclick="addSchedule()">스케줄 추가</button>
-                <button onclick="clearInputs()">입력 초기화</button>
+                <button id="clearInputBtn" onclick="clearInputs()">입력 초기화</button>
+                <button id="saveScheduleBtn" onclick="saveSchedule()">스케줄 추가</button>
+                <button id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
             </div>
-        </div>
+        </section>
 
-        <div class="schedule-list" id="scheduleList">
-            <h2>선택 날짜 스케줄 목록</h2>
-            <p class="no-schedule" id="noScheduleMessage">날짜를 선택하거나 스케줄을 추가해 주세요.</p>
-        </div>
+        <section id="scheduleList" class="schedule-section">
+            <p id="noScheduleMessage">선택된 날짜에 스케줄이 없습니다. 새로운 스케줄을 추가해보세요!</p>
+        </section>
 
-        <hr>
-
-        <div class="settings-section">
+        <section class="settings-section">
             <h2>설정</h2>
-            <div class="settings-group">
+            <div class="settings-option">
                 <h3>기본 네비게이션 앱 선택</h3>
-                <label><input type="radio" name="defaultNav" value="google" id="navGoogle"> Google 지도</label>
-                <label><input type="radio" name="defaultNav" value="naver" id="navNaver"> 네이버 지도</label>
-                <label><input type="radio" name="defaultNav" value="kakao" id="navKakao"> 카카오맵</label>
-                <label><input type="radio" name="defaultNav" value="none" id="navNone"> 선택 안 함 (클릭 시 옵션 표시)</label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
+                </label>
             </div>
-
-            <div class="settings-group">
+            <div class="settings-option">
                 <h3>테마 선택</h3>
-                <label><input type="radio" name="theme" value="light" id="themeLight"> 라이트</label>
-                <label><input type="radio" name="theme" value="dark" id="themeDark"> 다크</label>
-                <label><input type="radio" name="theme" value="blue-green" id="themeBlueGreen"> 블루-그린</label>
+                <label>
+                    <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
+                </label>
+                <label>
+                    <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
+                </label>
             </div>
-        </div>
-
+        </section>
     </div>
+
+    <footer>
+        <p>&copy; 2025 나만의 스케줄러. 모든 권리 보유.</p>
+    </footer>
 
     <script>
         const scheduleDateInput = document.getElementById('scheduleDate');
         const scheduleTimeInput = document.getElementById('scheduleTime');
         const locationInput = document.getElementById('location');
-        const companyNameInput = document.getElementById('companyName'); // 새로 추가된 변수
+        const companyNameInput = document.getElementById('companyName');
         const addressInput = document.getElementById('address');
         const phoneNumberInput = document.getElementById('phoneNumber');
         const paymentAmountInput = document.getElementById('paymentAmount');
@@ -478,6 +625,11 @@
         const noScheduleMessage = document.getElementById('noScheduleMessage');
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
+        
+        // 수정 기능을 위한 새로운 변수들
+        const saveScheduleBtn = document.getElementById('saveScheduleBtn'); // '스케줄 추가/수정' 버튼
+        const cancelEditBtn = document.getElementById('cancelEditBtn');   // '수정 취소' 버튼
+        let editingSchedule = null; // 현재 수정 중인 스케줄의 {date, index} 정보를 저장
 
         let currentYear, currentMonth; // 현재 캘린더가 보여주는 년, 월
 
@@ -535,6 +687,8 @@
                         cell.innerHTML = `<span class="day-number">${date}</span>`;
                         cell.dataset.date = formattedDate; // 데이터 속성에 날짜 저장
                         cell.onclick = () => {
+                            // 날짜 클릭 시 수정 모드 해제
+                            cancelEdit();
                             scheduleDateInput.value = formattedDate;
                             displaySchedulesForSelectedDate(formattedDate);
                         };
@@ -570,11 +724,13 @@
                     }
                     row.appendChild(cell);
                 }
-                if (date > daysInMonth && i > 0 && startDayOfWeek !== 0) {
-                    if (i === 0 && startDayOfWeek > 0 && date > 1) { /* do nothing */ }
-                    else if (i > 0 && date > daysInMonth) { break; }
-                }
                 calendarTableBody.appendChild(row);
+
+                // 수정된 break 조건:
+                // 달의 모든 날짜가 캘린더에 추가되었다면 더 이상 행을 그릴 필요가 없으므로 반복을 중단합니다.
+                if (date > daysInMonth) {
+                    break;
+                }
             }
         }
 
@@ -585,6 +741,7 @@
                 currentMonth = 11;
                 currentYear--;
             }
+            cancelEdit(); // 달 변경 시 수정 모드 해제
             renderCalendar();
         }
 
@@ -595,15 +752,16 @@
                 currentMonth = 0;
                 currentYear++;
             }
+            cancelEdit(); // 달 변경 시 수정 모드 해제
             renderCalendar();
         }
 
-        // 스케줄 추가
-        function addSchedule() {
+        // 스케줄 저장 (추가 및 수정)
+        function saveSchedule() {
             const date = scheduleDateInput.value;
             const time = scheduleTimeInput.value.trim();
             const location = locationInput.value.trim();
-            const companyName = companyNameInput.value.trim(); // 업체명 변수
+            const companyName = companyNameInput.value.trim();
             const address = addressInput.value.trim();
             const phoneNumber = phoneNumberInput.value.trim();
             const paymentAmount = paymentAmountInput.value;
@@ -619,7 +777,7 @@
             const schedule = {
                 time,
                 location,
-                companyName, // schedule 객체에 업체명 필드 추가
+                companyName,
                 address,
                 phoneNumber,
                 paymentAmount: paymentAmount ? parseInt(paymentAmount) : 0,
@@ -633,29 +791,85 @@
             if (!schedules[date]) {
                 schedules[date] = [];
             }
-            schedules[date].push(schedule);
+
+            if (editingSchedule) { // 수정 모드인 경우
+                if (editingSchedule.date !== date) { // 날짜가 변경되면 새 날짜에 추가 후 이전 날짜에서 삭제
+                    schedules[date].push(schedule);
+                    schedules[editingSchedule.date].splice(editingSchedule.index, 1);
+                    if (schedules[editingSchedule.date].length === 0) {
+                        delete schedules[editingSchedule.date];
+                    }
+                } else { // 같은 날짜 내에서 수정
+                    schedules[date][editingSchedule.index] = schedule;
+                }
+                alert('스케줄이 성공적으로 수정되었습니다!');
+            } else { // 추가 모드인 경우
+                schedules[date].push(schedule);
+                alert('스케줄이 성공적으로 추가되었습니다!');
+            }
 
             localStorage.setItem('schedules', JSON.stringify(schedules));
 
-            alert('스케줄이 성공적으로 추가되었습니다!');
-            clearInputs();
+            cancelEdit(); // 수정/추가 완료 후 모드 초기화
             renderCalendar(); // 캘린더 새로고침
-            displaySchedulesForSelectedDate(date); // 추가된 날짜의 스케줄 목록 다시 표시
+            displaySchedulesForSelectedDate(date); // 해당 날짜의 스케줄 목록 다시 표시
         }
 
-        // 입력 필드 초기화
+        // 입력 필드 초기화 및 수정 모드 해제
         function clearInputs() {
-            const today = new Date(); // 오늘 날짜로 다시 설정
+            const today = new Date();
             scheduleDateInput.value = formatDate(today);
             scheduleTimeInput.value = '';
             locationInput.value = '';
-            companyNameInput.value = ''; // 업체명 입력 필드 초기화
+            companyNameInput.value = '';
             addressInput.value = '';
             phoneNumberInput.value = '';
             paymentAmountInput.value = '';
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
+
+            cancelEdit(); // 입력 초기화 시 수정 모드도 함께 해제
+        }
+
+        // 스케줄 수정 모드로 전환 (입력 필드 채우기)
+        function editSchedule(date, index) {
+            let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
+            const scheduleToEdit = schedules[date][index];
+
+            if (!scheduleToEdit) {
+                alert("수정할 스케줄을 찾을 수 없습니다.");
+                return;
+            }
+
+            // 입력 필드 채우기
+            scheduleDateInput.value = date;
+            scheduleTimeInput.value = scheduleToEdit.time;
+            locationInput.value = scheduleToEdit.location;
+            companyNameInput.value = scheduleToEdit.companyName;
+            addressInput.value = scheduleToEdit.address;
+            phoneNumberInput.value = scheduleToEdit.phoneNumber;
+            paymentAmountInput.value = scheduleToEdit.paymentAmount;
+            paymentStatusInput.checked = (scheduleToEdit.paymentStatus === '완료');
+            taskTypeInput.value = scheduleToEdit.taskType;
+            taskContentInput.value = scheduleToEdit.taskContent;
+
+            // 수정 모드 활성화
+            editingSchedule = { date, index };
+            saveScheduleBtn.textContent = '스케줄 수정';
+            cancelEditBtn.style.display = 'inline-block'; // '수정 취소' 버튼 보이기
+
+            // 해당 스케줄 목록이 잘 보이도록 스크롤 (선택 사항)
+            window.scrollTo({ top: document.querySelector('.schedule-section').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        // 수정 모드 취소
+        function cancelEdit() {
+            editingSchedule = null;
+            saveScheduleBtn.textContent = '스케줄 추가';
+            cancelEditBtn.style.display = 'none'; // '수정 취소' 버튼 숨기기
+            clearInputs(); // 입력 필드 초기화 (날짜는 오늘 날짜로)
+            displaySchedulesForSelectedDate(scheduleDateInput.value); // 현재 선택된 날짜의 스케줄 목록 새로고침
         }
 
         // 특정 날짜의 스케줄 목록 표시
@@ -678,7 +892,7 @@
                     const telLinkHtml = schedule.phoneNumber ? 
                         `<p><strong>전화번호:</strong> <a href="tel:${schedule.phoneNumber.replace(/-/g, '')}" class="tel-link">${schedule.phoneNumber}</a></p>` : '';
 
-                    // 주소 링크 생성
+                    // 주소 링크 생성 (Google Maps URL 수정)
                     let addressLinkHtml = '';
                     if (schedule.address) {
                         addressLinkHtml = `<p><strong>주소:</strong> <span class="nav-link" onclick="openNavigation('${encodeURIComponent(schedule.address)}')">${schedule.address}</span></p>`;
@@ -687,13 +901,17 @@
                     scheduleItem.innerHTML = `
                         <p><strong>시간:</strong> ${schedule.time || '없음'}</p>
                         <p><strong>장소:</strong> ${schedule.location}</p>
-                        ${schedule.companyName ? `<p><strong>업체명:</strong> ${schedule.companyName}</p>` : ''} ${addressLinkHtml}
+                        ${schedule.companyName ? `<p><strong>업체명:</strong> ${schedule.companyName}</p>` : ''} 
+                        ${addressLinkHtml}
                         ${telLinkHtml}
                         <p><strong>결제 금액:</strong> ${schedule.paymentAmount.toLocaleString()}원</p>
                         <p><strong>입금 완료 여부:</strong> ${schedule.paymentStatus}</p>
                         <p><strong>작업 종류:</strong> ${schedule.taskType}</p>
                         <p><strong>작업 내용:</strong> ${schedule.taskContent || '없음'}</p>
-                        <button class="delete-btn" onclick="deleteSchedule('${date}', ${index})">삭제</button>
+                        <div class="action-buttons">
+                            <button class="edit-btn" onclick="editSchedule('${date}', ${index})">수정</button>
+                            <button class="delete-btn" onclick="deleteSchedule('${date}', ${index})">삭제</button>
+                        </div>
                     `;
                     scheduleListDiv.appendChild(scheduleItem);
                 });
@@ -712,6 +930,11 @@
                         delete schedules[date]; // 해당 날짜에 스케줄이 없으면 날짜 자체를 삭제
                     }
                     localStorage.setItem('schedules', JSON.stringify(schedules));
+                    
+                    // 삭제 후 현재 수정 중인 항목과 일치하면 수정 모드 해제
+                    if (editingSchedule && editingSchedule.date === date && editingSchedule.index === index) {
+                        cancelEdit();
+                    }
                     renderCalendar(); // 캘린더 새로고침
                     displaySchedulesForSelectedDate(date); // 스케줄 목록 새로고침
                 }
@@ -724,7 +947,7 @@
             const address = decodeURIComponent(encodedAddress);
 
             const navUrls = {
-                google: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, // Google Maps (수정됨)
+                google: `http://maps.google.com/maps?q=${encodedAddress}`, // Google Maps 길찾기
                 naver: `https://map.naver.com/v5/search/${encodedAddress}`, // Naver Map
                 kakao: `https://map.kakao.com/link/search/${encodedAddress}` // Kakao Map
             };
