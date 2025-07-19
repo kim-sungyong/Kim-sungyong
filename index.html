@@ -160,6 +160,15 @@
             color: #555;
             border-bottom: 1px solid #ddd;
         }
+        /* 일요일 (빨간색) */
+        .calendar-weekdays th:first-child {
+            color: #e74c3c;
+        }
+        /* 토요일 (파란색) */
+        .calendar-weekdays th:last-child {
+            color: #3498db;
+        }
+
 
         .calendar-days td {
             padding: 10px 0;
@@ -201,18 +210,67 @@
             color: #ecf0f1;
         }
 
+        /* 일요일 날짜 텍스트 색상 */
+        .calendar-days td:first-child .day-number {
+            color: #e74c3c;
+        }
+        /* 토요일 날짜 텍스트 색상 */
+        .calendar-days td:last-child .day-number {
+            color: #3498db;
+        }
+        /* 공휴일 날짜 텍스트 색상 (일/토요일이 아닌 공휴일) */
+        .calendar-days td.holiday .day-number {
+            color: #e74c3c; /* 빨간색 */
+        }
+        /* 공휴일 배경색 (공휴일이면서 일/토요일이 아닌 경우) */
+        .calendar-days td.holiday {
+            background-color: #fcecec; /* 약간 붉은색 배경 */
+        }
+        body.dark-theme .calendar-days td.holiday {
+            background-color: #583c41; /* 다크 테마 공휴일 배경색 */
+        }
+        body.dark-theme .calendar-days td.holiday .day-number {
+             color: #ff9999; /* 다크 테마 공휴일 숫자색 */
+        }
+
+        /* 공휴일 이름 스타일 */
+        .holiday-name {
+            font-size: 0.75em;
+            color: #e74c3c; /* 공휴일 이름도 빨간색으로 */
+            font-weight: bold;
+            margin-top: -3px; /* 날짜 숫자와 간격 조절 */
+            line-height: 1.2;
+            white-space: nowrap; /* 줄바꿈 방지 */
+            overflow: hidden; /* 넘치는 텍스트 숨김 */
+            text-overflow: ellipsis; /* ... 표시 */
+            display: block; /* 블록 요소로 만들어 줄바꿈 */
+        }
+        body.dark-theme .holiday-name {
+            color: #ff9999;
+        }
+
+
         .calendar-days td.has-schedule {
             background-color: #dbe9f3; /* 스케줄 있는 날짜 */
         }
         .calendar-days td.today.has-schedule {
             background-color: #f7d794; /* 오늘 + 스케줄 */
         }
+        /* 공휴일이면서 스케줄 있는 날짜 */
+        .calendar-days td.holiday.has-schedule {
+            background-color: #f7e0e0; /* 공휴일 스케줄 배경색 */
+        }
+         body.dark-theme .calendar-days td.holiday.has-schedule {
+            background-color: #4a343b; /* 다크 테마 공휴일 스케줄 배경색 */
+        }
+
 
         .schedule-summary {
             font-size: 0.8em;
             color: #555;
             line-height: 1.3;
             word-break: break-all; /* 긴 텍스트 줄바꿈 */
+            margin-top: 5px; /* 공휴일 이름과의 간격 */
         }
         body.dark-theme .schedule-summary {
             color: #aebfd0;
@@ -635,6 +693,72 @@
         const navRadios = document.querySelectorAll('input[name="defaultNav"]');
         const themeRadios = document.querySelectorAll('input[name="theme"]');
 
+        // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
+        // Map으로 변경하여 날짜와 이름을 함께 저장합니다.
+        const holidays = new Map([
+            // 2024년 공휴일
+            ['2024-01-01', '신정'],
+            ['2024-02-09', '설날'],
+            ['2024-02-10', '설날'],
+            ['2024-02-11', '설날'],
+            ['2024-02-12', '설날(대체)'],
+            ['2024-03-01', '삼일절'],
+            ['2024-04-10', '국회의원선거'], // 22대 국회의원 선거 (임시 공휴일)
+            ['2024-05-01', '근로자의날'], // 근로자의 날 (법정 공휴일은 아니지만 일반적으로 휴무)
+            ['2024-05-05', '어린이날'],
+            ['2024-05-06', '어린이날(대체)'],
+            ['2024-05-15', '부처님오신날'],
+            ['2024-06-06', '현충일'],
+            ['2024-08-15', '광복절'],
+            ['2024-09-16', '추석'],
+            ['2024-09-17', '추석'],
+            ['2024-09-18', '추석(대체)'],
+            ['2024-10-03', '개천절'],
+            ['2024-10-09', '한글날'],
+            ['2024-12-25', '성탄절'],
+
+            // 2025년 공휴일
+            ['2025-01-01', '신정'],
+            ['2025-01-28', '설날'],
+            ['2025-01-29', '설날'],
+            ['2025-01-30', '설날(대체)'],
+            ['2025-03-01', '삼일절'],
+            ['2025-05-05', '어린이날'],
+            ['2025-05-25', '부처님오신날'], // 일요일
+            ['2025-05-26', '부처님오신날(대체)'],
+            ['2025-06-06', '현충일'],
+            ['2025-08-15', '광복절'],
+            ['2025-10-03', '개천절'],
+            ['2025-10-06', '추석'],
+            ['2025-10-07', '추석'],
+            ['2025-10-08', '추석(대체)'],
+            ['2025-10-09', '한글날'],
+            ['2025-12-25', '성탄절'],
+
+            // 2026년 공휴일
+            ['2026-01-01', '신정'],
+            ['2026-02-16', '설날'],
+            ['2026-02-17', '설날'],
+            ['2026-02-18', '설날'],
+            ['2026-03-01', '삼일절'], // 일요일
+            ['2026-03-02', '삼일절(대체)'],
+            ['2026-05-01', '근로자의날'],
+            ['2026-05-05', '어린이날'],
+            ['2026-05-24', '부처님오신날'], // 일요일
+            ['2026-05-25', '부처님오신날(대체)'],
+            ['2026-06-06', '현충일'], // 토요일
+            ['2026-08-15', '광복절'], // 토요일
+            ['2026-08-17', '광복절(대체)'],
+            ['2026-09-24', '추석'],
+            ['2026-09-25', '추석'],
+            ['2026-09-26', '추석연휴'], // 토요일
+            ['2026-09-27', '추석연휴'], // 일요일
+            ['2026-10-03', '개천절'], // 토요일
+            ['2026-10-05', '개천절(대체)'],
+            ['2026-10-09', '한글날'],
+            ['2026-12-25', '성탄절'],
+        ]);
+
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             currentYear = today.getFullYear();
@@ -643,14 +767,11 @@
             loadSettings();
             renderCalendar();
             
-            // 스케줄 목록 영역 초기화 (DOM 구조 유지)
-            // (displaySchedulesForSelectedDate 함수에서 자식 노드를 동적으로 교체할 것이므로,
-            // 여기서는 초기 메시지만 추가하여 DOM 구조를 미리 구성합니다.)
             const initialTitle = document.createElement('h2');
             initialTitle.textContent = `선택 날짜 스케줄 목록 (${formatDate(today)})`;
             scheduleListDiv.appendChild(initialTitle);
             scheduleListDiv.appendChild(noScheduleMessage);
-            noScheduleMessage.style.display = 'block'; // 초기에는 표시
+            noScheduleMessage.style.display = 'block';
 
             displaySchedulesForSelectedDate(formatDate(today));
             scheduleDateInput.value = formatDate(today);
@@ -667,7 +788,7 @@
             calendarTableBody.innerHTML = '';
             const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const startDayOfWeek = firstDayOfMonth.getDay();
+            const startDayOfWeek = firstDayOfMonth.getDay(); // 0(일) ~ 6(토)
 
             currentMonthYearHeader.textContent = `${currentYear}년 ${currentMonth + 1}월`;
 
@@ -686,19 +807,32 @@
                     } else {
                         const currentDate = new Date(currentYear, currentMonth, date);
                         const formattedDate = formatDate(currentDate);
+                        const dayOfWeek = currentDate.getDay(); // 0:일, 1:월, ..., 6:토
 
                         cell.innerHTML = `<span class="day-number">${date}</span>`;
                         cell.dataset.date = formattedDate;
                         cell.onclick = () => {
-                            // 날짜 클릭 시 수정 모드 해제 및 날짜 필드, 스케줄 목록 업데이트
-                            resetEditingState(); // 수정 모드만 해제
+                            resetEditingState();
                             scheduleDateInput.value = formattedDate;
                             displaySchedulesForSelectedDate(formattedDate);
                         };
 
+                        // --- 공휴일 및 요일별 색상 적용 로직 ---
                         if (formattedDate === todayFormatted) {
                             cell.classList.add('today');
                         }
+
+                        // 공휴일 확인 (일요일, 토요일이 아닌 경우에만 holiday 클래스 추가)
+                        // 일요일과 토요일은 이미 CSS에서 색상이 지정되어 있으므로 중복 적용 피함
+                        if (holidays.has(formattedDate)) { // holidays Map에서 날짜 확인
+                            const holidayName = holidays.get(formattedDate);
+                            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 일/토요일이 아닌 경우에만 holiday 클래스 추가 (빨간 배경)
+                                cell.classList.add('holiday');
+                            }
+                            // 공휴일 이름 추가 (일/토요일 공휴일도 이름은 표시)
+                            cell.innerHTML += `<div class="holiday-name">${holidayName}</div>`;
+                        }
+
 
                         if (storedSchedules[formattedDate] && storedSchedules[formattedDate].length > 0) {
                             cell.classList.add('has-schedule');
@@ -732,44 +866,38 @@
             }
         }
 
-        // 이전 달로 이동
         function prevMonth() {
             currentMonth--;
             if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear--;
             }
-            resetEditingState(); // 수정 모드만 해제
+            resetEditingState();
             renderCalendar();
-            // 달이 바뀌면, 해당 달의 1일 스케줄을 자동으로 표시
             const newDate = new Date(currentYear, currentMonth, 1);
             scheduleDateInput.value = formatDate(newDate);
             displaySchedulesForSelectedDate(formatDate(newDate));
         }
 
-        // 다음 달로 이동
         function nextMonth() {
             currentMonth++;
             if (currentMonth > 11) {
                 currentMonth = 0;
                 currentYear++;
             }
-            resetEditingState(); // 수정 모드만 해제
+            resetEditingState();
             renderCalendar();
-            // 달이 바뀌면, 해당 달의 1일 스케줄을 자동으로 표시
             const newDate = new Date(currentYear, currentMonth, 1);
             scheduleDateInput.value = formatDate(newDate);
             displaySchedulesForSelectedDate(formatDate(newDate));
         }
 
-        // **새로 추가된 함수: 편집 상태만 초기화**
         function resetEditingState() {
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
         }
 
-        // **함수명 변경: 모든 입력 필드를 오늘 날짜로 초기화**
         function clearAllInputs() {
             const today = new Date();
             scheduleDateInput.value = formatDate(today);
@@ -782,12 +910,9 @@
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
-            // 입력 필드 초기화 시, 현재 선택된 날짜의 스케줄 목록은 그대로 유지 (사용자 경험 개선)
-            // displaySchedulesForSelectedDate(scheduleDateInput.value); // 필요시 추가
-            resetEditingState(); // 입력 초기화 시 수정 모드도 함께 해제
+            resetEditingState();
         }
 
-        // 스케줄 저장 (추가 및 수정)
         function saveSchedule() {
             const date = scheduleDateInput.value;
             const time = scheduleTimeInput.value.trim();
@@ -841,13 +966,12 @@
 
             localStorage.setItem('schedules', JSON.stringify(schedules));
 
-            resetEditingState(); // 수정/추가 완료 후 모드 초기화
-            clearAllInputs(); // 새로 저장했으니 입력 필드는 완전히 초기화
-            renderCalendar(); // 캘린더 새로고침 (스케줄 유무 표시 업데이트)
-            displaySchedulesForSelectedDate(date); // 해당 날짜의 스케줄 목록 다시 표시
+            resetEditingState();
+            clearAllInputs();
+            renderCalendar();
+            displaySchedulesForSelectedDate(date);
         }
 
-        // 스케줄 수정 모드로 전환 (입력 필드 채우기)
         function editSchedule(date, index) {
             let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const scheduleToEdit = schedules[date][index];
@@ -857,7 +981,6 @@
                 return;
             }
 
-            // 입력 필드 채우기
             scheduleDateInput.value = date;
             scheduleTimeInput.value = scheduleToEdit.time;
             locationInput.value = scheduleToEdit.location;
@@ -869,8 +992,7 @@
             taskTypeInput.value = scheduleToEdit.taskType;
             taskContentInput.value = scheduleToEdit.taskContent;
 
-            // 수정 모드 활성화
-            resetEditingState(); // 혹시 모를 이전 편집 상태를 먼저 초기화
+            resetEditingState();
             editingSchedule = { date, index };
             saveScheduleBtn.textContent = '스케줄 수정';
             cancelEditBtn.style.display = 'inline-block';
@@ -878,14 +1000,11 @@
             window.scrollTo({ top: document.querySelector('.schedule-section').offsetTop - 20, behavior: 'smooth' });
         }
 
-        // 수정 모드 취소 (입력 필드 초기화는 하지 않음)
         function cancelEdit() {
-            resetEditingState(); // 수정 모드만 해제
-            // 입력 필드는 현재 선택된 날짜의 내용으로 유지
-            displaySchedulesForSelectedDate(scheduleDateInput.value); // 현재 날짜의 스케줄 목록 새로고침
+            resetEditingState();
+            displaySchedulesForSelectedDate(scheduleDateInput.value);
         }
         
-        // 스케줄 삭제
         function deleteSchedule(date, index) {
             if (!confirm('정말로 이 스케줄을 삭제하시겠습니까?')) {
                 return;
@@ -906,15 +1025,12 @@
             }
         }
 
-        // 특정 날짜의 스케줄 목록 표시
         function displaySchedulesForSelectedDate(date) {
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const schedulesForDate = schedules[date] || [];
 
-            // 새로운 컨텐츠를 담을 임시 컨테이너 생성
             const tempContainer = document.createElement('div');
             
-            // 제목 업데이트
             const titleElement = document.createElement('h2');
             titleElement.textContent = `선택 날짜 스케줄 목록 (${date})`;
             tempContainer.appendChild(titleElement);
@@ -923,7 +1039,7 @@
                 noScheduleMessage.style.display = 'block';
                 tempContainer.appendChild(noScheduleMessage);
             } else {
-                noScheduleMessage.style.display = 'none'; // 스케줄이 있으면 메시지 숨김
+                noScheduleMessage.style.display = 'none';
                 schedulesForDate.forEach((schedule, index) => {
                     const scheduleItem = document.createElement('div');
                     scheduleItem.classList.add('schedule-item');
@@ -955,11 +1071,9 @@
                 });
             }
             
-            // scheduleListDiv의 모든 자식 노드를 제거
             while (scheduleListDiv.firstChild) {
                 scheduleListDiv.removeChild(scheduleListDiv.firstChild);
             }
-            // 임시 컨테이너의 모든 자식 노드를 scheduleListDiv로 이동
             while (tempContainer.firstChild) {
                 scheduleListDiv.appendChild(tempContainer.firstChild);
             }
@@ -1044,7 +1158,7 @@
                 });
             });
             themeRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
+                    radio.addEventListener('change', () => {
                     applyTheme(radio.value);
                     saveSettings();
                 });
