@@ -567,7 +567,7 @@
                 <textarea id="taskContent" placeholder="자세한 작업 내용을 입력하세요 (선택 사항)"></textarea>
             </div>
             <div class="button-group">
-                <button id="clearInputBtn" onclick="clearInputs()">입력 초기화</button>
+                <button id="clearInputBtn" onclick="clearAllInputs()">입력 초기화</button>
                 <button id="saveScheduleBtn" onclick="saveSchedule()">스케줄 추가</button>
                 <button id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
             </div>
@@ -626,36 +626,36 @@
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
         
-        // 수정 기능을 위한 새로운 변수들
-        const saveScheduleBtn = document.getElementById('saveScheduleBtn'); // '스케줄 추가/수정' 버튼
-        const cancelEditBtn = document.getElementById('cancelEditBtn');   // '수정 취소' 버튼
-        let editingSchedule = null; // 현재 수정 중인 스케줄의 {date, index} 정보를 저장
+        const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        let editingSchedule = null;
 
-        let currentYear, currentMonth; // 현재 캘린더가 보여주는 년, 월
+        let currentYear, currentMonth;
 
-        // 네비게이션 및 테마 설정 관련 요소
         const navRadios = document.querySelectorAll('input[name="defaultNav"]');
         const themeRadios = document.querySelectorAll('input[name="theme"]');
 
-        // 페이지 로드 시 초기화 및 설정 불러오기
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             currentYear = today.getFullYear();
-            currentMonth = today.getMonth(); // 0-11
+            currentMonth = today.getMonth();
             
-            loadSettings(); // 설정 불러오기 (테마, 기본 네비)
-            renderCalendar(); // 캘린더 그리기
+            loadSettings();
+            renderCalendar();
             
-            // 초기 로드 시 스케줄 목록 영역을 한 번만 비워줍니다.
-            // displaySchedulesForSelectedDate 함수 내부에서는 직접 비우지 않도록 수정되었습니다.
-            scheduleListDiv.innerHTML = `<h2>선택 날짜 스케줄 목록 (${formatDate(today)})</h2>`;
-            scheduleListDiv.appendChild(noScheduleMessage); // 초기 메시지 추가
+            // 스케줄 목록 영역 초기화 (DOM 구조 유지)
+            // (displaySchedulesForSelectedDate 함수에서 자식 노드를 동적으로 교체할 것이므로,
+            // 여기서는 초기 메시지만 추가하여 DOM 구조를 미리 구성합니다.)
+            const initialTitle = document.createElement('h2');
+            initialTitle.textContent = `선택 날짜 스케줄 목록 (${formatDate(today)})`;
+            scheduleListDiv.appendChild(initialTitle);
+            scheduleListDiv.appendChild(noScheduleMessage);
+            noScheduleMessage.style.display = 'block'; // 초기에는 표시
 
-            displaySchedulesForSelectedDate(formatDate(today)); // 오늘 날짜 스케줄 표시
-            scheduleDateInput.value = formatDate(today); // 스케줄 입력 필드 날짜 오늘로 설정
+            displaySchedulesForSelectedDate(formatDate(today));
+            scheduleDateInput.value = formatDate(today);
         });
 
-        // 날짜 포맷 함수 (YYYY-MM-DD)
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -663,12 +663,11 @@
             return `${year}-${month}-${day}`;
         }
 
-        // 캘린더 그리기
         function renderCalendar() {
-            calendarTableBody.innerHTML = ''; // 기존 캘린더 초기화
+            calendarTableBody.innerHTML = '';
             const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const startDayOfWeek = firstDayOfMonth.getDay(); // 0(일) ~ 6(토)
+            const startDayOfWeek = firstDayOfMonth.getDay();
 
             currentMonthYearHeader.textContent = `${currentYear}년 ${currentMonth + 1}월`;
 
@@ -676,45 +675,40 @@
             const todayFormatted = formatDate(new Date());
             const storedSchedules = JSON.parse(localStorage.getItem('schedules')) || {};
 
-            for (let i = 0; i < 6; i++) { // 최대 6주까지 (달력 줄)
+            for (let i = 0; i < 6; i++) {
                 const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) { // 요일 (일~토)
+                for (let j = 0; j < 7; j++) {
                     const cell = document.createElement('td');
                     if (i === 0 && j < startDayOfWeek) {
-                        // 지난 달 빈 칸
                         cell.classList.add('empty-day');
                     } else if (date > daysInMonth) {
-                        // 다음 달 빈 칸
                         cell.classList.add('empty-day');
                     } else {
                         const currentDate = new Date(currentYear, currentMonth, date);
                         const formattedDate = formatDate(currentDate);
 
                         cell.innerHTML = `<span class="day-number">${date}</span>`;
-                        cell.dataset.date = formattedDate; // 데이터 속성에 날짜 저장
+                        cell.dataset.date = formattedDate;
                         cell.onclick = () => {
-                            // 날짜 클릭 시 수정 모드 해제
-                            cancelEdit();
+                            // 날짜 클릭 시 수정 모드 해제 및 날짜 필드, 스케줄 목록 업데이트
+                            resetEditingState(); // 수정 모드만 해제
                             scheduleDateInput.value = formattedDate;
                             displaySchedulesForSelectedDate(formattedDate);
                         };
 
                         if (formattedDate === todayFormatted) {
-                            cell.classList.add('today'); // 오늘 날짜 표시
+                            cell.classList.add('today');
                         }
 
-                        // 스케줄이 있는 날짜 표시
                         if (storedSchedules[formattedDate] && storedSchedules[formattedDate].length > 0) {
                             cell.classList.add('has-schedule');
                             const schedulesForDay = storedSchedules[formattedDate];
                             const summaryDiv = document.createElement('div');
                             summaryDiv.classList.add('schedule-summary');
 
-                            // 캘린더 요약: 시간과 업체명(장소)을 함께 표시
-                            schedulesForDay.slice(0, 2).forEach(sched => { // 최대 2개 스케줄만 요약
+                            schedulesForDay.slice(0, 2).forEach(sched => {
                                 const p = document.createElement('p');
-                                // 시간 (있으면) + 업체명 (있으면) 아니면 장소를 요약
-                                const displaySummaryText = sched.companyName || sched.location; // 업체명이 있으면 업체명, 없으면 장소
+                                const displaySummaryText = sched.companyName || sched.location;
                                 p.textContent = `${sched.time ? sched.time + ' ' : ''}${displaySummaryText}`;
                                 summaryDiv.appendChild(p);
                             });
@@ -732,8 +726,6 @@
                 }
                 calendarTableBody.appendChild(row);
 
-                // 수정된 break 조건:
-                // 달의 모든 날짜가 캘린더에 추가되었다면 더 이상 행을 그릴 필요가 없으므로 반복을 중단합니다.
                 if (date > daysInMonth) {
                     break;
                 }
@@ -747,7 +739,7 @@
                 currentMonth = 11;
                 currentYear--;
             }
-            cancelEdit(); // 달 변경 시 수정 모드 해제
+            resetEditingState(); // 수정 모드만 해제
             renderCalendar();
             // 달이 바뀌면, 해당 달의 1일 스케줄을 자동으로 표시
             const newDate = new Date(currentYear, currentMonth, 1);
@@ -762,12 +754,37 @@
                 currentMonth = 0;
                 currentYear++;
             }
-            cancelEdit(); // 달 변경 시 수정 모드 해제
+            resetEditingState(); // 수정 모드만 해제
             renderCalendar();
             // 달이 바뀌면, 해당 달의 1일 스케줄을 자동으로 표시
             const newDate = new Date(currentYear, currentMonth, 1);
             scheduleDateInput.value = formatDate(newDate);
             displaySchedulesForSelectedDate(formatDate(newDate));
+        }
+
+        // **새로 추가된 함수: 편집 상태만 초기화**
+        function resetEditingState() {
+            editingSchedule = null;
+            saveScheduleBtn.textContent = '스케줄 추가';
+            cancelEditBtn.style.display = 'none';
+        }
+
+        // **함수명 변경: 모든 입력 필드를 오늘 날짜로 초기화**
+        function clearAllInputs() {
+            const today = new Date();
+            scheduleDateInput.value = formatDate(today);
+            scheduleTimeInput.value = '';
+            locationInput.value = '';
+            companyNameInput.value = '';
+            addressInput.value = '';
+            phoneNumberInput.value = '';
+            paymentAmountInput.value = '';
+            paymentStatusInput.checked = false;
+            taskTypeInput.value = '';
+            taskContentInput.value = '';
+            // 입력 필드 초기화 시, 현재 선택된 날짜의 스케줄 목록은 그대로 유지 (사용자 경험 개선)
+            // displaySchedulesForSelectedDate(scheduleDateInput.value); // 필요시 추가
+            resetEditingState(); // 입력 초기화 시 수정 모드도 함께 해제
         }
 
         // 스케줄 저장 (추가 및 수정)
@@ -806,44 +823,28 @@
                 schedules[date] = [];
             }
 
-            if (editingSchedule) { // 수정 모드인 경우
-                if (editingSchedule.date !== date) { // 날짜가 변경되면 새 날짜에 추가 후 이전 날짜에서 삭제
+            if (editingSchedule) {
+                if (editingSchedule.date !== date) {
                     schedules[date].push(schedule);
                     schedules[editingSchedule.date].splice(editingSchedule.index, 1);
                     if (schedules[editingSchedule.date].length === 0) {
                         delete schedules[editingSchedule.date];
                     }
-                } else { // 같은 날짜 내에서 수정
+                } else {
                     schedules[date][editingSchedule.index] = schedule;
                 }
                 alert('스케줄이 성공적으로 수정되었습니다!');
-            } else { // 추가 모드인 경우
+            } else {
                 schedules[date].push(schedule);
                 alert('스케줄이 성공적으로 추가되었습니다!');
             }
 
             localStorage.setItem('schedules', JSON.stringify(schedules));
 
-            cancelEdit(); // 수정/추가 완료 후 모드 초기화
-            renderCalendar(); // 캘린더 새로고침
+            resetEditingState(); // 수정/추가 완료 후 모드 초기화
+            clearAllInputs(); // 새로 저장했으니 입력 필드는 완전히 초기화
+            renderCalendar(); // 캘린더 새로고침 (스케줄 유무 표시 업데이트)
             displaySchedulesForSelectedDate(date); // 해당 날짜의 스케줄 목록 다시 표시
-        }
-
-        // 입력 필드 초기화 및 수정 모드 해제
-        function clearInputs() {
-            const today = new Date();
-            scheduleDateInput.value = formatDate(today);
-            scheduleTimeInput.value = '';
-            locationInput.value = '';
-            companyNameInput.value = '';
-            addressInput.value = '';
-            phoneNumberInput.value = '';
-            paymentAmountInput.value = '';
-            paymentStatusInput.checked = false;
-            taskTypeInput.value = '';
-            taskContentInput.value = '';
-
-            cancelEdit(); // 입력 초기화 시 수정 모드도 함께 해제
         }
 
         // 스케줄 수정 모드로 전환 (입력 필드 채우기)
@@ -869,21 +870,19 @@
             taskContentInput.value = scheduleToEdit.taskContent;
 
             // 수정 모드 활성화
+            resetEditingState(); // 혹시 모를 이전 편집 상태를 먼저 초기화
             editingSchedule = { date, index };
             saveScheduleBtn.textContent = '스케줄 수정';
-            cancelEditBtn.style.display = 'inline-block'; // '수정 취소' 버튼 보이기
+            cancelEditBtn.style.display = 'inline-block';
 
-            // 해당 스케줄 목록이 잘 보이도록 스크롤 (선택 사항)
             window.scrollTo({ top: document.querySelector('.schedule-section').offsetTop - 20, behavior: 'smooth' });
         }
 
-        // 수정 모드 취소
+        // 수정 모드 취소 (입력 필드 초기화는 하지 않음)
         function cancelEdit() {
-            editingSchedule = null;
-            saveScheduleBtn.textContent = '스케줄 추가';
-            cancelEditBtn.style.display = 'none'; // '수정 취소' 버튼 숨기기
-            clearInputs(); // 입력 필드 초기화 (날짜는 오늘 날짜로)
-            displaySchedulesForSelectedDate(scheduleDateInput.value); // 현재 선택된 날짜의 스케줄 목록 새로고침
+            resetEditingState(); // 수정 모드만 해제
+            // 입력 필드는 현재 선택된 날짜의 내용으로 유지
+            displaySchedulesForSelectedDate(scheduleDateInput.value); // 현재 날짜의 스케줄 목록 새로고침
         }
         
         // 스케줄 삭제
@@ -894,16 +893,16 @@
 
             let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             if (schedules[date]) {
-                schedules[date].splice(index, 1); // 해당 인덱스의 스케줄 삭제
+                schedules[date].splice(index, 1);
 
                 if (schedules[date].length === 0) {
-                    delete schedules[date]; // 해당 날짜에 스케줄이 없으면 날짜 키 삭제
+                    delete schedules[date];
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
                 alert('스케줄이 삭제되었습니다.');
                 
-                renderCalendar(); // 캘린더 업데이트 (스케줄 유무 표시 변경을 위해)
-                displaySchedulesForSelectedDate(date); // 현재 날짜의 스케줄 목록 다시 표시
+                renderCalendar();
+                displaySchedulesForSelectedDate(date);
             }
         }
 
@@ -912,24 +911,26 @@
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const schedulesForDate = schedules[date] || [];
 
-            // 기존 내용을 비우는 대신, 새로운 컨텐츠를 담을 임시 요소를 사용하거나 효율적으로 업데이트
-            const newContentDiv = document.createElement('div');
-            newContentDiv.innerHTML = `<h2>선택 날짜 스케줄 목록 (${date})</h2>`; // 제목 업데이트
+            // 새로운 컨텐츠를 담을 임시 컨테이너 생성
+            const tempContainer = document.createElement('div');
+            
+            // 제목 업데이트
+            const titleElement = document.createElement('h2');
+            titleElement.textContent = `선택 날짜 스케줄 목록 (${date})`;
+            tempContainer.appendChild(titleElement);
 
             if (schedulesForDate.length === 0) {
                 noScheduleMessage.style.display = 'block';
-                newContentDiv.appendChild(noScheduleMessage);
+                tempContainer.appendChild(noScheduleMessage);
             } else {
-                noScheduleMessage.style.display = 'none';
+                noScheduleMessage.style.display = 'none'; // 스케줄이 있으면 메시지 숨김
                 schedulesForDate.forEach((schedule, index) => {
                     const scheduleItem = document.createElement('div');
                     scheduleItem.classList.add('schedule-item');
 
-                    // 전화번호 링크 생성
                     const telLinkHtml = schedule.phoneNumber ? 
                         `<p><strong>전화번호:</strong> <a href="tel:${schedule.phoneNumber.replace(/-/g, '')}" class="tel-link">${schedule.phoneNumber}</a></p>` : '';
 
-                    // 주소 링크 생성 (Google Maps URL 수정)
                     let addressLinkHtml = '';
                     if (schedule.address) {
                         addressLinkHtml = `<p><strong>주소:</strong> <span class="nav-link" onclick="openNavigation('${encodeURIComponent(schedule.address)}')">${schedule.address}</span></p>`;
@@ -950,38 +951,33 @@
                             <button class="delete-btn" onclick="deleteSchedule('${date}', ${index})">삭제</button>
                         </div>
                     `;
-                    newContentDiv.appendChild(scheduleItem);
+                    tempContainer.appendChild(scheduleItem);
                 });
             }
-            // 기존 내용을 새로운 내용으로 교체 (innerHTML을 직접 사용하는 대신)
-            // scheduleListDiv의 자식 노드들을 모두 제거하고 newContentDiv의 자식 노드들을 추가합니다.
+            
+            // scheduleListDiv의 모든 자식 노드를 제거
             while (scheduleListDiv.firstChild) {
                 scheduleListDiv.removeChild(scheduleListDiv.firstChild);
             }
-            while (newContentDiv.firstChild) {
-                scheduleListDiv.appendChild(newContentDiv.firstChild);
+            // 임시 컨테이너의 모든 자식 노드를 scheduleListDiv로 이동
+            while (tempContainer.firstChild) {
+                scheduleListDiv.appendChild(tempContainer.firstChild);
             }
         }
 
-        // --- 네비게이션 관련 기능 ---
         function openNavigation(encodedAddress) {
             const defaultNav = localStorage.getItem('defaultNav') || 'none';
             const address = decodeURIComponent(encodedAddress);
 
             const navUrls = {
-                // Google Maps 길찾기 (주소 직접 검색)
-                // 현재 Google Maps URL은 경로가 아니라 검색으로 보입니다.
-                // 일반적인 Google Maps 길찾기 URL 형식: http://maps.google.com/maps?daddr={encodedAddress}
-                // 여기서는 주소 검색으로 남겨두되, 필요시 길찾기 URL로 변경 가능합니다.
                 google: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, 
-                naver: `https://map.naver.com/v5/search/${encodedAddress}`, // Naver Map
-                kakao: `https://map.kakao.com/link/search/${encodedAddress}` // Kakao Map
+                naver: `https://map.naver.com/v5/search/${encodedAddress}`,
+                kakao: `https://map.kakao.com/link/search/${encodedAddress}`
             };
             
             if (defaultNav !== 'none' && navUrls[defaultNav]) {
                 window.open(navUrls[defaultNav], '_blank');
             } else {
-                // 기본 네비가 없거나 '선택 안 함'인 경우
                 const choice = prompt(
                     "네비게이션 앱을 선택하세요:\n\n" +
                     "1. Google 지도\n" +
@@ -990,30 +986,27 @@
                     "숫자를 입력해주세요 (기본값: 1)"
                 );
 
-                let selectedNav = 'google'; // 기본값
+                let selectedNav = 'google';
 
                 switch (choice) {
                     case '2': selectedNav = 'naver'; break;
                     case '3': selectedNav = 'kakao'; break;
-                    case '1': // fallthrough
+                    case '1':
                     default: selectedNav = 'google'; break;
                 }
                 window.open(navUrls[selectedNav], '_blank');
             }
         }
 
-        // --- 설정 저장 및 불러오기 ---
         function saveSettings() {
             let settings = {};
 
-            // 기본 네비게이션 저장
             navRadios.forEach(radio => {
                 if (radio.checked) {
                     settings.defaultNav = radio.value;
                 }
             });
 
-            // 테마 저장
             themeRadios.forEach(radio => {
                 if (radio.checked) {
                     settings.theme = radio.value;
@@ -1026,32 +1019,27 @@
         function loadSettings() {
             const settings = JSON.parse(localStorage.getItem('settings')) || {};
 
-            // 기본 네비게이션 불러오기
             const savedDefaultNav = settings.defaultNav || 'none';
-            // 해당 라디오 버튼을 찾아서 체크 (없는 경우 'none'에 기본 체크)
             const defaultNavRadio = document.getElementById(`nav${savedDefaultNav.charAt(0).toUpperCase() + savedDefaultNav.slice(1)}`);
             if (defaultNavRadio) {
                 defaultNavRadio.checked = true;
             } else {
-                document.getElementById('navNone').checked = true; // 유효하지 않은 값이면 'none'으로
+                document.getElementById('navNone').checked = true;
             }
-            localStorage.setItem('defaultNav', savedDefaultNav); // openNavigation에서 바로 사용
+            localStorage.setItem('defaultNav', savedDefaultNav);
 
-            // 테마 불러오기 및 적용
-            const savedTheme = settings.theme || 'light'; // 기본 테마는 light
-            applyTheme(savedTheme); // 테마 적용 함수 호출
-            // 해당 라디오 버튼을 찾아서 체크 (없는 경우 'light'에 기본 체크)
+            const savedTheme = settings.theme || 'light';
+            applyTheme(savedTheme);
             const themeRadio = document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`);
             if (themeRadio) {
                 themeRadio.checked = true;
             } else {
-                document.getElementById('themeLight').checked = true; // 유효하지 않은 값이면 'light'로
+                document.getElementById('themeLight').checked = true;
             }
 
-            // 라디오 버튼 변경 시 설정 저장 및 적용 이벤트 리스너 추가 (로드 시 한 번만)
             navRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
-                    localStorage.setItem('defaultNav', radio.value); // 변경 즉시 localStorage 업데이트
+                    localStorage.setItem('defaultNav', radio.value);
                     saveSettings();
                 });
             });
@@ -1064,7 +1052,7 @@
         }
 
         function applyTheme(themeName) {
-            document.body.className = ''; // 모든 테마 클래스 제거
+            document.body.className = '';
             if (themeName !== 'light') {
                 document.body.classList.add(`${themeName}-theme`);
             }
