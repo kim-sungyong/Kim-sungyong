@@ -503,9 +503,9 @@
 
         <section class="calendar-section">
             <div class="calendar-header">
-                <button onclick="prevMonth()">&lt; 이전 달</button>
+                <button onclick="prevMonth()">< 이전 달</button>
                 <h2 id="currentMonthYear"></h2>
-                <button onclick="nextMonth()">다음 달 &gt;</button>
+                <button onclick="nextMonth()">다음 달 ></button>
             </div>
             <table class="calendar-table">
                 <thead class="calendar-weekdays">
@@ -607,7 +607,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2025 나만의 스케줄러. 모든 권리 보유.</p>
+        <p>© 2025 나만의 스케줄러. 모든 권리 보유.</p>
     </footer>
 
     <script>
@@ -947,7 +947,7 @@
             const address = decodeURIComponent(encodedAddress);
 
             const navUrls = {
-                google: `http://maps.google.com/maps?q=${encodedAddress}`, // Google Maps 길찾기
+                google: `http://maps.google.com/maps?daddr=${encodedAddress}&z=15`, // Google Maps 길찾기
                 naver: `https://map.naver.com/v5/search/${encodedAddress}`, // Naver Map
                 kakao: `https://map.kakao.com/link/search/${encodedAddress}` // Kakao Map
             };
