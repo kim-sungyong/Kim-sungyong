@@ -74,7 +74,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0; /* 헤더는 스크롤될 때 크기 고정 */
+            flex-shrink: 0;
         }
 
         header h1 {
@@ -105,7 +105,7 @@
             width: 100%;
             margin: 0;
             flex-grow: 1;
-            overflow-y: auto; /* main 영역 자체에 스크롤 가능하도록 */
+            overflow-y: auto;
         }
 
         .calendar-section, .schedule-list-section {
@@ -121,29 +121,40 @@
         /* Mobile specific adjustments */
         @media (max-width: 768px) {
             header h1 {
-                font-size: 1.5rem; /* 모바일 헤더 폰트 크기 조정 */
+                font-size: 1.5rem;
             }
             .calendar-section, .schedule-list-section {
                 max-width: 100%;
                 width: 100%;
-                min-width: unset; /* 모바일에서 min-width 해제 */
+                min-width: unset;
             }
             main {
-                flex-direction: column; /* 모바일에서 세로로 쌓이도록 명시 */
-                padding: 15px; /* 모바일 패딩 조정 */
-                gap: 15px; /* 모바일 섹션 간 간격 조정 */
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
             }
             .schedule-list-section {
-                padding-top: 10px; /* 캘린더 아래에 스케줄 목록이 올 때 위쪽 패딩 */
+                padding-top: 10px;
             }
-            .calendar-days td {
-                padding: 5px; /* 모바일 캘린더 셀 패딩 조정 */
+            /* 캘린더 테이블 셀 (th, td) 스타일 수정 */
+            .calendar-days th, .calendar-days td {
+                padding: 3px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
+                font-size: 0.9em; /* 셀 내부 글자 크기 조정 */
+                min-height: 70px; /* 모바일에서 셀 최소 높이 조정 */
             }
             .calendar-days td .day-number {
-                font-size: 1.1em; /* 모바일 날짜 숫자 크기 조정 */
+                font-size: 1em; /* 날짜 숫자 크기 조정 */
+                padding-right: 3px; /* 날짜 숫자 오른쪽 패딩 조정 */
+            }
+            .calendar-days td.holiday .holiday-name {
+                font-size: 0.6em; /* 공휴일 이름 폰트 크기 조정 */
+                padding-right: 3px;
             }
             .schedule-summary {
-                font-size: 0.65em; /* 모바일 스케줄 요약 폰트 크기 */
+                font-size: 0.6em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
+            }
+            .schedule-summary p {
+                padding: 1px 3px; /* 요약 항목 패딩 조정 */
             }
         }
 
@@ -180,15 +191,15 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
+            table-layout: fixed; /* 모든 열의 너비를 균일하게 강제합니다. */
         }
 
         .calendar-days th, .calendar-days td {
-            padding: 10px;
+            padding: 5px; /* 데스크탑 기본 패딩도 5px로 통일 (모바일과 일관성 유지) */
             border: 1px solid var(--border-color);
-            width: calc(100% / 7); /* Equal width for all days */
             position: relative;
-            vertical-align: top; /* Align content to top */
-            min-height: 80px; /* Minimum height for cells, remove fixed height */
+            vertical-align: top;
+            min-height: 80px; /* 데스크탑에서 충분한 높이, 모바일에서는 내용에 따라 유동적으로 */
         }
 
         .calendar-days th {
@@ -270,7 +281,6 @@
         .schedule-summary {
             font-size: 0.75em;
             margin-top: 5px;
-            /* max-height: 60px; */ /* Remove fixed max-height */
             overflow-y: visible; /* Allow content to overflow/expand cell */
             padding-right: 3px;
             word-break: break-word; /* 긴 텍스트 줄바꿈 */
@@ -552,7 +562,7 @@
             background-color: var(--card-background);
             color: var(--text-color);
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0; /* 푸터는 스크롤될 때 크기 고정 */
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -829,7 +839,7 @@
                             scheduleSummaryDiv.classList.add('schedule-summary');
                             
                             // 첫 2~3개만 보여주고 나머지는 "+n개 더 보기"로 표시
-                            const displayLimit = 2; // 보여줄 스케줄 개수
+                            const displayLimit = 2;
                             for(let k = 0; k < Math.min(schedules[fullDate].length, displayLimit); k++) {
                                 const sch = schedules[fullDate][k];
                                 const p = document.createElement('p');
@@ -865,8 +875,6 @@
                             if (window.innerWidth <= 768) {
                                 document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
-                            // 모달은 날짜 클릭 후 직접 추가 버튼을 누르게 유도
-                            // openScheduleModal(selectedDate); 
                         });
 
                         if (selectedDate === fullDate) {
@@ -993,8 +1001,7 @@
         function displaySchedules(date) {
             scheduleListTitle.textContent = `${date}의 스케줄`;
             scheduleListDiv.innerHTML = '';
-            // 제목은 유지하고 메시지와 스케줄 목록만 업데이트
-            scheduleListDiv.appendChild(scheduleListTitle); // 제목 다시 추가
+            scheduleListDiv.appendChild(scheduleListTitle);
 
             const dailySchedules = schedules[date] || [];
 
@@ -1177,7 +1184,7 @@
             if (defaultNavApp === 'none') {
                 const navChoice = prompt('이동할 내비게이션 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵\n(숫자를 입력하세요)');
                 if (navChoice === '1') {
-                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`; // Google Maps URL 수정
+                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
                 } else if (navChoice === '2') {
                     url = `https://map.naver.com/v5/search/${encodedAddress}`;
                 } else if (navChoice === '3') {
@@ -1187,7 +1194,7 @@
                     return;
                 }
             } else if (defaultNavApp === 'google') {
-                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`; // Google Maps URL 수정
+                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
             } else if (defaultNavApp === 'naver') {
                 url = `https://map.naver.com/v5/search/${encodedAddress}`;
             } else if (defaultNavApp === 'kakao') {
