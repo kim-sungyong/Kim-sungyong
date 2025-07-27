@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1369,7 +1367,7 @@
 
             switch (defaultNav) {
                 case 'google':
-                    url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `http://maps.google.com/maps?q=${encodedAddress}`;
                     break;
                 case 'naver':
                     // 네이버 지도 URL 인코딩 수정: 검색 쿼리에 직접 인코딩된 주소 사용
@@ -1382,7 +1380,7 @@
                 default:
                     const navChoice = prompt('이동할 지도 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵');
                     if (navChoice === '1') {
-                        url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                        url = `http://maps.google.com/maps?q=${encodedAddress}`;
                     } else if (navChoice === '2') {
                         url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
                     } else if (navChoice === '3') {
