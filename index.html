@@ -114,8 +114,8 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            flex: 1.5; /* 캘린더가 스케줄 목록보다 더 넓은 공간을 차지 */
-            min-width: 500px; /* 캘린더 최소 너비 확보 */
+            flex: 2; /* 캘린더가 스케줄 목록보다 더 넓은 공간을 차지 (강화) */
+            min-width: 650px; /* 캘린더 최소 너비 확보 (증가) */
         }
 
         .schedule-list-section {
@@ -163,11 +163,11 @@
         }
 
         .calendar-days th, .calendar-days td {
-            padding: 10px; /* 데스크탑 기본 패딩 */
+            padding: 12px; /* 데스크탑 기본 패딩 (증가) */
             border: 1px solid var(--border-color);
             position: relative;
             vertical-align: top;
-            min-height: 100px; /* 데스크탑 최소 높이 */
+            min-height: 120px; /* 데스크탑 최소 높이 (증가) */
         }
 
         .calendar-days th {
@@ -193,7 +193,7 @@
         }
 
         .calendar-days td .day-number {
-            font-size: 1.2em;
+            font-size: 1.3em; /* 날짜 숫자 크기 (약간 증가) */
             font-weight: bold;
             display: block;
             text-align: right;
@@ -236,7 +236,7 @@
 
         .calendar-days td.holiday .holiday-name {
             display: block;
-            font-size: 0.7em;
+            font-size: 0.8em; /* 공휴일 이름 폰트 크기 (약간 증가) */
             color: var(--holiday-color);
             text-align: right;
             padding-right: 5px;
@@ -246,7 +246,7 @@
         }
 
         .schedule-summary {
-            font-size: 0.75em;
+            font-size: 0.8em; /* 데스크탑 스케줄 요약 폰트 크기 (약간 증가) */
             margin-top: 5px;
             overflow-y: visible;
             padding-right: 3px;
@@ -262,8 +262,8 @@
 
         .schedule-summary p {
             background-color: var(--schedule-summary-bg);
-            padding: 2px 5px;
-            margin-bottom: 2px;
+            padding: 3px 6px; /* 데스크탑 요약 항목 패딩 (증가) */
+            margin-bottom: 3px;
             border-radius: 3px;
             white-space: nowrap;
             overflow: hidden;
@@ -291,23 +291,24 @@
             }
             /* 캘린더 테이블 셀 (th, td) 스타일 수정 */
             .calendar-days th, .calendar-days td {
-                padding: 3px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
+                padding: 5px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 (증가) */
                 font-size: 0.9em; /* 셀 내부 글자 크기 조정 */
-                min-height: 70px; /* 모바일에서 셀 최소 높이 조정 */
+                min-height: 80px; /* 모바일에서 셀 최소 높이 조정 (증가) */
             }
             .calendar-days td .day-number {
-                font-size: 1em; /* 날짜 숫자 크기 조정 */
+                font-size: 1.1em; /* 날짜 숫자 크기 조정 (약간 증가) */
                 padding-right: 3px; /* 날짜 숫자 오른쪽 패딩 조정 */
             }
             .calendar-days td.holiday .holiday-name {
-                font-size: 0.6em; /* 공휴일 이름 폰트 크기 조정 */
+                font-size: 0.7em; /* 공휴일 이름 폰트 크기 조정 */
                 padding-right: 3px;
             }
             .schedule-summary {
-                font-size: 0.6em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
+                font-size: 0.7em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
             }
             .schedule-summary p {
-                padding: 1px 3px; /* 요약 항목 패딩 조정 */
+                padding: 2px 4px; /* 요약 항목 패딩 조정 */
+                margin-bottom: 2px;
             }
             .modal-buttons button {
                 flex-grow: 1; /* 모바일에서 버튼 너비 꽉 채우기 */
