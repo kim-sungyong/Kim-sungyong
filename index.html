@@ -3,1174 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스케줄 관리 앱</title>
+    <title>나의 스케줄표</title>
     <style>
-        /* 기본 스타일 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start; /* 상단에 정렬 */
             min-height: 100vh;
-        }
-
-        /* 라이트 테마 (기본) */
-        body.light-theme {
-            background-color: #f4f7f6;
-            color: #333;
-        }
-
-        /* 다크 테마 */
-        body.dark-theme {
-            background-color: #2c3e50; /* 어두운 남색 계열 */
-            color: #ecf0f1; /* 밝은 회색 */
-        }
-        body.dark-theme .container,
-        body.dark-theme .calendar-header,
-        body.dark-theme .calendar-weekdays,
-        body.dark-theme .calendar-days td,
-        body.dark-theme .schedule-section,
-        body.dark-theme .input-group,
-        body.dark-theme #scheduleList h2,
-        body.dark-theme .schedule-item,
-        body.dark-theme .settings-section,
-        body.dark-theme #noScheduleMessage {
-            background-color: #34495e; /* 약간 더 밝은 어두운 남색 */
-            border-color: #4a667f;
-            color: #ecf0f1;
-        }
-        body.dark-theme button,
-        body.dark-theme input[type="text"],
-        body.dark-theme input[type="date"],
-        body.dark-theme input[type="time"],
-        body.dark-theme input[type="number"],
-        body.dark-theme select,
-        body.dark-theme textarea {
-            background-color: #2b3b4a;
-            color: #ecf0f1;
-            border-color: #55708a;
-        }
-        body.dark-theme button:hover {
-            background-color: #4a667f;
-        }
-        body.dark-theme .calendar-days td.today {
-            background-color: #f39c12; /* 오늘 날짜 하이라이트 */
-            color: #fff;
-        }
-        body.dark-theme .calendar-days td.has-schedule {
-            background-color: #3d5975; /* 스케줄 있는 날짜 */
-        }
-        body.dark-theme .calendar-days td.today.has-schedule {
-            background-color: #e67e22; /* 오늘 + 스케줄 */
-        }
-        body.dark-theme .schedule-item .action-buttons button {
-            background-color: #55708a;
-            color: #ecf0f1;
-        }
-        body.dark-theme .schedule-item .action-buttons button.delete-btn {
-            background-color: #c0392b;
-        }
-        body.dark-theme .schedule-item .action-buttons button.edit-btn {
-            background-color: #27ae60;
-        }
-        body.dark-theme .tel-link,
-        body.dark-theme .nav-link {
-            color: #3498db; /* 링크 색상 */
-        }
-        body.dark-theme a {
-            color: #3498db;
-        }
-
-
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 25px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            flex-grow: 1; /* 컨테이너가 가능한 공간을 차지하도록 */
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        body.dark-theme h1,
-        body.dark-theme h2 {
-            color: #ecf0f1;
-        }
-
-        /* 캘린더 섹션 */
-        .calendar-section {
-            margin-bottom: 30px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            background-color: #e9eff3;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .calendar-header button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-        }
-
-        .calendar-header button:hover {
-            background-color: #2980b9;
-        }
-
-        #currentMonthYear {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        body.dark-theme #currentMonthYear {
-            color: #ecf0f1;
-        }
-
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* 고정 너비 열 */
-        }
-
-        .calendar-weekdays th {
-            background-color: #f0f0f0;
-            padding: 10px 0;
-            text-align: center;
-            font-weight: bold;
-            color: #555;
-            border-bottom: 1px solid #ddd;
-        }
-        /* 일요일 (빨간색) */
-        .calendar-weekdays th:first-child {
-            color: #e74c3c;
-        }
-        /* 토요일 (파란색) */
-        .calendar-weekdays th:last-child {
-            color: #3498db;
-        }
-
-
-        .calendar-days td {
-            padding: 10px 0;
-            text-align: center;
-            vertical-align: top; /* 스케줄 내용 상단 정렬 */
-            border: 1px solid #eee;
-            min-height: 80px; /* 각 셀의 최소 높이 */
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            position: relative;
-        }
-
-        .calendar-days td:hover {
-            background-color: #eaf1f6;
-        }
-        
-        .calendar-days td.empty-day {
-            background-color: #f9f9f9;
-            cursor: default;
-        }
-        body.dark-theme .calendar-days td.empty-day {
-            background-color: #2d3b48;
-        }
-
-        .calendar-days td.today {
-            background-color: #ffeaa7; /* 오늘 날짜 하이라이트 */
-            font-weight: bold;
-            border: 2px solid #f39c12;
+            margin: 20px; /* body 바깥 여백 추가 */
             box-sizing: border-box; /* 패딩, 보더 포함 넓이 계산 */
         }
 
-        .calendar-days td .day-number {
-            font-size: 1.2em;
-            display: block;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        body.dark-theme .calendar-days td .day-number {
-            color: #ecf0f1;
-        }
-
-        /* 일요일 날짜 텍스트 색상 */
-        .calendar-days td:first-child .day-number {
-            color: #e74c3c;
-        }
-        /* 토요일 날짜 텍스트 색상 */
-        .calendar-days td:last-child .day-number {
-            color: #3498db;
-        }
-        /* 공휴일 날짜 텍스트 색상 (일/토요일이 아닌 공휴일) */
-        .calendar-days td.holiday .day-number {
-            color: #e74c3c; /* 빨간색 */
-        }
-        /* 공휴일 배경색 (공휴일이면서 일/토요일이 아닌 경우) */
-        .calendar-days td.holiday {
-            background-color: #fcecec; /* 약간 붉은색 배경 */
-        }
-        body.dark-theme .calendar-days td.holiday {
-            background-color: #583c41; /* 다크 테마 공휴일 배경색 */
-        }
-        body.dark-theme .calendar-days td.holiday .day-number {
-             color: #ff9999; /* 다크 테마 공휴일 숫자색 */
-        }
-
-        /* 공휴일 이름 스타일 */
-        .holiday-name {
-            font-size: 0.75em;
-            color: #e74c3c; /* 공휴일 이름도 빨간색으로 */
-            font-weight: bold;
-            margin-top: -3px; /* 날짜 숫자와 간격 조절 */
-            line-height: 1.2;
-            white-space: nowrap; /* 줄바꿈 방지 */
-            overflow: hidden; /* 넘치는 텍스트 숨김 */
-            text-overflow: ellipsis; /* ... 표시 */
-            display: block; /* 블록 요소로 만들어 줄바꿈 */
-        }
-        body.dark-theme .holiday-name {
-            color: #ff9999;
-        }
-
-
-        .calendar-days td.has-schedule {
-            background-color: #dbe9f3; /* 스케줄 있는 날짜 */
-        }
-        .calendar-days td.today.has-schedule {
-            background-color: #f7d794; /* 오늘 + 스케줄 */
-        }
-        /* 공휴일이면서 스케줄 있는 날짜 */
-        .calendar-days td.holiday.has-schedule {
-            background-color: #f7e0e0; /* 공휴일 스케줄 배경색 */
-        }
-         body.dark-theme .calendar-days td.holiday.has-schedule {
-            background-color: #4a343b; /* 다크 테마 공휴일 스케줄 배경색 */
-        }
-
-
-        .schedule-summary {
-            font-size: 0.8em;
-            color: #555;
-            line-height: 1.3;
-            word-break: break-all; /* 긴 텍스트 줄바꿈 */
-            margin-top: 5px; /* 공휴일 이름과의 간격 */
-        }
-        body.dark-theme .schedule-summary {
-            color: #aebfd0;
-        }
-        .schedule-summary p {
-            margin: 0;
-            padding: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
-        }
-
-        /* 스케줄 입력 폼 */
-        .schedule-form, .settings-section {
-            background-color: #f9f9f9;
-            padding: 20px;
+        .schedule-container {
+            background-color: #ffffff;
             border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            overflow-x: auto; /* 테이블이 넘칠 경우 스크롤바 */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
-        }
-        body.dark-theme .schedule-form,
-        body.dark-theme .settings-section {
-            background-color: #3a506a;
         }
 
-        .input-group {
-            margin-bottom: 15px;
+        .schedule-table th,
+        .schedule-table td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: center;
+            vertical-align: middle;
         }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
+        .schedule-table th {
+            background-color: #eef;
+            color: #333;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .schedule-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .time-slot {
             font-weight: bold;
             color: #555;
-        }
-        body.dark-theme .input-group label {
-            color: #ecf0f1;
+            background-color: #eef; /* 시간 칸 배경색 */
         }
 
-        .input-group input[type="text"],
-        .input-group input[type="date"],
-        .input-group input[type="time"],
-        .input-group input[type="number"],
-        .input-group select,
-        .input-group textarea {
-            width: calc(100% - 22px); /* 패딩, 보더 고려 */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
+        .highlight-activity {
+            background-color: #d4edda; /* 연한 초록색 */
+            color: #155724;
+            font-weight: bold;
         }
 
-        .input-group textarea {
-            resize: vertical; /* 세로 크기 조절 가능 */
-            min-height: 60px;
+        .break-activity {
+            background-color: #ffeeba; /* 연한 노란색 */
+            color: #856404;
         }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
+        .meeting-activity {
+            background-color: #cce5ff; /* 연한 파란색 */
+            color: #004085;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            margin-right: 10px;
-            width: 20px;
-            height: 20px;
-        }
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .schedule-table, .schedule-table tbody, .schedule-table td, .schedule-table th, .schedule-table tr {
+                display: block;
+            }
 
-        .button-group {
-            display: flex;
-            gap: 10px; /* 버튼 사이 간격 */
-            justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
-            margin-top: 20px;
-        }
+            .schedule-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
 
-        .button-group button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.2s ease;
-        }
+            .schedule-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
 
-        .button-group button:hover {
-            background-color: #218838;
-        }
+            .schedule-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
 
-        #cancelEditBtn {
-            background-color: #6c757d;
-            display: none; /* 초기에는 숨김 */
-        }
-        #cancelEditBtn:hover {
-            background-color: #5a6268;
-        }
-        #clearInputBtn {
-            background-color: #007bff;
-        }
-        #clearInputBtn:hover {
-            background-color: #0056b3;
-        }
-
-        /* 스케줄 목록 */
-        #scheduleList {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-        body.dark-theme #scheduleList {
-            background-color: #34495e;
-        }
-
-        #scheduleList h2 {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            text-align: left;
-        }
-        body.dark-theme #scheduleList h2 {
-            color: #ecf0f1;
-            border-bottom-color: #4a667f;
-        }
-
-        #noScheduleMessage {
-            text-align: center;
-            color: #777;
-            font-style: italic;
-            padding: 20px;
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none; /* 초기에는 숨김 */
-        }
-        body.dark-theme #noScheduleMessage {
-            background-color: #2d3b48;
-            color: #aebfd0;
-        }
-
-        .schedule-item {
-            background-color: #fefefe;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-        body.dark-theme .schedule-item {
-            background-color: #3a506a;
-            border-color: #4a667f;
-        }
-
-        .schedule-item p {
-            margin: 0 0 8px 0;
-            color: #444;
-        }
-        body.dark-theme .schedule-item p {
-            color: #ecf0f1;
-        }
-        .schedule-item p:last-child {
-            margin-bottom: 0;
-        }
-        .schedule-item strong {
-            color: #2c3e50;
-        }
-        body.dark-theme .schedule-item strong {
-            color: #ecf0f1;
-        }
-
-        .schedule-item .action-buttons {
-            margin-top: 15px;
-            text-align: right;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-        body.dark-theme .schedule-item .action-buttons {
-            border-top-color: #4a667f;
-        }
-
-        .schedule-item .action-buttons button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-left: 8px;
-            transition: background-color 0.2s ease;
-        }
-
-        .schedule-item .action-buttons button:hover {
-            background-color: #0056b3;
-        }
-
-        .schedule-item .action-buttons .edit-btn {
-            background-color: #28a745;
-        }
-        .schedule-item .action-buttons .edit-btn:hover {
-            background-color: #218838;
-        }
-
-        .schedule-item .action-buttons .delete-btn {
-            background-color: #dc3545;
-        }
-        .schedule-item .action-buttons .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        .tel-link, .nav-link {
-            color: #007bff;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        .tel-link:hover, .nav-link:hover {
-            color: #0056b3;
-        }
-        body.dark-theme .tel-link, body.dark-theme .nav-link {
-            color: #9ad2ff;
-        }
-        body.dark-theme .tel-link:hover, body.dark-theme .nav-link:hover {
-            color: #6cbfff;
-        }
-
-        /* 설정 섹션 */
-        .settings-section {
-            margin-top: 30px;
-            margin-bottom: 20px; /* 하단 여백 추가 */
-        }
-        .settings-section h2 {
-            text-align: left;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        body.dark-theme .settings-section h2 {
-            border-bottom-color: #4a667f;
-        }
-        .settings-option {
-            margin-bottom: 15px;
-        }
-        .settings-option h3 {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-        body.dark-theme .settings-option h3 {
-            color: #ecf0f1;
-        }
-        .settings-option label {
-            margin-right: 15px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-        }
-        .settings-option input[type="radio"] {
-            margin-right: 5px;
-            transform: scale(1.2);
-        }
-        
-        /* 푸터 */
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            background-color: #e9eff3;
-            color: #555;
-            font-size: 0.9em;
-            border-top: 1px solid #ddd;
-        }
-        body.dark-theme footer {
-            background-color: #2b3b4a;
-            color: #aebfd0;
-            border-top-color: #4a667f;
+            .schedule-table td:before {
+                position: absolute;
+                top: 50%;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+                color: #555;
+                transform: translateY(-50%);
+                text-align: left;
+            }
+            .schedule-table td:last-child {
+                border-bottom: 0;
+            }
+            .time-slot {
+                background-color: transparent; /* 반응형에서 시간 칸 배경색 제거 */
+                text-align: center !important;
+                padding-left: 0 !important;
+                font-size: 1.1em;
+                color: #333 !important;
+            }
+            .time-slot:before {
+                content: "" !important; /* 반응형에서 "시간" 라벨 제거 */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>나만의 스케줄러</h1>
+    <div class="schedule-container">
+        <h1>주간 스케줄표</h1>
 
-        <section class="calendar-section">
-            <div class="calendar-header">
-                <button onclick="prevMonth()">< 이전 달</button>
-                <h2 id="currentMonthYear"></h2>
-                <button onclick="nextMonth()">다음 달 ></button>
-            </div>
-            <table id="calendar" class="calendar-table">
-                <thead class="calendar-weekdays">
-                    <tr>
-                        <th>일</th>
-                        <th>월</th>
-                        <th>화</th>
-                        <th>수</th>
-                        <th>목</th>
-                        <th>금</th>
-                        <th>토</th>
-                    </tr>
-                </thead>
-                <tbody class="calendar-days">
-                    </tbody>
-            </table>
-        </section>
-
-        <section class="schedule-form">
-            <h2>스케줄 입력</h2>
-            <div class="input-group">
-                <label for="scheduleDate">날짜:</label>
-                <input type="date" id="scheduleDate">
-            </div>
-            <div class="input-group">
-                <label for="scheduleTime">시간:</label>
-                <input type="time" id="scheduleTime">
-            </div>
-            <div class="input-group">
-                <label for="location">장소 (필수):</label>
-                <input type="text" id="location" placeholder="방문 장소를 입력하세요">
-            </div>
-            <div class="input-group">
-                <label for="companyName">업체명:</label>
-                <input type="text" id="companyName" placeholder="업체명을 입력하세요 (선택 사항)">
-            </div>
-            <div class="input-group">
-                <label for="address">주소:</label>
-                <input type="text" id="address" placeholder="정확한 주소를 입력하세요">
-            </div>
-            <div class="input-group">
-                <label for="phoneNumber">전화번호:</label>
-                <input type="text" id="phoneNumber" placeholder="연락처를 입력하세요 (예: 010-1234-5678)">
-            </div>
-            <div class="input-group">
-                <label for="paymentAmount">결제 금액:</label>
-                <input type="number" id="paymentAmount" value="0" min="0">
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="paymentStatus">
-                <label for="paymentStatus">입금 완료</label>
-            </div>
-            <div class="input-group">
-                <label for="taskType">작업 종류 (필수):</label>
-                <input type="text" id="taskType" placeholder="수리, 설치, 점검 등">
-            </div>
-            <div class="input-group">
-                <label for="taskContent">작업 내용:</label>
-                <textarea id="taskContent" placeholder="자세한 작업 내용을 입력하세요 (선택 사항)"></textarea>
-            </div>
-            <div class="button-group">
-                <button id="clearInputBtn" onclick="clearAllInputs()">입력 초기화</button>
-                <button id="saveScheduleBtn" onclick="saveSchedule()">스케줄 추가</button>
-                <button id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
-            </div>
-        </section>
-
-        <section id="scheduleList" class="schedule-section">
-            <p id="noScheduleMessage">선택된 날짜에 스케줄이 없습니다. 새로운 스케줄을 추가해보세요!</p>
-        </section>
-
-        <section class="settings-section">
-            <h2>설정</h2>
-            <div class="settings-option">
-                <h3>기본 네비게이션 앱 선택</h3>
-                <label>
-                    <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
-                </label>
-            </div>
-            <div class="settings-option">
-                <h3>테마 선택</h3>
-                <label>
-                    <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
-                </label>
-                <label>
-                    <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
-                </label>
-            </div>
-        </section>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>시간</th>
+                    <th>월요일</th>
+                    <th>화요일</th>
+                    <th>수요일</th>
+                    <th>목요일</th>
+                    <th>금요일</th>
+                    <th>토요일</th>
+                    <th>일요일</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="time-slot" data-label="시간">09:00 - 10:00</td>
+                    <td data-label="월요일">팀 미팅</td>
+                    <td data-label="화요일" class="highlight-activity">프로젝트 A 작업</td>
+                    <td data-label="수요일">클라이언트 통화</td>
+                    <td data-label="목요일">자료 분석</td>
+                    <td data-label="금요일" class="highlight-activity">새 기능 개발</td>
+                    <td data-label="토요일">휴식</td>
+                    <td data-label="일요일">독서</td>
+                </tr>
+                <tr>
+                    <td class="time-slot" data-label="시간">10:00 - 11:00</td>
+                    <td data-label="월요일" class="highlight-activity">코딩 시간</td>
+                    <td data-label="화요일">문서 작성</td>
+                    <td data-label="수요일" class="meeting-activity">개발 회의</td>
+                    <td data-label="목요일" class="highlight-activity">버그 수정</td>
+                    <td data-label="금요일">코드 리뷰</td>
+                    <td data-label="토요일">운동</td>
+                    <td data-label="일요일">가족 시간</td>
+                </tr>
+                <tr>
+                    <td class="time-slot" data-label="시간">11:00 - 12:00</td>
+                    <td data-label="월요일">이메일 확인</td>
+                    <td data-label="화요일" class="highlight-activity">프로젝트 B 작업</td>
+                    <td data-label="수요일">기획 회의</td>
+                    <td data-label="목요일">테스트</td>
+                    <td data-label="금요일">개선 작업</td>
+                    <td data-label="토요일">취미 활동</td>
+                    <td data-label="일요일">친구와 만나기</td>
+                </tr>
+                <tr>
+                    <td class="time-slot" data-label="시간">12:00 - 13:00</td>
+                    <td data-label="월요일" class="break-activity">점심 식사</td>
+                    <td data-label="화요일" class="break-activity">점심 식사</td>
+                    <td data-label="수요일" class="break-activity">점심 식사</td>
+                    <td data-label="목요일" class="break-activity">점심 식사</td>
+                    <td data-label="금요일" class="break-activity">점심 식사</td>
+                    <td data-label="토요일" class="break-activity">점심 식사</td>
+                    <td data-label="일요일" class="break-activity">점심 식사</td>
+                </tr>
+                <tr>
+                    <td class="time-slot" data-label="시간">13:00 - 14:00</td>
+                    <td data-label="월요일" class="highlight-activity">데이터베이스 설계</td>
+                    <td data-label="화요일">보고서 작성</td>
+                    <td data-label="수요일" class="highlight-activity">UX/UI 개선</td>
+                    <td data-label="목요일">기술 연구</td>
+                    <td data-label="금요일">백업</td>
+                    <td data-label="토요일">청소</td>
+                    <td data-label="일요일">영화 감상</td>
+                </tr>
+                <tr>
+                    <td class="time-slot" data-label="시간">14:00 - 15:00</td>
+                    <td data-label="월요일">피드백 반영</td>
+                    <td data-label="화요일" class="meeting-activity">팀 스탠드업</td>
+                    <td data-label="수요일">이슈 해결</td>
+                    <td data-label="목요일" class="highlight-activity">새로운 모듈 개발</td>
+                    <td data-label="금요일">코드 배포</td>
+                    <td data-label="토요일">장보기</td>
+                    <td data-label="일요일">산책</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-
-    <footer>
-        <p>© 2025 나만의 스케줄러. 모든 권리 보유.</p>
-    </footer>
-
-    <script>
-        const scheduleDateInput = document.getElementById('scheduleDate');
-        const scheduleTimeInput = document.getElementById('scheduleTime');
-        const locationInput = document.getElementById('location');
-        const companyNameInput = document.getElementById('companyName');
-        const addressInput = document.getElementById('address');
-        const phoneNumberInput = document.getElementById('phoneNumber');
-        const paymentAmountInput = document.getElementById('paymentAmount');
-        const paymentStatusInput = document.getElementById('paymentStatus');
-        const taskTypeInput = document.getElementById('taskType');
-        const taskContentInput = document.getElementById('taskContent');
-        const scheduleListDiv = document.getElementById('scheduleList');
-        const noScheduleMessage = document.getElementById('noScheduleMessage');
-        const currentMonthYearHeader = document.getElementById('currentMonthYear');
-        const calendarTableBody = document.querySelector('#calendar tbody');
-        
-        const saveScheduleBtn = document.getElementById('saveScheduleBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        let editingSchedule = null;
-
-        let currentYear, currentMonth;
-
-        const navRadios = document.querySelectorAll('input[name="defaultNav"]');
-        const themeRadios = document.querySelectorAll('input[name="theme"]');
-
-        // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
-        // Map으로 변경하여 날짜와 이름을 함께 저장합니다.
-        const holidays = new Map([
-            // 2024년 공휴일
-            ['2024-01-01', '신정'],
-            ['2024-02-09', '설날'],
-            ['2024-02-10', '설날'],
-            ['2024-02-11', '설날'],
-            ['2024-02-12', '설날(대체)'],
-            ['2024-03-01', '삼일절'],
-            ['2024-04-10', '국회의원선거'], // 22대 국회의원 선거 (임시 공휴일)
-            ['2024-05-01', '근로자의날'], // 근로자의 날 (법정 공휴일은 아니지만 일반적으로 휴무)
-            ['2024-05-05', '어린이날'],
-            ['2024-05-06', '어린이날(대체)'],
-            ['2024-05-15', '부처님오신날'],
-            ['2024-06-06', '현충일'],
-            ['2024-08-15', '광복절'],
-            ['2024-09-16', '추석'],
-            ['2024-09-17', '추석'],
-            ['2024-09-18', '추석(대체)'],
-            ['2024-10-03', '개천절'],
-            ['2024-10-09', '한글날'],
-            ['2024-12-25', '성탄절'],
-
-            // 2025년 공휴일
-            ['2025-01-01', '신정'],
-            ['2025-01-28', '설날'],
-            ['2025-01-29', '설날'],
-            ['2025-01-30', '설날(대체)'],
-            ['2025-03-01', '삼일절'],
-            ['2025-05-05', '어린이날'],
-            ['2025-05-25', '부처님오신날'], // 일요일
-            ['2025-05-26', '부처님오신날(대체)'],
-            ['2025-06-06', '현충일'],
-            ['2025-08-15', '광복절'],
-            ['2025-10-03', '개천절'],
-            ['2025-10-06', '추석'],
-            ['2025-10-07', '추석'],
-            ['2025-10-08', '추석(대체)'],
-            ['2025-10-09', '한글날'],
-            ['2025-12-25', '성탄절'],
-
-            // 2026년 공휴일
-            ['2026-01-01', '신정'],
-            ['2026-02-16', '설날'],
-            ['2026-02-17', '설날'],
-            ['2026-02-18', '설날'],
-            ['2026-03-01', '삼일절'], // 일요일
-            ['2026-03-02', '삼일절(대체)'],
-            ['2026-05-01', '근로자의날'],
-            ['2026-05-05', '어린이날'],
-            ['2026-05-24', '부처님오신날'], // 일요일
-            ['2026-05-25', '부처님오신날(대체)'],
-            ['2026-06-06', '현충일'], // 토요일
-            ['2026-08-15', '광복절'], // 토요일
-            ['2026-08-17', '광복절(대체)'],
-            ['2026-09-24', '추석'],
-            ['2026-09-25', '추석'],
-            ['2026-09-26', '추석연휴'], // 토요일
-            ['2026-09-27', '추석연휴'], // 일요일
-            ['2026-10-03', '개천절'], // 토요일
-            ['2026-10-05', '개천절(대체)'],
-            ['2026-10-09', '한글날'],
-            ['2026-12-25', '성탄절'],
-        ]);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            currentYear = today.getFullYear();
-            currentMonth = today.getMonth();
-            
-            loadSettings();
-            renderCalendar();
-            
-            const initialTitle = document.createElement('h2');
-            initialTitle.textContent = `선택 날짜 스케줄 목록 (${formatDate(today)})`;
-            scheduleListDiv.appendChild(initialTitle);
-            scheduleListDiv.appendChild(noScheduleMessage);
-            noScheduleMessage.style.display = 'block';
-
-            displaySchedulesForSelectedDate(formatDate(today));
-            scheduleDateInput.value = formatDate(today);
-        });
-
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        function renderCalendar() {
-            calendarTableBody.innerHTML = '';
-            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const startDayOfWeek = firstDayOfMonth.getDay(); // 0(일) ~ 6(토)
-
-            currentMonthYearHeader.textContent = `${currentYear}년 ${currentMonth + 1}월`;
-
-            let date = 1;
-            const todayFormatted = formatDate(new Date());
-            const storedSchedules = JSON.parse(localStorage.getItem('schedules')) || {};
-
-            for (let i = 0; i < 6; i++) {
-                const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
-                    const cell = document.createElement('td');
-                    if (i === 0 && j < startDayOfWeek) {
-                        cell.classList.add('empty-day');
-                    } else if (date > daysInMonth) {
-                        cell.classList.add('empty-day');
-                    } else {
-                        const currentDate = new Date(currentYear, currentMonth, date);
-                        const formattedDate = formatDate(currentDate);
-                        const dayOfWeek = currentDate.getDay(); // 0:일, 1:월, ..., 6:토
-
-                        cell.innerHTML = `<span class="day-number">${date}</span>`;
-                        cell.dataset.date = formattedDate;
-                        cell.onclick = () => {
-                            resetEditingState();
-                            scheduleDateInput.value = formattedDate;
-                            displaySchedulesForSelectedDate(formattedDate);
-                        };
-
-                        // --- 공휴일 및 요일별 색상 적용 로직 ---
-                        if (formattedDate === todayFormatted) {
-                            cell.classList.add('today');
-                        }
-
-                        // 공휴일 확인 (일요일, 토요일이 아닌 경우에만 holiday 클래스 추가)
-                        // 일요일과 토요일은 이미 CSS에서 색상이 지정되어 있으므로 중복 적용 피함
-                        if (holidays.has(formattedDate)) { // holidays Map에서 날짜 확인
-                            const holidayName = holidays.get(formattedDate);
-                            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 일/토요일이 아닌 경우에만 holiday 클래스 추가 (빨간 배경)
-                                cell.classList.add('holiday');
-                            }
-                            // 공휴일 이름 추가 (일/토요일 공휴일도 이름은 표시)
-                            cell.innerHTML += `<div class="holiday-name">${holidayName}</div>`;
-                        }
-
-
-                        if (storedSchedules[formattedDate] && storedSchedules[formattedDate].length > 0) {
-                            cell.classList.add('has-schedule');
-                            const schedulesForDay = storedSchedules[formattedDate];
-                            const summaryDiv = document.createElement('div');
-                            summaryDiv.classList.add('schedule-summary');
-
-                            schedulesForDay.slice(0, 2).forEach(sched => {
-                                const p = document.createElement('p');
-                                const displaySummaryText = sched.companyName || sched.location;
-                                p.textContent = `${sched.time ? sched.time + ' ' : ''}${displaySummaryText}`;
-                                summaryDiv.appendChild(p);
-                            });
-                            if (schedulesForDay.length > 2) {
-                                const moreP = document.createElement('p');
-                                moreP.textContent = `... 외 ${schedulesForDay.length - 2}건`;
-                                summaryDiv.appendChild(moreP);
-                            }
-                            
-                            cell.appendChild(summaryDiv);
-                        }
-                        date++;
-                    }
-                    row.appendChild(cell);
-                }
-                calendarTableBody.appendChild(row);
-
-                if (date > daysInMonth) {
-                    break;
-                }
-            }
-        }
-
-        function prevMonth() {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            resetEditingState();
-            renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1);
-            scheduleDateInput.value = formatDate(newDate);
-            displaySchedulesForSelectedDate(formatDate(newDate));
-        }
-
-        function nextMonth() {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            resetEditingState();
-            renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1);
-            scheduleDateInput.value = formatDate(newDate);
-            displaySchedulesForSelectedDate(formatDate(newDate));
-        }
-
-        function resetEditingState() {
-            editingSchedule = null;
-            saveScheduleBtn.textContent = '스케줄 추가';
-            cancelEditBtn.style.display = 'none';
-        }
-
-        function clearAllInputs() {
-            const today = new Date();
-            scheduleDateInput.value = formatDate(today);
-            scheduleTimeInput.value = '';
-            locationInput.value = '';
-            companyNameInput.value = '';
-            addressInput.value = '';
-            phoneNumberInput.value = '';
-            paymentAmountInput.value = '';
-            paymentStatusInput.checked = false;
-            taskTypeInput.value = '';
-            taskContentInput.value = '';
-            resetEditingState();
-        }
-
-        function saveSchedule() {
-            const date = scheduleDateInput.value;
-            const time = scheduleTimeInput.value.trim();
-            const location = locationInput.value.trim();
-            const companyName = companyNameInput.value.trim();
-            const address = addressInput.value.trim();
-            const phoneNumber = phoneNumberInput.value.trim();
-            const paymentAmount = paymentAmountInput.value;
-            const paymentStatus = paymentStatusInput.checked ? '완료' : '미완료';
-            const taskType = taskTypeInput.value.trim();
-            const taskContent = taskContentInput.value.trim();
-
-            if (!date || !location || !taskType) {
-                alert('날짜, 장소, 작업 종류는 필수 입력 사항입니다.');
-                return;
-            }
-
-            const schedule = {
-                time,
-                location,
-                companyName,
-                address,
-                phoneNumber,
-                paymentAmount: paymentAmount ? parseInt(paymentAmount) : 0,
-                paymentStatus,
-                taskType,
-                taskContent
-            };
-
-            let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
-
-            if (!schedules[date]) {
-                schedules[date] = [];
-            }
-
-            if (editingSchedule) {
-                if (editingSchedule.date !== date) {
-                    schedules[date].push(schedule);
-                    schedules[editingSchedule.date].splice(editingSchedule.index, 1);
-                    if (schedules[editingSchedule.date].length === 0) {
-                        delete schedules[editingSchedule.date];
-                    }
-                } else {
-                    schedules[date][editingSchedule.index] = schedule;
-                }
-                alert('스케줄이 성공적으로 수정되었습니다!');
-            } else {
-                schedules[date].push(schedule);
-                alert('스케줄이 성공적으로 추가되었습니다!');
-            }
-
-            localStorage.setItem('schedules', JSON.stringify(schedules));
-
-            resetEditingState();
-            clearAllInputs();
-            renderCalendar();
-            displaySchedulesForSelectedDate(date);
-        }
-
-        function editSchedule(date, index) {
-            let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
-            const scheduleToEdit = schedules[date][index];
-
-            if (!scheduleToEdit) {
-                alert("수정할 스케줄을 찾을 수 없습니다.");
-                return;
-            }
-
-            scheduleDateInput.value = date;
-            scheduleTimeInput.value = scheduleToEdit.time;
-            locationInput.value = scheduleToEdit.location;
-            companyNameInput.value = scheduleToEdit.companyName;
-            addressInput.value = scheduleToEdit.address;
-            phoneNumberInput.value = scheduleToEdit.phoneNumber;
-            paymentAmountInput.value = scheduleToEdit.paymentAmount;
-            paymentStatusInput.checked = (scheduleToEdit.paymentStatus === '완료');
-            taskTypeInput.value = scheduleToEdit.taskType;
-            taskContentInput.value = scheduleToEdit.taskContent;
-
-            resetEditingState();
-            editingSchedule = { date, index };
-            saveScheduleBtn.textContent = '스케줄 수정';
-            cancelEditBtn.style.display = 'inline-block';
-
-            window.scrollTo({ top: document.querySelector('.schedule-section').offsetTop - 20, behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            resetEditingState();
-            displaySchedulesForSelectedDate(scheduleDateInput.value);
-        }
-        
-        function deleteSchedule(date, index) {
-            if (!confirm('정말로 이 스케줄을 삭제하시겠습니까?')) {
-                return;
-            }
-
-            let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
-            if (schedules[date]) {
-                schedules[date].splice(index, 1);
-
-                if (schedules[date].length === 0) {
-                    delete schedules[date];
-                }
-                localStorage.setItem('schedules', JSON.stringify(schedules));
-                alert('스케줄이 삭제되었습니다.');
-                
-                renderCalendar();
-                displaySchedulesForSelectedDate(date);
-            }
-        }
-
-        function displaySchedulesForSelectedDate(date) {
-            const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
-            const schedulesForDate = schedules[date] || [];
-
-            const tempContainer = document.createElement('div');
-            
-            const titleElement = document.createElement('h2');
-            titleElement.textContent = `선택 날짜 스케줄 목록 (${date})`;
-            tempContainer.appendChild(titleElement);
-
-            if (schedulesForDate.length === 0) {
-                noScheduleMessage.style.display = 'block';
-                tempContainer.appendChild(noScheduleMessage);
-            } else {
-                noScheduleMessage.style.display = 'none';
-                schedulesForDate.forEach((schedule, index) => {
-                    const scheduleItem = document.createElement('div');
-                    scheduleItem.classList.add('schedule-item');
-
-                    const telLinkHtml = schedule.phoneNumber ? 
-                        `<p><strong>전화번호:</strong> <a href="tel:${schedule.phoneNumber.replace(/-/g, '')}" class="tel-link">${schedule.phoneNumber}</a></p>` : '';
-
-                    let addressLinkHtml = '';
-                    if (schedule.address) {
-                        addressLinkHtml = `<p><strong>주소:</strong> <span class="nav-link" onclick="openNavigation('${encodeURIComponent(schedule.address)}')">${schedule.address}</span></p>`;
-                    }
-
-                    scheduleItem.innerHTML = `
-                        <p><strong>시간:</strong> ${schedule.time || '없음'}</p>
-                        <p><strong>장소:</strong> ${schedule.location}</p>
-                        ${schedule.companyName ? `<p><strong>업체명:</strong> ${schedule.companyName}</p>` : ''} 
-                        ${addressLinkHtml}
-                        ${telLinkHtml}
-                        <p><strong>결제 금액:</strong> ${schedule.paymentAmount.toLocaleString()}원</p>
-                        <p><strong>입금 완료 여부:</strong> ${schedule.paymentStatus}</p>
-                        <p><strong>작업 종류:</strong> ${schedule.taskType}</p>
-                        <p><strong>작업 내용:</strong> ${schedule.taskContent || '없음'}</p>
-                        <div class="action-buttons">
-                            <button class="edit-btn" onclick="editSchedule('${date}', ${index})">수정</button>
-                            <button class="delete-btn" onclick="deleteSchedule('${date}', ${index})">삭제</button>
-                        </div>
-                    `;
-                    tempContainer.appendChild(scheduleItem);
-                });
-            }
-            
-            while (scheduleListDiv.firstChild) {
-                scheduleListDiv.removeChild(scheduleListDiv.firstChild);
-            }
-            while (tempContainer.firstChild) {
-                scheduleListDiv.appendChild(tempContainer.firstChild);
-            }
-        }
-
-        function openNavigation(encodedAddress) {
-            const defaultNav = localStorage.getItem('defaultNav') || 'none';
-            const address = decodeURIComponent(encodedAddress);
-
-            const navUrls = {
-                google: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, 
-                naver: `https://map.naver.com/v5/search/${encodedAddress}`,
-                kakao: `https://map.kakao.com/link/search/${encodedAddress}`
-            };
-            
-            if (defaultNav !== 'none' && navUrls[defaultNav]) {
-                window.open(navUrls[defaultNav], '_blank');
-            } else {
-                const choice = prompt(
-                    "네비게이션 앱을 선택하세요:\n\n" +
-                    "1. Google 지도\n" +
-                    "2. 네이버 지도\n" +
-                    "3. 카카오맵\n\n" +
-                    "숫자를 입력해주세요 (기본값: 1)"
-                );
-
-                let selectedNav = 'google';
-
-                switch (choice) {
-                    case '2': selectedNav = 'naver'; break;
-                    case '3': selectedNav = 'kakao'; break;
-                    case '1':
-                    default: selectedNav = 'google'; break;
-                }
-                window.open(navUrls[selectedNav], '_blank');
-            }
-        }
-
-        function saveSettings() {
-            let settings = {};
-
-            navRadios.forEach(radio => {
-                if (radio.checked) {
-                    settings.defaultNav = radio.value;
-                }
-            });
-
-            themeRadios.forEach(radio => {
-                if (radio.checked) {
-                    settings.theme = radio.value;
-                }
-            });
-
-            localStorage.setItem('settings', JSON.stringify(settings));
-        }
-
-        function loadSettings() {
-            const settings = JSON.parse(localStorage.getItem('settings')) || {};
-
-            const savedDefaultNav = settings.defaultNav || 'none';
-            const defaultNavRadio = document.getElementById(`nav${savedDefaultNav.charAt(0).toUpperCase() + savedDefaultNav.slice(1)}`);
-            if (defaultNavRadio) {
-                defaultNavRadio.checked = true;
-            } else {
-                document.getElementById('navNone').checked = true;
-            }
-            localStorage.setItem('defaultNav', savedDefaultNav);
-
-            const savedTheme = settings.theme || 'light';
-            applyTheme(savedTheme);
-            const themeRadio = document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`);
-            if (themeRadio) {
-                themeRadio.checked = true;
-            } else {
-                document.getElementById('themeLight').checked = true;
-            }
-
-            navRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    localStorage.setItem('defaultNav', radio.value);
-                    saveSettings();
-                });
-            });
-            themeRadios.forEach(radio => {
-                    radio.addEventListener('change', () => {
-                    applyTheme(radio.value);
-                    saveSettings();
-                });
-            });
-        }
-
-        function applyTheme(themeName) {
-            document.body.className = '';
-            if (themeName !== 'light') {
-                document.body.classList.add(`${themeName}-theme`);
-            }
-        }
-    </script>
 </body>
 </html>
