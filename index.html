@@ -104,8 +104,8 @@
             padding: 20px;
             width: 100%;
             margin: 0;
-            flex-grow: 1;
-            overflow-y: auto;
+            flex-grow: 1; /* 사용 가능한 세로 공간을 모두 차지 */
+            overflow-y: auto; /* 내용이 넘치면 스크롤 */
         }
 
         /* 데스크탑 기본 스타일 */
@@ -116,6 +116,7 @@
             padding: 20px;
             flex: 2; /* 캘린더가 스케줄 목록보다 더 넓은 공간을 차지 (강화) */
             min-width: 650px; /* 캘린더 최소 너비 확보 (증가) */
+            flex-grow: 1; /* 캘린더 섹션도 사용 가능한 공간을 채우도록 */
         }
 
         .schedule-list-section {
@@ -125,6 +126,22 @@
             padding: 20px;
             flex: 1; /* 스케줄 목록 */
             min-width: 300px;
+            flex-grow: 1; /* 스케줄 섹션도 사용 가능한 공간을 채우도록 */
+            display: flex; /* 내부 콘텐츠 정렬을 위해 flex 추가 */
+            flex-direction: column; /* 내부 요소들을 세로로 정렬 */
+        }
+        .schedule-list-section h2 {
+            flex-shrink: 0; /* 제목은 축소되지 않도록 */
+        }
+        #noScheduleMessage {
+            flex-grow: 1; /* 메시지가 남은 공간을 채우도록 */
+            display: flex; /* 메시지 내부 콘텐츠 중앙 정렬을 위해 flex 추가 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #scheduleList > .schedule-item {
+            flex-shrink: 0; /* 스케줄 항목은 축소되지 않도록 */
         }
 
         /* Calendar Styles (데스크탑 기본 스타일) */
@@ -285,6 +302,7 @@
                 width: 100%; /* 모바일에서 너비 100% */
                 flex: none; /* flexgrow/shrink 초기화 */
                 min-width: unset; /* 최소 너비 제한 해제 */
+                height: auto; /* 모바일에서 높이 유동적으로 */
             }
             .schedule-list-section {
                 padding-top: 10px;
@@ -884,6 +902,7 @@
                             cell.appendChild(scheduleSummaryDiv);
                         }
 
+                        // 날짜를 한 번 클릭하면 스케줄 목록만 업데이트
                         cell.addEventListener('click', () => {
                             const previouslySelected = document.querySelector('.calendar-days td.selected');
                             if (previouslySelected) {
@@ -893,13 +912,17 @@
 
                             selectedDate = fullDate;
                             displaySchedules(selectedDate);
-                            // 날짜 클릭 시 스케줄 입력 모달 열기
-                            openScheduleModal(selectedDate);
                             // 모바일 환경에서만 스케줄 목록으로 스크롤
                             if (window.innerWidth <= 768) {
                                 document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
                         });
+
+                        // 날짜를 더블 클릭하면 스케줄 입력 모달 열기
+                        cell.addEventListener('dblclick', () => {
+                            openScheduleModal(fullDate);
+                        });
+
 
                         if (selectedDate === fullDate) {
                             cell.classList.add('selected');
