@@ -204,7 +204,7 @@
             padding-top: 5px;
             padding-left: 5px;
 
-            /* Added for better mobile layout within cells */
+            /* Added for better layout within cells */
             display: flex;
             flex-direction: column;
             justify-content: space-between; /* 날짜와 스케줄 요약이 위아래로 분리되도록 */
@@ -960,8 +960,9 @@
                         if (fullDate === today) {
                             cell.classList.add('today');
                         }
-                        if (fullDate === selectedDate) {
-                            cell.classList.add('selected');
+                        // selectedDate가 현재 월의 날짜일 경우에만 selected 클래스 유지
+                        if (selectedDate === fullDate) { // 수정: selectedDate가 현재 달력에 있는 날짜인지 확인
+                             cell.classList.add('selected');
                         }
                         if (j === 0) { // Sunday
                             cell.classList.add('weekend');
@@ -998,7 +999,8 @@
                             });
 
                             let summaryCount = 0;
-                            const maxSummaryItems = window.innerWidth <= 768 ? 2 : 2; // Mobile vs Desktop (can be adjusted)
+                            // 모바일에서는 최대 1-2개, 데스크탑에서는 2-3개 표시 (공간에 따라 조절)
+                            const maxSummaryItems = window.innerWidth <= 768 ? 1 : 2; // 모바일 1줄, 데스크탑 2줄 요약
 
                             for (let k = 0; k < sortedSchedules.length; k++) {
                                 if (k < maxSummaryItems) { // Only show first few for summary
@@ -1026,10 +1028,21 @@
                     row.appendChild(cell);
                 }
                 if (date > numDays && i > 0) { // Stop if all days rendered and not first row
-                    row.classList.add('empty-row'); // 추가: 남는 빈 행에 클래스 추가
+                    // 마지막 날짜까지 모두 채워졌고, 추가 빈 셀이 필요 없는 경우에만 break
+                    if (row.children.length === 7 && Array.from(row.children).every(child => child.classList.contains('empty-day'))) {
+                         // 빈 행이 모두 채워진 경우 (다음 달 날짜가 시작될 수 있으므로), row를 추가하지 않음.
+                         // 하지만 이 로직은 보통 `date > numDays` 조건에서 걸러지므로 크게 필요 없음.
+                    } else if (date > numDays) {
+                        // 현재 행이 마지막 날짜 이후의 빈 셀로 채워진 경우
+                        calendarBody.appendChild(row);
+                        break;
+                    }
+                }
+                 else if (date > numDays) {
+                    calendarBody.appendChild(row);
+                    break;
                 }
                 calendarBody.appendChild(row);
-                if (date > numDays) break; // Break if all days of month are rendered
             }
         }
 
@@ -1038,7 +1051,10 @@
             if (!hexcolor || hexcolor.startsWith('var(')) {
                  // CSS 변수인 경우, 기본 텍스트 색상 반환
                 const bodyComputedStyle = getComputedStyle(document.body);
-                return bodyComputedStyle.getPropertyValue('--text-color').trim();
+                // 어둡게 설정된 --text-color는 밝은 배경용이므로, 반대로 어두운 텍스트를 반환
+                // 밝게 설정된 --text-color는 어두운 배경용이므로, 반대로 밝은 텍스트를 반환
+                // 간단하게 색상값으로 직접 판단
+                return '#333'; // 기본적으로 어두운 텍스트
             }
 
             const r = parseInt(hexcolor.substr(1, 2), 16);
@@ -1056,12 +1072,12 @@
                 currentYear--;
             }
             renderCalendar();
-            // 월 변경 시, 선택된 날짜가 있다면 해당 날짜의 스케줄 목록을 다시 보여줌
-            // 아니면 현재 월의 첫째 날 스케줄을 보여주거나, 현재 날짜 스케줄을 보여줌
-            if (selectedDate && new Date(selectedDate).getFullYear() === currentYear && new Date(selectedDate).getMonth() === currentMonth) {
+            // 월 변경 시, 선택된 날짜가 현재 월에 속한다면 해당 날짜의 스케줄 목록을 유지
+            const currentSelectedDateObj = selectedDate ? new Date(selectedDate) : null;
+            if (currentSelectedDateObj && currentSelectedDateObj.getFullYear() === currentYear && currentSelectedDateObj.getMonth() === currentMonth) {
                 displaySchedulesForSelectedDate(selectedDate);
             } else {
-                // 월 변경 시, 해당 월의 첫째 날을 자동으로 선택
+                // 새로운 달의 첫째 날을 선택
                 const firstDayOfNewMonth = new Date(currentYear, currentMonth, 1);
                 selectDate(formatDate(firstDayOfNewMonth));
             }
@@ -1074,10 +1090,12 @@
                 currentYear++;
             }
             renderCalendar();
-            if (selectedDate && new Date(selectedDate).getFullYear() === currentYear && new Date(selectedDate).getMonth() === currentMonth) {
+            // 월 변경 시, 선택된 날짜가 현재 월에 속한다면 해당 날짜의 스케줄 목록을 유지
+            const currentSelectedDateObj = selectedDate ? new Date(selectedDate) : null;
+            if (currentSelectedDateObj && currentSelectedDateObj.getFullYear() === currentYear && currentSelectedDateObj.getMonth() === currentMonth) {
                 displaySchedulesForSelectedDate(selectedDate);
             } else {
-                // 월 변경 시, 해당 월의 첫째 날을 자동으로 선택
+                // 새로운 달의 첫째 날을 선택
                 const firstDayOfNewMonth = new Date(currentYear, currentMonth, 1);
                 selectDate(formatDate(firstDayOfNewMonth));
             }
@@ -1095,13 +1113,13 @@
             if (newSelectedCell) {
                 newSelectedCell.classList.add('selected');
             }
-            selectedDate = date;
+            selectedDate = date; // 전역 selectedDate 업데이트
             displaySchedulesForSelectedDate(date);
 
-            // 모바일에서 날짜 선택 시, 스케줄 목록 섹션을 보여줌 (필요한 경우)
+            // 모바일에서 날짜 선택 시, 스케줄 목록 섹션을 보여줌
             if (window.innerWidth <= 768) {
                 document.getElementById('scheduleListContainer').style.display = 'flex';
-                // 캘린더 섹션은 숨기거나 크기를 줄일 수 있지만, 일단은 유지
+                // 캘린더 섹션은 숨기거나 크기를 줄일 수 있지만, 현재는 유지
                 // 필요하다면 여기에 캘린더 섹션을 숨기는 로직 추가
                 // document.querySelector('.calendar-section').style.display = 'none';
             }
@@ -1120,7 +1138,7 @@
             if (schedulesForDate.length === 0) {
                 noScheduleMessage.style.display = 'block';
                 scheduleListContent.style.display = 'none';
-                addScheduleButton.style.display = 'block'; // 스케줄 없으면 + 버튼 보이게
+                addScheduleButton.style.display = 'block'; // 스케줄 없어도 + 버튼 보이게
             } else {
                 noScheduleMessage.style.display = 'none';
                 scheduleListContent.style.display = 'block';
@@ -1160,21 +1178,27 @@
         function toggleScheduleListVisibility() {
             const scheduleListContainer = document.getElementById('scheduleListContainer');
             if (window.innerWidth <= 768) {
-                // 모바일에서는 처음에는 스케줄 목록을 숨김
-                // selectDate 함수에서 날짜 선택 시 다시 보이게 함
+                // 모바일에서는 초기 로드 시 스케줄 목록을 숨김
+                // 날짜가 선택되어 있지 않거나, 선택된 날짜가 현재 달력에 없을 경우에만 숨김
                 if (!selectedDate || document.querySelector(`.calendar-days td.selected`) === null) {
                     scheduleListContainer.style.display = 'none';
-                    // 초기 로드 시 오늘 날짜 선택
-                    const todayCell = document.querySelector(`.calendar-days td.today`);
-                    if (todayCell) {
-                        selectDate(todayCell.dataset.date);
-                    } else {
-                        // 오늘 날짜가 현재 월에 없으면, 첫째 날 선택
-                        const firstDayCell = document.querySelector(`.calendar-days td:not(.empty-day)`);
-                        if (firstDayCell) {
-                            selectDate(firstDayCell.dataset.date);
-                        }
+                    // 초기 로드 시 오늘 날짜 선택 또는 현재 월의 첫째 날 선택
+                    const today = new Date();
+                    const formattedToday = formatDate(today);
+                    let initialDateToSelect = formattedToday;
+
+                    // 현재 달력에 오늘 날짜가 없으면, 현재 달의 1일을 선택
+                    const todayCell = document.querySelector(`.calendar-days td[data-date="${formattedToday}"]`);
+                    if (!todayCell) {
+                        const firstDayOfCurrentMonth = new Date(currentYear, currentMonth, 1);
+                        initialDateToSelect = formatDate(firstDayOfCurrentMonth);
                     }
+                    selectDate(initialDateToSelect); // 이 부분에서 스케줄 목록이 다시 보이게 될 수 있음.
+                                                    // 따라서 초기 로드 시 'selected' 클래스 처리 후, display = 'none'을 유지하려면
+                                                    // displaySchedulesForSelectedDate 호출 후 scheduleListContainer.style.display = 'none'을 다시 설정해야 함.
+                    // 강제로 다시 숨김 (날짜 선택 시 보이도록)
+                    scheduleListContainer.style.display = 'none';
+
                 } else {
                     scheduleListContainer.style.display = 'flex';
                 }
@@ -1183,16 +1207,9 @@
                 scheduleListContainer.style.display = 'flex';
                 // 데스크톱에서 초기 로드 시 오늘 날짜 선택
                 if (!selectedDate) {
-                    const todayCell = document.querySelector(`.calendar-days td.today`);
-                    if (todayCell) {
-                        selectDate(todayCell.dataset.date);
-                    } else {
-                        // 오늘 날짜가 현재 월에 없으면, 첫째 날 선택
-                        const firstDayCell = document.querySelector(`.calendar-days td:not(.empty-day)`);
-                        if (firstDayCell) {
-                            selectDate(firstDayCell.dataset.date);
-                        }
-                    }
+                    const today = new Date();
+                    const formattedToday = formatDate(today);
+                    selectDate(formattedToday);
                 }
             }
         }
@@ -1447,14 +1464,17 @@
 
             // 초기 캘린더 렌더링 및 오늘 날짜 선택
             renderCalendar();
-            // 오늘 날짜를 기준으로 selectedDate 설정 및 스케줄 목록 표시
+            // today 변수 정의
             const today = new Date();
             const formattedToday = formatDate(today);
-            selectDate(formattedToday); // 오늘 날짜를 선택된 날짜로 설정하고 스케줄 목록 렌더링
 
-            // 화면 크기 변경 감지 (모바일/데스크탑 레이아웃 전환)
-            window.addEventListener('resize', toggleScheduleListVisibility);
-            toggleScheduleListVisibility(); // 초기 로드 시 한 번 실행하여 현재 화면 크기에 맞게 조정
+            // toggleScheduleListVisibility 함수가 selectedDate를 설정하고 스케줄 목록 표시를 제어
+            toggleScheduleListVisibility();
+
+            // 만약 toggleScheduleListVisibility 내부에서 today가 선택되지 않았다면 수동으로 선택 (데스크탑 등에서)
+            if (!selectedDate) {
+                selectDate(formattedToday);
+            }
         });
     </script>
 </body>
