@@ -139,9 +139,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            margin-top: 15px; /* 제목과의 간격 */
         }
-        #scheduleList > .schedule-item {
-            flex-shrink: 0; /* 스케줄 항목은 축소되지 않도록 */
+        /* 스케줄 목록 내용 컨테이너에 flex-grow 추가 */
+        #scheduleListContent {
+            flex-grow: 1;
+            overflow-y: auto; /* 스케줄이 많을 경우 스크롤 */
+            margin-top: 15px; /* 제목과의 간격 */
         }
 
         /* Calendar Styles (데스크탑 기본 스타일) */
@@ -273,12 +277,15 @@
         .schedule-summary {
             font-size: 0.8em; /* 데스크탑 스케줄 요약 폰트 크기 (약간 증가) */
             margin-top: 5px;
-            overflow-y: visible;
             padding-right: 3px;
             word-break: break-word;
             flex-grow: 1; /* 남은 공간을 스케줄 요약이 차지하도록 */
             min-height: 0; /* flex item 내부 스크롤을 위해 필요 */
             flex-shrink: 0; /* 스케줄 요약 컨테이너가 축소되지 않도록 */
+            /* 텍스트 잘림 방지 */
+            max-height: 4em; /* 대략 2~3줄 높이 (조절 가능) */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .schedule-summary .schedule-count {
             display: block;
@@ -294,7 +301,7 @@
             padding: 3px 6px; /* 데스크탑 요약 항목 패딩 (증가) */
             margin-bottom: 3px;
             border-radius: 3px;
-            white-space: normal; /* 텍스트 줄바꿈 허용 */
+            white-space: normal; /* 중요: 텍스트 줄바꿈 허용 */
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -351,7 +358,7 @@
             .calendar-days th, .calendar-days td {
                 padding: 2px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
                 font-size: 0.8em; /* 셀 내부 글자 크기 조정 */
-                min-height: 60px; /* 모바일에서 셀 최소 높이 조정 (조금 더 확보) */
+                min-height: 70px; /* 모바일에서 셀 최소 높이 조정 (더 확보) */
                 flex-grow: 1; /* 각 셀이 같은 너비를 가지도록 */
             }
             .calendar-days td {
@@ -370,7 +377,7 @@
             .schedule-summary {
                 font-size: 0.7em; /* 모바일에서 스케줄 요약 폰트 크기 조정 */
                 margin-top: 2px; /* 스케줄 요약 위쪽 여백 조정 */
-                max-height: 2.5em; /* 최대 2줄 정도만 보이도록 (조절 필요) */
+                max-height: 2.8em; /* 최대 2~3줄 높이 (조절 가능) */
                 overflow: hidden;
                 text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
             }
@@ -792,9 +799,10 @@
         const taskTypeInput = document.getElementById('taskType');
         const taskContentInput = document.getElementById('taskContent');
         const scheduleColorInput = document.getElementById('scheduleColor');
-        // scheduleListDiv를 scheduleListContent로 변경하여, scheduleListContainer와 구분
+
+        // 기존 scheduleListDiv 대신 scheduleListContainer (section)와 scheduleListContent (div) 사용
         const scheduleListContainer = document.getElementById('scheduleListContainer');
-        const scheduleListContent = document.getElementById('scheduleListContent');
+        const scheduleListContent = document.getElementById('scheduleListContent'); // 실제 스케줄 목록이 들어갈 div
         const noScheduleMessage = document.getElementById('noScheduleMessage');
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
@@ -813,6 +821,7 @@
         const scheduleListTitle = document.querySelector('#scheduleListContainer h2'); // 선택자 업데이트
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
+        // (이 부분은 이전과 동일합니다. 필요시 업데이트)
         const holidays = new Map([
             // 2024년 공휴일
             ['2024-01-01', '신정'],
@@ -1086,7 +1095,7 @@
 
             const newSchedule = {
                 id: editingSchedule ? editingSchedule.id : Date.now(), // 수정 시 기존 ID 유지, 신규 시 새 ID
-                date,
+                date, // 스케줄의 날짜를 속성으로 추가하여 수정/삭제 시 참조
                 time,
                 location,
                 companyName,
@@ -1138,14 +1147,15 @@
 
             if (dailySchedules.length === 0) {
                 noScheduleMessage.style.display = 'block';
-                scheduleListContent.appendChild(noScheduleMessage); // 메시지를 내용 컨테이너에 추가
-                // 모바일에서 스케줄이 없을 경우 스케줄 목록 섹션 숨김
+                // scheduleListContent.appendChild(noScheduleMessage); // 메시지를 내용 컨테이너에 추가 (HTML에 이미 존재하므로)
+                
+                // 스케줄이 없을 때 스케줄 목록 섹션 숨김 (모바일)
                 if (window.innerWidth <= 768) {
                     scheduleListContainer.style.display = 'none'; // 섹션 전체를 숨김
                 }
             } else {
                 noScheduleMessage.style.display = 'none';
-                // 스케줄이 있을 경우 스케줄 목록 섹션 표시 (모바일)
+                // 스케줄이 있을 때 스케줄 목록 섹션 표시 (모바일)
                 if (window.innerWidth <= 768) {
                     scheduleListContainer.style.display = 'flex'; // 섹션 전체를 표시
                 }
@@ -1174,31 +1184,32 @@
                     `;
                     scheduleListContent.appendChild(itemDiv); // 내용을 scheduleListContent에 추가
                 });
-
-                // 이벤트 위임을 사용하여 동적으로 생성된 요소에도 이벤트 적용
-                scheduleListContent.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-btn')) {
-                        const idToDelete = parseInt(e.target.dataset.id);
-                        const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
-                        deleteSchedule(dateOfSchedule, idToDelete);
-                    } else if (e.target.classList.contains('edit-btn')) {
-                        const idToEdit = parseInt(e.target.dataset.id);
-                        const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
-                        editSchedule(dateOfSchedule, idToEdit);
-                    } else if (e.target.classList.contains('tel-link')) {
-                        const phoneNumber = e.target.dataset.phone;
-                        if (phoneNumber && phoneNumber !== '없음') {
-                            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`;
-                        }
-                    } else if (e.target.classList.contains('nav-link')) {
-                        const address = e.target.dataset.address;
-                        if (address && address !== '없음') {
-                            openNavigationApp(address);
-                        }
-                    }
-                });
             }
         }
+
+        // 이벤트 위임: scheduleListContent에 한 번만 이벤트 리스너를 추가
+        scheduleListContent.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const idToDelete = parseInt(e.target.dataset.id);
+                const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
+                deleteSchedule(dateOfSchedule, idToDelete);
+            } else if (e.target.classList.contains('edit-btn')) {
+                const idToEdit = parseInt(e.target.dataset.id);
+                const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
+                editSchedule(dateOfSchedule, idToEdit);
+            } else if (e.target.classList.contains('tel-link')) {
+                const phoneNumber = e.target.dataset.phone;
+                if (phoneNumber && phoneNumber !== '없음') {
+                    window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`;
+                }
+            } else if (e.target.classList.contains('nav-link')) {
+                const address = e.target.dataset.address;
+                if (address && address !== '없음') {
+                    openNavigationApp(address);
+                }
+            }
+        });
+
 
         function deleteSchedule(date, id) {
             if (confirm('정말로 이 스케줄을 삭제하시겠습니까?')) {
@@ -1207,7 +1218,7 @@
                     delete schedules[date];
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
-                displaySchedules(date); // 현재 선택된 날짜의 스케줄만 다시 표시
+                displaySchedules(selectedDate); // 현재 선택된 날짜의 스케줄만 다시 표시
                 renderCalendar(); // 캘린더 전체를 다시 그려 스케줄 요약 업데이트
                 alert('스케줄이 삭제되었습니다.');
             }
@@ -1238,14 +1249,13 @@
         }
 
         function cancelEdit() {
-            clearAllInputs();
-            editingSchedule = null;
-            saveScheduleBtn.textContent = '스케줄 추가';
-            cancelEditBtn.style.display = 'none';
-            // 모달 닫기
-            closeScheduleModal();
+            clearAllInputs(); // 입력 필드 초기화
+            editingSchedule = null; // 수정 중인 스케줄 초기화
+            saveScheduleBtn.textContent = '스케줄 추가'; // 버튼 텍스트 원래대로
+            cancelEditBtn.style.display = 'none'; // 취소 버튼 숨김
+            closeScheduleModal(); // 모달 닫기
             // 선택된 날짜의 스케줄 목록 다시 표시 (불필요할 수 있지만 안전하게 추가)
-            displaySchedules(selectedDate);
+            displaySchedules(selectedDate); 
         }
 
         function clearAllInputs() {
@@ -1260,9 +1270,9 @@
             taskTypeInput.value = '';
             taskContentInput.value = '';
             scheduleColorInput.value = '#ffffff';
-            editingSchedule = null; // 초기화 시 editingSchedule도 null로 설정
-            saveScheduleBtn.textContent = '스케줄 추가'; // 버튼 텍스트 초기화
-            cancelEditBtn.style.display = 'none'; // 취소 버튼 숨김
+            // editingSchedule = null; // clearAllInputs 호출 시 editingSchedule을 null로 만들면 saveSchedule에서 문제가 생길 수 있으므로 제거
+            // saveScheduleBtn.textContent = '스케줄 추가'; // clearAllInputs 호출 시 버튼 텍스트를 변경할 필요 없음
+            // cancelEditBtn.style.display = 'none'; // clearAllInputs 호출 시 취소 버튼을 숨길 필요 없음
         }
 
         function getContrastYIQ(hexcolor){
@@ -1344,18 +1354,9 @@
         }
 
 
-        // --- 이벤트 리스너 ---
-        navRadios.forEach(radio => {
-            radio.addEventListener('change', saveSettings);
-        });
-
-        themeRadios.forEach(radio => {
-            radio.addEventListener('change', saveSettings);
-        });
-
-        // DOMContentLoaded 이후에 캘린더를 초기화하고 오늘 날짜를 선택하도록
+        // --- 초기화 로직: DOMContentLoaded 이후에 실행 ---
         document.addEventListener('DOMContentLoaded', () => {
-            initCalendar(); // 캘린더를 먼저 렌더링
+            initCalendar(); // 캘린더를 먼저 렌더링하고 기본 설정을 로드
 
             const today = new Date();
             const year = today.getFullYear();
@@ -1363,7 +1364,7 @@
             const day = String(today.getDate()).padStart(2, '0');
             const todayFormatted = `${year}-${month}-${day}`;
             
-            // selectedDate를 오늘 날짜로 설정하고
+            // selectedDate를 오늘 날짜로 설정
             selectedDate = todayFormatted;
 
             // 캘린더에서 오늘 날짜 셀을 찾아 'selected' 클래스 추가
