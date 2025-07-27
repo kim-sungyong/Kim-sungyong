@@ -136,25 +136,24 @@
             .schedule-list-section {
                 padding-top: 10px;
             }
-            /* 캘린더 테이블 셀 (th, td) 스타일 수정 */
             .calendar-days th, .calendar-days td {
-                padding: 3px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
-                font-size: 0.9em; /* 셀 내부 글자 크기 조정 */
-                min-height: 70px; /* 모바일에서 셀 최소 높이 조정 */
+                padding: 3px;
+                font-size: 0.9em;
+                min-height: 70px;
             }
             .calendar-days td .day-number {
-                font-size: 1em; /* 날짜 숫자 크기 조정 */
-                padding-right: 3px; /* 날짜 숫자 오른쪽 패딩 조정 */
+                font-size: 1em;
+                padding-right: 3px;
             }
             .calendar-days td.holiday .holiday-name {
-                font-size: 0.6em; /* 공휴일 이름 폰트 크기 조정 */
+                font-size: 0.6em;
                 padding-right: 3px;
             }
             .schedule-summary {
-                font-size: 0.6em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
+                font-size: 0.6em;
             }
             .schedule-summary p {
-                padding: 1px 3px; /* 요약 항목 패딩 조정 */
+                padding: 1px 3px;
             }
         }
 
@@ -191,15 +190,15 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            table-layout: fixed; /* 모든 열의 너비를 균일하게 강제합니다. */
+            table-layout: fixed;
         }
 
         .calendar-days th, .calendar-days td {
-            padding: 5px; /* 데스크탑 기본 패딩도 5px로 통일 (모바일과 일관성 유지) */
+            padding: 5px;
             border: 1px solid var(--border-color);
             position: relative;
             vertical-align: top;
-            min-height: 80px; /* 데스크탑에서 충분한 높이, 모바일에서는 내용에 따라 유동적으로 */
+            min-height: 80px;
         }
 
         .calendar-days th {
@@ -233,12 +232,12 @@
         }
 
         /* Day of week colors */
-        .calendar-days th:first-child, /* 일요일 */
+        .calendar-days th:first-child,
         .calendar-days td:nth-child(1) .day-number {
             color: var(--weekend-color);
         }
 
-        .calendar-days th:last-child, /* 토요일 */
+        .calendar-days th:last-child,
         .calendar-days td:nth-child(7) .day-number {
             color: var(--saturday-color);
         }
@@ -281,9 +280,9 @@
         .schedule-summary {
             font-size: 0.75em;
             margin-top: 5px;
-            overflow-y: visible; /* Allow content to overflow/expand cell */
+            overflow-y: visible;
             padding-right: 3px;
-            word-break: break-word; /* 긴 텍스트 줄바꿈 */
+            word-break: break-word;
         }
         .schedule-summary .schedule-count {
             display: block;
@@ -570,7 +569,7 @@
     <header>
         <button class="settings-button" onclick="openSettingsModal()">⚙️</button>
         <h1>나의 스케줄</h1>
-        <button class="add-schedule-button" onclick="openScheduleModal(selectedDate)">➕</button>
+        <button class="add-schedule-button" style="display: none;">➕</button> 
     </header>
 
     <main>
@@ -871,6 +870,8 @@
 
                             selectedDate = fullDate;
                             displaySchedules(selectedDate);
+                            // 날짜 클릭 시 스케줄 입력 모달 열기
+                            openScheduleModal(selectedDate); 
                             // 모바일 환경에서만 스케줄 목록으로 스크롤
                             if (window.innerWidth <= 768) {
                                 document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -919,6 +920,16 @@
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
             editingSchedule = null;
+            // 해당 날짜에 이미 스케줄이 있다면, 가장 오래된 스케줄의 시간을 기본으로 채워준다 (선택 사항)
+            if (schedules[date] && schedules[date].length > 0) {
+                scheduleTimeInput.value = schedules[date][0].time;
+            } else {
+                // 현재 시간을 기본값으로 설정 (선택 사항)
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                scheduleTimeInput.value = `${hours}:${minutes}`;
+            }
         }
 
         function closeScheduleModal() {
@@ -993,9 +1004,7 @@
             }
 
             localStorage.setItem('schedules', JSON.stringify(schedules));
-            clearAllInputs();
-            displaySchedules(date);
-            renderCalendar();
+            closeScheduleModal(); // 저장 후 모달 닫기
         }
 
         function displaySchedules(date) {
@@ -1184,7 +1193,7 @@
             if (defaultNavApp === 'none') {
                 const navChoice = prompt('이동할 내비게이션 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵\n(숫자를 입력하세요)');
                 if (navChoice === '1') {
-                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `http://maps.google.com/?q=${encodedAddress}`;
                 } else if (navChoice === '2') {
                     url = `https://map.naver.com/v5/search/${encodedAddress}`;
                 } else if (navChoice === '3') {
@@ -1194,7 +1203,7 @@
                     return;
                 }
             } else if (defaultNavApp === 'google') {
-                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                url = `http://maps.google.com/?q=${encodedAddress}`;
             } else if (defaultNavApp === 'naver') {
                 url = `https://map.naver.com/v5/search/${encodedAddress}`;
             } else if (defaultNavApp === 'kakao') {
