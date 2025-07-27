@@ -1240,6 +1240,7 @@
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const schedulesForDay = schedules[selectedDate] || [];
 
+            // 기존 스케줄 아이템 모두 제거 (첫 2개 자식 요소인 h2와 p는 남김)
             while (scheduleListDiv.children.length > 2) {
                 scheduleListDiv.removeChild(scheduleListDiv.children[1]);
             }
@@ -1366,9 +1367,10 @@
 
             switch (defaultNav) {
                 case 'google':
-                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
                     break;
                 case 'naver':
+                    // 네이버 지도 URL 인코딩 수정: 검색 쿼리에 직접 인코딩된 주소 사용
                     url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
                     break;
                 case 'kakao':
@@ -1378,7 +1380,7 @@
                 default:
                     const navChoice = prompt('이동할 지도 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵');
                     if (navChoice === '1') {
-                        url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                        url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
                     } else if (navChoice === '2') {
                         url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
                     } else if (navChoice === '3') {
