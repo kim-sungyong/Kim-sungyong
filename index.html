@@ -306,6 +306,8 @@
             }
             .schedule-list-section {
                 padding-top: 10px;
+                /* 모바일에서 스케줄 목록은 초기에는 숨김 */
+                display: none;
             }
             /* 캘린더 테이블 셀 (th, td) 스타일 수정 */
             .calendar-days th, .calendar-days td {
@@ -902,7 +904,7 @@
                             cell.appendChild(scheduleSummaryDiv);
                         }
 
-                        // 날짜를 한 번 클릭하면 스케줄 목록만 업데이트
+                        // 날짜를 클릭하면 스케줄 목록 업데이트 (스케줄 유무에 따라 표시/숨김)
                         cell.addEventListener('click', () => {
                             const previouslySelected = document.querySelector('.calendar-days td.selected');
                             if (previouslySelected) {
@@ -911,9 +913,10 @@
                             cell.classList.add('selected');
 
                             selectedDate = fullDate;
-                            displaySchedules(selectedDate);
-                            // 모바일 환경에서만 스케줄 목록으로 스크롤
-                            if (window.innerWidth <= 768) {
+                            displaySchedules(selectedDate); // 이 함수 내에서 scheduleListDiv의 display를 제어합니다.
+
+                            // 모바일 환경에서만 스케줄 목록으로 스크롤 (스케줄이 있는 경우)
+                            if (window.innerWidth <= 768 && schedules[selectedDate] && schedules[selectedDate].length > 0) {
                                 document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
                         });
@@ -938,7 +941,7 @@
                     break;
                 }
             }
-            displaySchedules(selectedDate);
+            displaySchedules(selectedDate); // 초기 로드 시 선택된 날짜의 스케줄 표시
         }
 
         function prevMonth() {
@@ -1055,16 +1058,24 @@
 
         function displaySchedules(date) {
             scheduleListTitle.textContent = `${date}의 스케줄`;
-            scheduleListDiv.innerHTML = '';
-            scheduleListDiv.appendChild(scheduleListTitle);
+            scheduleListDiv.innerHTML = ''; // 기존 스케줄 목록 초기화
+            scheduleListDiv.appendChild(scheduleListTitle); // 제목 다시 추가
 
             const dailySchedules = schedules[date] || [];
 
             if (dailySchedules.length === 0) {
                 noScheduleMessage.style.display = 'block';
                 scheduleListDiv.appendChild(noScheduleMessage);
+                // 모바일에서 스케줄이 없을 경우 스케줄 목록 섹션 숨김
+                if (window.innerWidth <= 768) {
+                    scheduleListDiv.style.display = 'none';
+                }
             } else {
                 noScheduleMessage.style.display = 'none';
+                // 스케줄이 있을 경우 스케줄 목록 섹션 표시 (모바일)
+                if (window.innerWidth <= 768) {
+                    scheduleListDiv.style.display = 'block'; // 'flex' 대신 'block'으로 변경
+                }
                 dailySchedules.sort((a, b) => a.time.localeCompare(b.time));
                 dailySchedules.forEach(schedule => {
                     const itemDiv = document.createElement('div');
@@ -1239,7 +1250,7 @@
             if (defaultNavApp === 'none') {
                 const navChoice = prompt('이동할 내비게이션 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵\n(숫자를 입력하세요)');
                 if (navChoice === '1') {
-                    url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
                 } else if (navChoice === '2') {
                     url = `https://map.naver.com/v5/search/${encodedAddress}`;
                 } else if (navChoice === '3') {
@@ -1249,7 +1260,7 @@
                     return;
                 }
             } else if (defaultNavApp === 'google') {
-                url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
             } else if (defaultNavApp === 'naver') {
                 url = `https://map.naver.com/v5/search/${encodedAddress}`;
             } else if (defaultNavApp === 'kakao') {
