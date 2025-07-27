@@ -14,6 +14,9 @@
             background-color: #f4f7f6;
             color: #333;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-size: 16px; /* 기본 폰트 크기 설정 */
         }
 
@@ -86,12 +89,15 @@
 
 
         .container {
-            max-width: 900px; /* 컨테이너 너비 기본으로 되돌림 */
+            max-width: 1200px; /* 컨테이너 최대 너비 증가 */
             margin: 20px auto;
             padding: 25px;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            display: flex; /* 내부 요소들을 flex로 배치 */
+            flex-direction: column; /* 세로 방향 정렬 */
         }
 
         h1, h2 {
@@ -107,6 +113,7 @@
         /* 캘린더 섹션 */
         .calendar-section {
             margin-bottom: 30px;
+            flex-grow: 1; /* 캘린더가 가능한 공간을 차지하도록 */
         }
 
         .calendar-header {
@@ -147,7 +154,8 @@
         .calendar-table {
             width: 100%;
             border-collapse: collapse;
-            /* table-layout: fixed; 는 유연한 레이아웃을 위해 제거 */
+            table-layout: fixed; /* 고정 너비 열 */
+            height: 100%; /* 부모 컨테이너에 맞춰 높이 확장 */
         }
 
         .calendar-weekdays th {
@@ -174,12 +182,11 @@
             text-align: center;
             vertical-align: top; /* 스케줄 내용 상단 정렬 */
             border: 1px solid #eee;
-            height: 90px; /* 고정 높이 */
+            min-height: 120px; /* 각 셀의 최소 높이 증가 */
             cursor: pointer;
             transition: background-color 0.2s ease;
             position: relative;
             box-sizing: border-box; /* 패딩, 보더 포함 넓이 계산 */
-            /* display: flex; 관련 속성 제거 */
         }
 
         .calendar-days td:hover {
@@ -261,6 +268,28 @@
         }
 
 
+        .calendar-days td.has-schedule {
+            background-color: #dbe9f3; /* 스케줄 있는 날짜 */
+        }
+        .calendar-days td.today.has-schedule {
+            background-color: #f7d794; /* 오늘 + 스케줄 */
+        }
+        /* 공휴일이면서 스케줄 있는 날짜 */
+        .calendar-days td.holiday.has-schedule {
+            background-color: #f7e0e0; /* 공휴일 스케줄 배경색 */
+        }
+        body.dark-theme .calendar-days td.holiday.has-schedule {
+            background-color: #4a343b; /* 다크 테마 공휴일 스케줄 배경색 */
+        }
+        /* 일/토요일 공휴일이면서 스케줄 있는 날짜 */
+        .calendar-days td.holiday-weekend.has-schedule {
+            background-color: #f7d0d0; /* 주말 공휴일 스케줄 배경색 */
+        }
+        body.dark-theme .calendar-days td.holiday-weekend.has-schedule {
+            background-color: #5b414a; /* 다크 테마 주말 공휴일 스케줄 배경색 */
+        }
+
+
         .schedule-summary {
             font-size: 0.9em; /* 스케줄 요약 폰트 크기 조정 */
             color: #555;
@@ -270,9 +299,6 @@
             max-height: 4em; /* 최대 높이 설정하여 넘치면 ... */
             overflow: hidden;
             text-overflow: ellipsis;
-            width: 100%; /* 부모 너비에 맞춤 */
-            text-align: left; /* 요약 내용은 왼쪽 정렬 */
-            padding: 0 2px; /* 좌우 약간의 패딩 */
         }
         body.dark-theme .schedule-summary {
             color: #aebfd0;
@@ -285,16 +311,16 @@
             text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
         }
 
-        /* 스케줄 입력 폼 (페이지에 직접 표시) */
+        /* 스케줄 입력 폼 - 모달 내부에 배치 */
         .schedule-form {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            background-color: transparent; /* 모달 내부에 배치되므로 배경색 투명하게 */
+            padding: 0; /* 모달 내부에 배치되므로 패딩 제거 */
+            border-radius: 0; /* 모달 내부에 배치되므로 둥근 모서리 제거 */
+            box-shadow: none; /* 모달 내부에 배치되므로 그림자 제거 */
+            margin: 0;
         }
         body.dark-theme .schedule-form {
-            background-color: #34495e;
+            background-color: transparent;
         }
 
         .input-group {
@@ -500,24 +526,22 @@
             color: #2980b9;
         }
 
-        /* 설정 섹션 (페이지에 직접 표시) */
+        /* 설정 섹션 (모달 내부에서 사용됨) */
         .settings-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            /* 모달 관련 스타일 제거 */
+            background-color: transparent; /* 모달 컨텐츠가 배경을 가지므로 투명하게 */
+            padding: 0; /* 모달 컨텐츠가 이미 패딩을 가지므로 제거 */
+            margin: 0; /* 모달 내에서 마진 필요 없음 */
+            box-shadow: none; /* 모달 컨텐츠가 이미 그림자를 가지므로 중복 제거 */
         }
         body.dark-theme .settings-section {
-            background-color: #34495e;
+            background-color: transparent;
         }
-        .settings-section h2 {
+        .settings-section h2 { /* 모달 내부 h2 폰트 크기 조정 */
             font-size: 1.8em;
             margin-bottom: 25px;
             border-bottom: 2px solid #eee;
             padding-bottom: 15px;
-            text-align: center;
+            text-align: center; /* 설정 모달 제목 중앙 정렬 */
         }
         body.dark-theme .settings-section h2 {
             border-bottom-color: #4a667f;
@@ -544,7 +568,7 @@
         }
 
         .settings-option label {
-            display: inline-flex;
+            display: inline-flex; /* 라디오 버튼과 텍스트를 한 줄에 정렬 */
             align-items: center;
             margin-right: 20px;
             cursor: pointer;
@@ -573,12 +597,83 @@
             border-top-color: #4a667f;
         }
 
-        /* 설정 버튼 스타일 (우측 하단 고정) */
-        .settings-button {
+        /* 모달 공통 스타일 */
+        .modal {
+            display: none; /* 초기에는 숨김 */
             position: fixed; /* 화면에 고정 */
-            bottom: 20px; /* 하단에서 20px */
-            right: 20px; /* 우측에서 20px */
             z-index: 1000; /* 다른 요소 위에 표시 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* 내용이 길어지면 스크롤 가능 */
+            background-color: rgba(0,0,0,0.6); /* 어두운 배경 */
+            justify-content: center; /* 수평 중앙 정렬 */
+            align-items: center; /* 수직 중앙 정렬 */
+            padding: 20px; /* 모바일에서 내용이 잘리지 않도록 패딩 추가 */
+            box-sizing: border-box; /* 패딩 포함 크기 계산 */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 12px;
+            width: 90%; /* 모바일에서 넓게 */
+            max-width: 600px; /* 데스크탑에서 최대 너비 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            position: relative; /* 닫기 버튼 위치 지정을 위해 */
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+            max-height: 90vh; /* 모달 최대 높이 설정 (화면 높이의 90%) */
+            overflow-y: auto; /* 내용이 넘치면 모달 내부에서 스크롤 */
+            box-sizing: border-box; /* 패딩 포함 크기 계산 */
+        }
+
+        /* 다크 테마 모달 */
+        body.dark-theme .modal-content {
+            background-color: #34495e;
+            border-color: #4a667f;
+            color: #ecf0f1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        /* 모달 열릴 때 애니메이션 */
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            font-size: 32px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+        }
+        body.dark-theme .close-button {
+            color: #ccc;
+        }
+        body.dark-theme .close-button:hover,
+        body.dark-theme .close-button:focus {
+            color: #eee;
+        }
+
+        /* 설정 버튼 스타일 */
+        .settings-button {
+            position: fixed; /* 화면 우측 상단에 고정 */
+            top: 20px;
+            right: 20px;
+            z-index: 1001; /* 모달 위에 오도록 z-index 설정 */
             background-color: #3498db;
             color: white;
             border: none;
@@ -606,8 +701,12 @@
         body.dark-theme .settings-button:hover {
             background-color: #34495e;
         }
-        /* 설정 모달 관련 스타일은 모두 제거 */
-        /* 모달 관련 스타일은 이 코어 버전에서 사용하지 않으므로 제거합니다. */
+
+        /* 설정 모달 스타일 (재정의) */
+        #settingsModal .modal-content { /* 설정 모달의 내용 박스 */
+            max-width: 500px; /* 설정 모달은 스케줄 모달보다 약간 작게 */
+        }
+
 
         /* 반응형 디자인 */
         @media (max-width: 768px) {
@@ -627,14 +726,18 @@
                 padding: 8px 0;
             }
             .calendar-days td {
+                min-height: 100px; /* 모바일에서 셀 높이 조정 */
                 padding: 5px;
-                height: 70px; /* 모바일에서 셀 높이 조정 */
             }
             .calendar-days td .day-number {
                 font-size: 1.3em;
             }
             .holiday-name, .schedule-summary {
                 font-size: 0.8em;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
             }
             .button-group button {
                 padding: 10px 20px;
@@ -644,7 +747,7 @@
                 width: 45px;
                 height: 45px;
                 font-size: 1.3em;
-                bottom: 15px;
+                top: 15px;
                 right: 15px;
                 padding: 10px 12px;
             }
@@ -661,14 +764,17 @@
                 font-size: 0.8em;
             }
             .calendar-days td {
+                min-height: 80px; /* 더 작은 화면에서 셀 높이 조정 */
                 padding: 3px;
-                height: 60px; /* 작은 화면에서 셀 높이 추가 조정 */
             }
             .calendar-days td .day-number {
                 font-size: 1.1em;
             }
             .holiday-name, .schedule-summary {
                 font-size: 0.7em;
+            }
+            .modal-content {
+                padding: 15px;
             }
             .input-group label {
                 font-size: 0.9em;
@@ -690,7 +796,7 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.2em;
-                bottom: 10px;
+                top: 10px;
                 right: 10px;
                 padding: 8px 10px;
             }
@@ -725,87 +831,95 @@
             </table>
         </section>
 
-        <section class="schedule-form">
-            <h2>스케줄 입력</h2>
-            <div class="input-group">
-                <label for="scheduleDate">날짜:</label>
-                <input type="date" id="scheduleDate" readonly>
+        <div id="scheduleModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeScheduleModal()">×</span>
+                <section class="schedule-form">
+                    <h2>스케줄 입력</h2>
+                    <div class="input-group">
+                        <label for="scheduleDate">날짜:</label>
+                        <input type="date" id="scheduleDate" readonly> </div>
+                    <div class="input-group">
+                        <label for="scheduleTime">시간:</label>
+                        <input type="time" id="scheduleTime">
+                    </div>
+                    <div class="input-group">
+                        <label for="location">장소 (필수):</label>
+                        <input type="text" id="location" placeholder="방문 장소를 입력하세요">
+                    </div>
+                    <div class="input-group">
+                        <label for="companyName">업체명:</label>
+                        <input type="text" id="companyName" placeholder="업체명을 입력하세요 (선택 사항)">
+                    </div>
+                    <div class="input-group">
+                        <label for="address">주소:</label>
+                        <input type="text" id="address" placeholder="정확한 주소를 입력하세요">
+                    </div>
+                    <div class="input-group">
+                        <label for="phoneNumber">전화번호:</label>
+                        <input type="text" id="phoneNumber" placeholder="연락처를 입력하세요 (예: 010-1234-5678)">
+                    </div>
+                    <div class="input-group">
+                        <label for="paymentAmount">결제 금액:</label>
+                        <input type="number" id="paymentAmount" value="0" min="0">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="paymentStatus">
+                        <label for="paymentStatus">입금 완료</label>
+                    </div>
+                    <div class="input-group">
+                        <label for="taskType">작업 종류 (필수):</label>
+                        <input type="text" id="taskType" placeholder="수리, 설치, 점검 등">
+                    </div>
+                    <div class="input-group">
+                        <label for="taskContent">작업 내용:</label>
+                        <textarea id="taskContent" placeholder="자세한 작업 내용을 입력하세요 (선택 사항)"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button id="clearInputBtn" onclick="clearAllInputs()">입력 초기화</button>
+                        <button id="saveScheduleBtn" onclick="saveSchedule()">스케줄 추가</button>
+                        <button id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
+                    </div>
+                </section>
             </div>
-            <div class="input-group">
-                <label for="scheduleTime">시간:</label>
-                <input type="time" id="scheduleTime">
-            </div>
-            <div class="input-group">
-                <label for="location">장소 (필수):</label>
-                <input type="text" id="location" placeholder="방문 장소를 입력하세요">
-            </div>
-            <div class="input-group">
-                <label for="companyName">업체명:</label>
-                <input type="text" id="companyName" placeholder="업체명을 입력하세요 (선택 사항)">
-            </div>
-            <div class="input-group">
-                <label for="address">주소:</label>
-                <input type="text" id="address" placeholder="정확한 주소를 입력하세요">
-            </div>
-            <div class="input-group">
-                <label for="phoneNumber">전화번호:</label>
-                <input type="text" id="phoneNumber" placeholder="연락처를 입력하세요 (예: 010-1234-5678)">
-            </div>
-            <div class="input-group">
-                <label for="paymentAmount">결제 금액:</label>
-                <input type="number" id="paymentAmount" value="0" min="0">
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="paymentStatus">
-                <label for="paymentStatus">입금 완료</label>
-            </div>
-            <div class="input-group">
-                <label for="taskType">작업 종류 (필수):</label>
-                <input type="text" id="taskType" placeholder="수리, 설치, 점검 등">
-            </div>
-            <div class="input-group">
-                <label for="taskContent">작업 내용:</label>
-                <textarea id="taskContent" placeholder="자세한 작업 내용을 입력하세요 (선택 사항)"></textarea>
-            </div>
-            <div class="button-group">
-                <button id="clearInputBtn" onclick="clearAllInputs()">입력 초기화</button>
-                <button id="saveScheduleBtn" onclick="saveSchedule()">스케줄 추가</button>
-                <button id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
-            </div>
-        </section>
+        </div>
 
         <section id="scheduleList" class="schedule-section">
-            <h2></h2>
-            <p id="noScheduleMessage">선택된 날짜에 스케줄이 없습니다. 새로운 스케줄을 추가해보세요!</p>
+            <h2></h2> <p id="noScheduleMessage">선택된 날짜에 스케줄이 없습니다. 새로운 스케줄을 추가해보세요!</p>
         </section>
 
-        <section class="settings-section">
-            <h2>설정</h2>
-            <div class="settings-option">
-                <h3>기본 네비게이션 앱 선택</h3>
-                <label>
-                    <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
-                </label>
-                <label>
-                    <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
-                </label>
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeSettingsModal()">×</span>
+                <section class="settings-section">
+                    <h2>설정</h2>
+                    <div class="settings-option">
+                        <h3>기본 네비게이션 앱 선택</h3>
+                        <label>
+                            <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
+                        </label>
+                        <label>
+                            <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
+                        </label>
+                        <label>
+                            <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
+                        </label>
+                        <label>
+                            <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
+                        </label>
+                    </div>
+                    <div class="settings-option">
+                        <h3>테마 선택</h3>
+                        <label>
+                            <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
+                        </label>
+                        <label>
+                            <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
+                        </label>
+                    </div>
+                </section>
             </div>
-            <div class="settings-option">
-                <h3>테마 선택</h3>
-                <label>
-                    <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
-                </label>
-                <label>
-                    <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
-                </label>
-            </div>
-        </section>
+        </div>
 
     </div>
 
@@ -813,9 +927,8 @@
         <p>© 2025 나만의 스케줄러. 모든 권리 보유.</p>
     </footer>
 
-    <button class="settings-button" onclick="scrollToSettings()">
-        <i class="fas fa-cog"></i>
-    </button>
+    <button class="settings-button" onclick="openSettingsModal()">
+        <i class="fas fa-cog"></i> </button>
 
 
     <script>
@@ -833,7 +946,7 @@
         const noScheduleMessage = document.getElementById('noScheduleMessage');
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
-
+        
         const saveScheduleBtn = document.getElementById('saveScheduleBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
         let editingSchedule = null;
@@ -843,8 +956,10 @@
         const navRadios = document.querySelectorAll('input[name="defaultNav"]');
         const themeRadios = document.querySelectorAll('input[name="theme"]');
 
-        // 스케줄 목록 제목 요소
-        const scheduleListTitle = document.querySelector('#scheduleList h2');
+        // 모달 관련 요소 추가
+        const scheduleModal = document.getElementById('scheduleModal');
+        const settingsModal = document.getElementById('settingsModal'); // 설정 모달 요소 추가
+        const scheduleListTitle = document.querySelector('#scheduleList h2'); // 스케줄 목록 제목
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
         const holidays = new Map([
@@ -915,18 +1030,18 @@
             const today = new Date();
             currentYear = today.getFullYear();
             currentMonth = today.getMonth();
-
+            
             loadSettings();
             renderCalendar();
-
+            
             // 초기 스케줄 목록 제목 설정
             scheduleListTitle.textContent = `선택 날짜 스케줄 목록 (${formatDate(today)})`;
-
+            
             // 오늘 날짜로 스케줄 표시 (초기 로딩 시)
             displaySchedulesForSelectedDate(formatDate(today));
-
-            // 초기 로드 시 입력창의 날짜는 오늘로 설정
-            scheduleDateInput.value = formatDate(today);
+            
+            // 초기 로드 시 입력창의 날짜는 오늘로 설정 (모달은 숨겨진 상태)
+            scheduleDateInput.value = formatDate(today); 
         });
 
         function formatDate(date) {
@@ -963,11 +1078,13 @@
 
                         cell.innerHTML = `<span class="day-number">${date}</span>`;
                         cell.dataset.date = formattedDate;
-                        // 날짜 클릭 시 해당 날짜의 스케줄 표시 및 입력 폼에 날짜 채우기
+                        // 날짜 클릭 시 모달 열기
                         cell.onclick = () => {
                             resetEditingState();
                             scheduleDateInput.value = formattedDate;
                             displaySchedulesForSelectedDate(formattedDate);
+                            closeSettingsModal(); // 스케줄 모달 열기 전에 혹시 열려있는 설정 모달 닫기
+                            openScheduleModal(); // 모달 열기 함수 호출
                         };
 
                         // --- 공휴일 및 요일별 색상 적용 로직 ---
@@ -975,7 +1092,7 @@
                             cell.classList.add('today');
                         }
 
-                        if (holidays.has(formattedDate)) {
+                        if (holidays.has(formattedDate)) { 
                             const holidayName = holidays.get(formattedDate);
                             if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 일/토요일이 아닌 경우에만 holiday 클래스 추가 (빨간 배경)
                                 cell.classList.add('holiday');
@@ -1003,7 +1120,7 @@
                                 moreP.textContent = `... 외 ${schedulesForDay.length - 2}건`;
                                 summaryDiv.appendChild(moreP);
                             }
-
+                            
                             cell.appendChild(summaryDiv);
                         }
                         date++;
@@ -1026,8 +1143,8 @@
             }
             resetEditingState();
             renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1);
-            displaySchedulesForSelectedDate(formatDate(newDate));
+            const newDate = new Date(currentYear, currentMonth, 1); 
+            displaySchedulesForSelectedDate(formatDate(newDate)); 
         }
 
         function nextMonth() {
@@ -1038,15 +1155,15 @@
             }
             resetEditingState();
             renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1);
-            displaySchedulesForSelectedDate(formatDate(newDate));
+            const newDate = new Date(currentYear, currentMonth, 1); 
+            displaySchedulesForSelectedDate(formatDate(newDate)); 
         }
 
         function resetEditingState() {
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
-            clearAllInputs();
+            clearAllInputs(); 
         }
 
         function clearAllInputs() {
@@ -1059,7 +1176,7 @@
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
-            editingSchedule = null;
+            editingSchedule = null; 
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
         }
@@ -1082,7 +1199,7 @@
             }
 
             const newSchedule = {
-                id: editingSchedule ? editingSchedule.id : Date.now(),
+                id: editingSchedule ? editingSchedule.id : Date.now(), 
                 date,
                 time,
                 location,
@@ -1110,20 +1227,20 @@
                 schedules[date].push(newSchedule);
                 alert('스케줄이 추가되었습니다!');
             }
-
+            
             localStorage.setItem('schedules', JSON.stringify(schedules));
             clearAllInputs();
             displaySchedulesForSelectedDate(date);
-            renderCalendar();
+            renderCalendar(); 
+            closeScheduleModal(); 
         }
 
         function displaySchedulesForSelectedDate(selectedDate) {
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const schedulesForDay = schedules[selectedDate] || [];
 
-            // 기존 스케줄 아이템 모두 제거 (첫 2개 자식 요소인 h2와 p는 남김)
-            while (scheduleListDiv.children.length > 2) {
-                scheduleListDiv.removeChild(scheduleListDiv.children[1]);
+            while (scheduleListDiv.children.length > 2) { 
+                scheduleListDiv.removeChild(scheduleListDiv.children[1]); 
             }
 
             scheduleListTitle.textContent = `선택 날짜 스케줄 목록 (${selectedDate})`;
@@ -1133,7 +1250,7 @@
                 return;
             }
 
-            noScheduleMessage.style.display = 'none';
+            noScheduleMessage.style.display = 'none'; 
 
             schedulesForDay.sort((a, b) => {
                 if (!a.time && !b.time) return 0;
@@ -1146,14 +1263,14 @@
             schedulesForDay.forEach(schedule => {
                 const scheduleItem = document.createElement('div');
                 scheduleItem.classList.add('schedule-item');
-                scheduleItem.dataset.id = schedule.id;
+                scheduleItem.dataset.id = schedule.id; 
 
                 scheduleItem.innerHTML = `
                     <p><strong>날짜:</strong> ${schedule.date}</p>
                     <p><strong>시간:</strong> ${schedule.time || 'N/A'}</p>
                     <p><strong>장소:</strong> ${schedule.location}</p>
                     ${schedule.companyName ? `<p><strong>업체명:</strong> ${schedule.companyName}</p>` : ''}
-                    ${schedule.address ? `<p><strong>주소:</strong> ${schedule.address}
+                    ${schedule.address ? `<p><strong>주소:</strong> ${schedule.address} 
                         <span class="nav-link" onclick="openNavigation('${encodeURIComponent(schedule.address)}')">(길찾기)</span></p>` : ''}
                     ${schedule.phoneNumber ? `<p><strong>전화번호:</strong> <span class="tel-link" onclick="callNumber('${schedule.phoneNumber}')">${schedule.phoneNumber}</span></p>` : ''}
                     <p><strong>결제 금액:</strong> ${schedule.paymentAmount.toLocaleString()}원</p>
@@ -1179,7 +1296,7 @@
                     break;
                 }
             }
-
+            
             if (scheduleToEdit) {
                 editingSchedule = scheduleToEdit;
                 scheduleDateInput.value = scheduleToEdit.date;
@@ -1195,9 +1312,8 @@
 
                 saveScheduleBtn.textContent = '스케줄 수정';
                 cancelEditBtn.style.display = 'inline-block';
-                
-                // 스케줄 입력 폼으로 스크롤
-                document.getElementById('scheduleInputSection').scrollIntoView({ behavior: 'smooth' });
+                closeSettingsModal(); // 스케줄 모달 열기 전에 혹시 열려있는 설정 모달 닫기
+                openScheduleModal(); 
             } else {
                 alert('스케줄을 찾을 수 없습니다.');
             }
@@ -1205,6 +1321,7 @@
 
         function cancelEdit() {
             resetEditingState();
+            closeScheduleModal(); 
         }
 
         function deleteSchedule(id) {
@@ -1218,27 +1335,27 @@
                     if (schedules[dateKey].length < initialLength) {
                         deletedFromDate = dateKey;
                         if (schedules[dateKey].length === 0) {
-                            delete schedules[dateKey];
+                            delete schedules[dateKey]; 
                         }
-                        break;
+                        break; 
                     }
                 }
-
+                
                 localStorage.setItem('schedules', JSON.stringify(schedules));
                 alert('스케줄이 삭제되었습니다!');
-
+                
                 if (deletedFromDate) {
-                    displaySchedulesForSelectedDate(deletedFromDate);
-                    renderCalendar();
+                    displaySchedulesForSelectedDate(deletedFromDate); 
+                    renderCalendar(); 
                 } else {
-                    displaySchedulesForSelectedDate(scheduleDateInput.value);
+                    displaySchedulesForSelectedDate(scheduleDateInput.value); 
                     renderCalendar();
                 }
             }
         }
 
         function callNumber(phoneNumber) {
-            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`;
+            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`; 
         }
 
         function openNavigation(encodedAddress) {
@@ -1248,10 +1365,9 @@
 
             switch (defaultNav) {
                 case 'google':
-                    url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
                     break;
                 case 'naver':
-                    // 네이버 지도 URL 인코딩 수정: 검색 쿼리에 직접 인코딩된 주소 사용
                     url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
                     break;
                 case 'kakao':
@@ -1261,7 +1377,7 @@
                 default:
                     const navChoice = prompt('이동할 지도 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵');
                     if (navChoice === '1') {
-                        url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                        url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
                     } else if (navChoice === '2') {
                         url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
                     } else if (navChoice === '3') {
@@ -1291,22 +1407,8 @@
             const savedNav = localStorage.getItem('defaultNavApp') || 'none';
             const savedTheme = localStorage.getItem('theme') || 'light';
 
-            const navRadioId = `nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`;
-            const themeRadioId = `theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`;
-
-            const navRadioElement = document.getElementById(navRadioId);
-            if (navRadioElement) {
-                navRadioElement.checked = true;
-            } else {
-                document.getElementById('navNone').checked = true; // 기본값으로 '선택 안 함'
-            }
-            
-            const themeRadioElement = document.getElementById(themeRadioId);
-            if (themeRadioElement) {
-                themeRadioElement.checked = true;
-            } else {
-                document.getElementById('themeLight').checked = true; // 기본값으로 '라이트 테마'
-            }
+            document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`).checked = true;
+            document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`).checked = true;
             
             applyTheme(savedTheme);
 
@@ -1322,9 +1424,36 @@
             }
         }
 
-        // 설정 버튼 클릭 시 설정 섹션으로 스크롤하는 함수
-        function scrollToSettings() {
-            document.querySelector('.settings-section').scrollIntoView({ behavior: 'smooth' });
+        // --- 모달 관련 함수 (스케줄 입력 모달) ---
+        function openScheduleModal() {
+            scheduleModal.style.display = 'flex'; 
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeScheduleModal() {
+            scheduleModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+            resetEditingState(); 
+        }
+
+        // --- 설정 모달 관련 함수 ---
+        function openSettingsModal() {
+            settingsModal.style.display = 'flex'; // flex로 설정하여 중앙 정렬 적용
+            document.body.style.overflow = 'hidden'; // 모달 열렸을 때 본문 스크롤 방지
+        }
+
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // 모달 닫혔을 때 본문 스크롤 허용
+        }
+
+        // 모든 모달의 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == scheduleModal) {
+                closeScheduleModal();
+            } else if (event.target == settingsModal) {
+                closeSettingsModal();
+            }
         }
     </script>
 </body>
