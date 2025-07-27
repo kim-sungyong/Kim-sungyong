@@ -155,6 +155,10 @@
                 font-size: 0.9em; /* 셀 내부 글자 크기 조정 */
                 min-height: 70px; /* 모바일에서 셀 최소 높이 조정 */
             }
+            .calendar-days th {
+                padding: 2px 3px; /* 모바일에서도 패딩을 더 줄여 요일 칸 높이 조정 */
+                font-size: 1.1em; /* 모바일 요일 폰트 크기 조정 */
+            }
             .calendar-days td .day-number {
                 font-size: 1em; /* 날짜 숫자 크기 조정 */
                 padding-right: 3px; /* 날짜 숫자 오른쪽 패딩 조정 */
@@ -219,6 +223,13 @@
             vertical-align: top;
             height: 150px; /* 고정 높이를 주어 셀 크기를 키웁니다. */
         }
+
+        .calendar-days th {
+            background-color: var(--hover-color);
+            font-weight: normal;
+            padding: 3px 5px; /* 상하 패딩을 줄여 요일 칸 높이를 절반 정도로 작게 만듭니다. */
+            font-size: 1.2em; /* 요일 폰트를 크게 만듭니다. */
+        }
         
         .calendar-days td {
             min-height: 150px; /* 각 날짜 셀의 최소 높이 */
@@ -226,11 +237,6 @@
             cursor: pointer;
             transition: background-color 0.2s;
             text-align: left; /* 내용 왼쪽 정렬 */
-        }
-
-        .calendar-days th {
-            background-color: var(--hover-color);
-            font-weight: normal;
         }
 
         .calendar-days td:hover {
@@ -473,7 +479,6 @@
             color: var(--text-color);
         }
 
-        /* !!!!! 여기 수정됨: 띄어쓰기 제거 !!!!! */
         .input-group input[type="date"],
         .input-group input[type="time"],
         .input-group input[type="text"],
@@ -490,7 +495,6 @@
             color: var(--text-color);
         }
 
-        /* !!!!! 여기 수정됨: 띄어쓰기 제거 !!!!! */
         .input-group input[type="color"] {
             height: 40px;
             padding: 0;
@@ -577,7 +581,6 @@
             cursor: pointer;
         }
 
-        /* !!!!! 여기 수정됨: 띄어쓰기 제거 !!!!! */
         .settings-option input[type="radio"] {
             margin-right: 8px;
         }
@@ -735,8 +738,8 @@
 
         let currentYear, currentMonth;
 
-        const navRadios = document.querySelectorAll('input[name="defaultNav"]'); // 수정: 띄어쓰기 제거
-        const themeRadios = document.querySelectorAll('input[name="theme"]'); // 수정: 띄어쓰기 제거
+        const navRadios = document.querySelectorAll('input[name="defaultNav"]');
+        const themeRadios = document.querySelectorAll('input[name="theme"]');
 
         const scheduleModal = document.getElementById('scheduleModal');
         const settingsModal = document.getElementById('settingsModal');
@@ -1198,7 +1201,7 @@
                 const choice = prompt('어떤 지도 앱으로 길찾기를 하시겠습니까?\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵\n(숫자를 입력하세요)');
                 switch (choice) {
                     case '1':
-                        url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                        url = `http://maps.google.com/maps?q=${encodedAddress}`;
                         break;
                     case '2':
                         url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
@@ -1211,7 +1214,7 @@
                         return;
                 }
             } else if (defaultNavApp === 'google') {
-                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                url = `http://maps.google.com/maps?q=${encodedAddress}`;
             } else if (defaultNavApp === 'naver') {
                 url = `https://map.naver.com/v5/search/${encodedAddress}/place`;
             } else if (defaultNavApp === 'kakao') {
