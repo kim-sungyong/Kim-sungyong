@@ -62,7 +62,7 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            padding: 0; /* body의 기본 패딩 제거 */
+            padding: 0;
         }
 
         header {
@@ -74,10 +74,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0; /* 헤더는 스크롤될 때 크기 고정 */
         }
 
         header h1 {
             flex-grow: 1;
+            font-size: 1.8rem;
         }
 
         .settings-button, .add-schedule-button {
@@ -100,9 +102,10 @@
             flex-wrap: wrap;
             gap: 20px;
             padding: 20px;
-            width: 100%; /* 화면 꽉 채우기 */
-            margin: 0; /* 중앙 정렬 마진 제거 */
+            width: 100%;
+            margin: 0;
             flex-grow: 1;
+            overflow-y: auto; /* main 영역 자체에 스크롤 가능하도록 */
         }
 
         .calendar-section, .schedule-list-section {
@@ -111,14 +114,36 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
             flex: 1;
-            min-width: 300px; /* Adjust as needed */
-            width: 50%; /* 기본적으로 50% 너비 차지 */
+            min-width: 300px;
+            width: 50%;
         }
 
+        /* Mobile specific adjustments */
         @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem; /* 모바일 헤더 폰트 크기 조정 */
+            }
             .calendar-section, .schedule-list-section {
-                max-width: 100%; /* Stack on smaller screens */
-                width: 100%; /* 작은 화면에서는 100%로 유지 */
+                max-width: 100%;
+                width: 100%;
+                min-width: unset; /* 모바일에서 min-width 해제 */
+            }
+            main {
+                flex-direction: column; /* 모바일에서 세로로 쌓이도록 명시 */
+                padding: 15px; /* 모바일 패딩 조정 */
+                gap: 15px; /* 모바일 섹션 간 간격 조정 */
+            }
+            .schedule-list-section {
+                padding-top: 10px; /* 캘린더 아래에 스케줄 목록이 올 때 위쪽 패딩 */
+            }
+            .calendar-days td {
+                padding: 5px; /* 모바일 캘린더 셀 패딩 조정 */
+            }
+            .calendar-days td .day-number {
+                font-size: 1.1em; /* 모바일 날짜 숫자 크기 조정 */
+            }
+            .schedule-summary {
+                font-size: 0.65em; /* 모바일 스케줄 요약 폰트 크기 */
             }
         }
 
@@ -163,7 +188,7 @@
             width: calc(100% / 7); /* Equal width for all days */
             position: relative;
             vertical-align: top; /* Align content to top */
-            height: 100px; /* Minimum height for cells */
+            min-height: 80px; /* Minimum height for cells, remove fixed height */
         }
 
         .calendar-days th {
@@ -191,8 +216,8 @@
         .calendar-days td .day-number {
             font-size: 1.2em;
             font-weight: bold;
-            display: block; /* Make it a block to position well */
-            text-align: right; /* Align number to top right */
+            display: block;
+            text-align: right;
             padding-right: 5px;
         }
 
@@ -219,10 +244,10 @@
         }
 
         .calendar-days td.selected .day-number {
-            color: white; /* 선택된 날짜의 숫자 색상 */
+            color: white;
         }
         .calendar-days td.selected .holiday-name {
-            color: rgba(255, 255, 255, 0.8); /* 선택된 날짜의 공휴일 이름 색상 */
+            color: rgba(255, 255, 255, 0.8);
         }
 
 
@@ -239,15 +264,23 @@
             padding-right: 5px;
         }
         .calendar-days td.holiday-weekend .holiday-name {
-            color: var(--holiday-color); /* 주말이면서 공휴일일 경우도 빨간색 */
+            color: var(--holiday-color);
         }
 
         .schedule-summary {
             font-size: 0.75em;
             margin-top: 5px;
-            max-height: 60px; /* Limit height for summary */
-            overflow-y: auto; /* Scroll if too many schedules */
-            padding-right: 3px; /* For scrollbar if present */
+            /* max-height: 60px; */ /* Remove fixed max-height */
+            overflow-y: visible; /* Allow content to overflow/expand cell */
+            padding-right: 3px;
+            word-break: break-word; /* 긴 텍스트 줄바꿈 */
+        }
+        .schedule-summary .schedule-count {
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+            font-weight: bold;
+            color: var(--primary-color);
         }
 
         .schedule-summary p {
@@ -280,7 +313,7 @@
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 10px;
-            border-left: 5px solid var(--primary-color); /* Default border for items */
+            border-left: 5px solid var(--primary-color);
             position: relative;
             transition: transform 0.2s ease-in-out;
         }
@@ -343,17 +376,17 @@
 
         /* Modals */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: var(--modal-background); /* Black w/ opacity */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: var(--modal-background);
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
@@ -413,7 +446,7 @@
         .input-group input[type="number"],
         .input-group select,
         .input-group textarea,
-        .input-group input[type="color"] { /* 색상 입력 필드 스타일 추가 */
+        .input-group input[type="color"] {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--input-border);
@@ -424,8 +457,8 @@
         }
 
         .input-group input[type="color"] {
-            height: 40px; /* 색상 선택기 높이 조정 */
-            padding: 0; /* 패딩 제거 */
+            height: 40px;
+            padding: 0;
         }
 
         .checkbox-group {
@@ -440,7 +473,7 @@
 
         .modal-buttons {
             display: flex;
-            justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+            justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
@@ -452,9 +485,9 @@
             cursor: pointer;
             font-size: 1.1em;
             transition: background-color 0.2s;
-            flex-grow: 1; /* 버튼이 공간을 채우도록 함 */
+            flex-grow: 1;
         }
-        @media (min-width: 480px) { /* 작은 화면에서는 꽉 채우고, 큰 화면에서는 비율 유지 */
+        @media (min-width: 480px) {
             .modal-buttons button {
                 flex-grow: 0;
             }
@@ -480,9 +513,9 @@
         }
 
         .modal-buttons .cancel-button {
-            background-color: #e67e22; /* 주황색 계열 */
+            background-color: #e67e22;
             color: white;
-            display: none; /* 기본적으로 숨김, 수정 모드에서만 표시 */
+            display: none;
         }
 
         .modal-buttons .cancel-button:hover {
@@ -519,6 +552,7 @@
             background-color: var(--card-background);
             color: var(--text-color);
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* 푸터는 스크롤될 때 크기 고정 */
         }
     </style>
 </head>
@@ -728,7 +762,7 @@
         ]);
 
         let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
-        let selectedDate = null; // 현재 선택된 날짜
+        let selectedDate = null;
 
         // --- 초기화 및 캘린더 렌더링 ---
         function initCalendar() {
@@ -736,48 +770,42 @@
             currentYear = today.getFullYear();
             currentMonth = today.getMonth(); // 0-11
             renderCalendar();
-            loadSettings(); // 설정 불러오기 (테마, 내비게이션)
+            loadSettings();
         }
 
         function renderCalendar() {
-            calendarTableBody.innerHTML = ''; // 기존 캘린더 내용 지우기
+            calendarTableBody.innerHTML = '';
             currentMonthYearHeader.textContent = `${currentYear}년 ${currentMonth + 1}월`;
 
-            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // 해당 월의 첫 날 요일 (0:일, 6:토)
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // 해당 월의 마지막 날짜
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             let date = 1;
-            for (let i = 0; i < 6; i++) { // 최대 6주까지 표시
+            for (let i = 0; i < 6; i++) {
                 const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) { // 7일 (일요일부터 토요일까지)
+                for (let j = 0; j < 7; j++) {
                     const cell = document.createElement('td');
 
                     if (i === 0 && j < firstDayOfMonth) {
-                        // 이전 달의 빈 칸
                         cell.classList.add('empty-day');
                     } else if (date > daysInMonth) {
-                        // 다음 달의 빈 칸
                         cell.classList.add('empty-day');
                     } else {
-                        // 날짜 채우기
                         const dayNumberSpan = document.createElement('span');
                         dayNumberSpan.classList.add('day-number');
                         dayNumberSpan.textContent = date;
                         cell.appendChild(dayNumberSpan);
 
                         const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        cell.dataset.date = fullDate; // 데이터 속성에 날짜 저장
+                        cell.dataset.date = fullDate;
 
-                        // 오늘 날짜 표시
                         const today = new Date();
                         if (currentYear === today.getFullYear() &&
                             currentMonth === today.getMonth() &&
                             date === today.getDate()) {
                             cell.classList.add('today');
-                            // selectedDate = fullDate; // 앱 시작 시 오늘 날짜를 선택된 날짜로 설정
                         }
 
-                        // 공휴일 표시
                         if (holidays.has(fullDate)) {
                             cell.classList.add('holiday');
                             const holidayNameSpan = document.createElement('span');
@@ -785,48 +813,62 @@
                             holidayNameSpan.textContent = holidays.get(fullDate);
                             cell.appendChild(holidayNameSpan);
 
-                            // 토/일요일이면서 공휴일인 경우를 위한 클래스 (CSS에서 별도 처리)
-                            if (j === 0 || j === 6) { // 일요일 (0) 또는 토요일 (6)
+                            if (j === 0 || j === 6) {
                                 cell.classList.add('holiday-weekend');
                             }
-                        } else if (j === 0) { // 일요일
-                            dayNumberSpan.style.color = 'var(--weekend-color)'; // 일요일 날짜 빨간색
-                        } else if (j === 6) { // 토요일
-                            dayNumberSpan.style.color = 'var(--saturday-color)'; // 토요일 날짜 파란색
+                        } else if (j === 0) {
+                            dayNumberSpan.style.color = 'var(--weekend-color)';
+                        } else if (j === 6) {
+                            dayNumberSpan.style.color = 'var(--saturday-color)';
                         }
 
-                        // 스케줄 요약 표시 및 색상 적용 (수정된 부분)
+                        // 스케줄 요약 표시 및 색상 적용
                         if (schedules[fullDate] && schedules[fullDate].length > 0) {
                             cell.classList.add('has-schedule');
                             const scheduleSummaryDiv = document.createElement('div');
                             scheduleSummaryDiv.classList.add('schedule-summary');
-                            schedules[fullDate].forEach(sch => {
+                            
+                            // 첫 2~3개만 보여주고 나머지는 "+n개 더 보기"로 표시
+                            const displayLimit = 2; // 보여줄 스케줄 개수
+                            for(let k = 0; k < Math.min(schedules[fullDate].length, displayLimit); k++) {
+                                const sch = schedules[fullDate][k];
                                 const p = document.createElement('p');
                                 p.textContent = `${sch.time} ${sch.location} (${sch.taskType})`;
-                                if (sch.color) { // 스케줄에 색상이 있으면 적용
+                                if (sch.color) {
                                     p.style.backgroundColor = sch.color;
-                                    p.style.color = getContrastYIQ(sch.color); // 텍스트 색상 대비 조정
+                                    p.style.color = getContrastYIQ(sch.color);
                                 }
                                 scheduleSummaryDiv.appendChild(p);
-                            });
+                            }
+
+                            if (schedules[fullDate].length > displayLimit) {
+                                const moreCount = schedules[fullDate].length - displayLimit;
+                                const moreSpan = document.createElement('span');
+                                moreSpan.classList.add('schedule-count');
+                                moreSpan.textContent = `+${moreCount}개 더 보기`;
+                                scheduleSummaryDiv.appendChild(moreSpan);
+                            }
+
                             cell.appendChild(scheduleSummaryDiv);
                         }
 
                         cell.addEventListener('click', () => {
-                            // 이전에 선택된 날짜의 'selected' 클래스 제거
                             const previouslySelected = document.querySelector('.calendar-days td.selected');
                             if (previouslySelected) {
                                 previouslySelected.classList.remove('selected');
                             }
-                            // 새로 선택된 날짜에 'selected' 클래스 추가
                             cell.classList.add('selected');
 
                             selectedDate = fullDate;
-                            displaySchedules(selectedDate); // 스케줄 표시
-                            openScheduleModal(selectedDate); // 스케줄 입력 모달 열기
+                            displaySchedules(selectedDate);
+                            // 모바일 환경에서만 스케줄 목록으로 스크롤
+                            if (window.innerWidth <= 768) {
+                                document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                            // 모달은 날짜 클릭 후 직접 추가 버튼을 누르게 유도
+                            // openScheduleModal(selectedDate); 
                         });
 
-                        // 캘린더 렌더링 시 selectedDate와 일치하면 selected 클래스 추가
                         if (selectedDate === fullDate) {
                             cell.classList.add('selected');
                         }
@@ -837,12 +879,11 @@
                 }
                 calendarTableBody.appendChild(row);
 
-                // 이번 달의 마지막 날짜까지 다 채워졌으면 루프 종료
                 if (date > daysInMonth) {
                     break;
                 }
             }
-            displaySchedules(selectedDate); // 캘린더 렌더링 후 선택된 날짜의 스케줄 표시
+            displaySchedules(selectedDate);
         }
 
         function prevMonth() {
@@ -863,11 +904,10 @@
             renderCalendar();
         }
 
-        // --- 스케줄 모달 관련 함수 ---
         function openScheduleModal(date) {
-            scheduleDateInput.value = date; // 클릭한 날짜로 날짜 필드 자동 설정
-            scheduleModal.style.display = 'flex'; // flex로 설정하여 중앙 정렬 유지
-            clearAllInputs(); // 모달 열 때 입력 필드 초기화
+            scheduleDateInput.value = date;
+            scheduleModal.style.display = 'flex';
+            clearAllInputs();
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
             editingSchedule = null;
@@ -875,13 +915,11 @@
 
         function closeScheduleModal() {
             scheduleModal.style.display = 'none';
-            renderCalendar(); // 스케줄 추가/수정 후 캘린더를 다시 렌더링하여 스케줄 요약 업데이트
-            displaySchedules(selectedDate); // 모달 닫을 때 선택된 날짜의 스케줄 다시 표시
+            renderCalendar();
+            displaySchedules(selectedDate);
         }
 
-        // --- 설정 모달 관련 함수 ---
         function openSettingsModal() {
-            // 현재 설정 값을 라디오 버튼에 반영
             const savedNav = localStorage.getItem('defaultNavApp') || 'none';
             document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`).checked = true;
 
@@ -895,7 +933,6 @@
             settingsModal.style.display = 'none';
         }
 
-        // --- 스케줄 관리 함수 ---
         function saveSchedule() {
             const date = scheduleDateInput.value;
             const time = scheduleTimeInput.value;
@@ -907,7 +944,7 @@
             const paymentStatus = paymentStatusInput.checked;
             const taskType = taskTypeInput.value.trim();
             const taskContent = taskContentInput.value.trim();
-            const color = scheduleColorInput.value; // 색상 값 가져오기
+            const color = scheduleColorInput.value;
 
             if (!date || !time || !location || !taskType) {
                 alert('날짜, 시간, 장소, 작업 종류는 필수 입력 항목입니다.');
@@ -915,7 +952,7 @@
             }
 
             const newSchedule = {
-                id: editingSchedule ? editingSchedule.id : Date.now(), // 수정 시 기존 ID 유지, 아니면 새 ID 생성
+                id: editingSchedule ? editingSchedule.id : Date.now(),
                 date,
                 time,
                 location,
@@ -926,7 +963,7 @@
                 paymentStatus,
                 taskType,
                 taskContent,
-                color // 스케줄 객체에 색상 추가
+                color
             };
 
             if (!schedules[date]) {
@@ -934,13 +971,12 @@
             }
 
             if (editingSchedule) {
-                // 기존 스케줄 찾아서 업데이트
                 const index = schedules[date].findIndex(s => s.id === editingSchedule.id);
                 if (index > -1) {
                     schedules[date][index] = newSchedule;
                     alert('스케줄이 수정되었습니다!');
                 }
-                editingSchedule = null; // 수정 모드 해제
+                editingSchedule = null;
                 saveScheduleBtn.textContent = '스케줄 추가';
                 cancelEditBtn.style.display = 'none';
             } else {
@@ -950,13 +986,15 @@
 
             localStorage.setItem('schedules', JSON.stringify(schedules));
             clearAllInputs();
-            displaySchedules(date); // 스케줄 목록 새로고침
-            renderCalendar(); // 캘린더도 다시 렌더링하여 스케줄 요약 업데이트
+            displaySchedules(date);
+            renderCalendar();
         }
 
         function displaySchedules(date) {
-            scheduleListTitle.textContent = `${date}의 스케줄`; // 스케줄 목록 제목 업데이트
-            scheduleListDiv.innerHTML = ''; // 기존 스케줄 목록 지우기 (제목만 남김)
+            scheduleListTitle.textContent = `${date}의 스케줄`;
+            scheduleListDiv.innerHTML = '';
+            // 제목은 유지하고 메시지와 스케줄 목록만 업데이트
+            scheduleListDiv.appendChild(scheduleListTitle); // 제목 다시 추가
 
             const dailySchedules = schedules[date] || [];
 
@@ -965,14 +1003,12 @@
                 scheduleListDiv.appendChild(noScheduleMessage);
             } else {
                 noScheduleMessage.style.display = 'none';
-                dailySchedules.sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
+                dailySchedules.sort((a, b) => a.time.localeCompare(b.time));
                 dailySchedules.forEach(schedule => {
                     const itemDiv = document.createElement('div');
                     itemDiv.classList.add('schedule-item');
-                    // 스케줄 아이템에 배경색 적용 (수정된 부분)
                     if (schedule.color) {
-                        itemDiv.style.borderLeft = `5px solid ${schedule.color}`; // 왼쪽 테두리 색상으로 구분
-                        // itemDiv.style.backgroundColor = schedule.color + '30'; // 연한 배경색 (선택사항)
+                        itemDiv.style.borderLeft = `5px solid ${schedule.color}`;
                     }
 
                     itemDiv.innerHTML = `
@@ -993,7 +1029,6 @@
                     scheduleListDiv.appendChild(itemDiv);
                 });
 
-                // 이벤트 리스너 추가
                 scheduleListDiv.querySelectorAll('.delete-btn').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const idToDelete = parseInt(e.target.dataset.id);
@@ -1010,7 +1045,7 @@
                     span.addEventListener('click', (e) => {
                         const phoneNumber = e.target.dataset.phone;
                         if (phoneNumber && phoneNumber !== '없음') {
-                            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`; // 대시 제거 후 전화 연결
+                            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`;
                         }
                     });
                 });
@@ -1029,11 +1064,11 @@
             if (confirm('정말로 이 스케줄을 삭제하시겠습니까?')) {
                 schedules[date] = schedules[date].filter(schedule => schedule.id !== id);
                 if (schedules[date].length === 0) {
-                    delete schedules[date]; // 해당 날짜에 스케줄이 없으면 키 삭제
+                    delete schedules[date];
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
-                displaySchedules(date); // 목록 새로고침
-                renderCalendar(); // 캘린더도 다시 렌더링하여 스케줄 요약 업데이트
+                displaySchedules(date);
+                renderCalendar();
                 alert('스케줄이 삭제되었습니다.');
             }
         }
@@ -1041,7 +1076,7 @@
         function editSchedule(date, id) {
             const scheduleToEdit = schedules[date].find(s => s.id === id);
             if (scheduleToEdit) {
-                editingSchedule = scheduleToEdit; // 현재 수정 중인 스케줄 저장
+                editingSchedule = scheduleToEdit;
 
                 scheduleDateInput.value = scheduleToEdit.date;
                 scheduleTimeInput.value = scheduleToEdit.time;
@@ -1053,12 +1088,12 @@
                 paymentStatusInput.checked = scheduleToEdit.paymentStatus;
                 taskTypeInput.value = scheduleToEdit.taskType;
                 taskContentInput.value = scheduleToEdit.taskContent;
-                scheduleColorInput.value = scheduleToEdit.color || '#ffffff'; // 색상 필드에 기존 값 설정
+                scheduleColorInput.value = scheduleToEdit.color || '#ffffff';
 
                 saveScheduleBtn.textContent = '스케줄 수정';
-                cancelEditBtn.style.display = 'inline-block'; // 수정 취소 버튼 표시
+                cancelEditBtn.style.display = 'inline-block';
 
-                scheduleModal.style.display = 'flex'; // 모달이 닫혀있을 경우 다시 열기
+                scheduleModal.style.display = 'flex';
             }
         }
 
@@ -1067,9 +1102,8 @@
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
-            displaySchedules(scheduleDateInput.value); // 현재 날짜의 스케줄 다시 표시
+            displaySchedules(scheduleDateInput.value);
         }
-
 
         function clearAllInputs() {
             scheduleTimeInput.value = '';
@@ -1081,15 +1115,14 @@
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
-            scheduleColorInput.value = '#ffffff'; // 색상 필드 초기화
+            scheduleColorInput.value = '#ffffff';
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
         }
 
-        // 배경색에 따라 텍스트 색상을 검정 또는 흰색으로 설정하여 가독성을 높이는 함수
         function getContrastYIQ(hexcolor){
-            if (!hexcolor || hexcolor.length !== 7) return 'black'; // 유효하지 않은 색상인 경우 기본값 반환
+            if (!hexcolor || hexcolor.length !== 7) return 'black';
             var r = parseInt(hexcolor.substr(1,2),16);
             var g = parseInt(hexcolor.substr(3,2),16);
             var b = parseInt(hexcolor.substr(5,2),16);
@@ -1097,8 +1130,6 @@
             return (yiq >= 128) ? 'black' : 'white';
         }
 
-
-        // --- 설정 저장 및 로드 ---
         function saveSettings() {
             let selectedNavApp = 'none';
             for (const radio of navRadios) {
@@ -1117,7 +1148,7 @@
                 }
             }
             localStorage.setItem('appTheme', selectedTheme);
-            applyTheme(selectedTheme); // 테마 즉시 적용
+            applyTheme(selectedTheme);
         }
 
         function loadSettings() {
@@ -1137,7 +1168,6 @@
             document.body.classList.add(`${theme}-theme`);
         }
 
-        // --- 내비게이션 앱 열기 함수 ---
         function openNavigationApp(address) {
             const defaultNavApp = localStorage.getItem('defaultNavApp') || 'none';
             let url = '';
@@ -1147,7 +1177,7 @@
             if (defaultNavApp === 'none') {
                 const navChoice = prompt('이동할 내비게이션 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵\n(숫자를 입력하세요)');
                 if (navChoice === '1') {
-                    url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`; // Google Maps URL 수정
                 } else if (navChoice === '2') {
                     url = `https://map.naver.com/v5/search/${encodedAddress}`;
                 } else if (navChoice === '3') {
@@ -1157,7 +1187,7 @@
                     return;
                 }
             } else if (defaultNavApp === 'google') {
-                url = `http://google.com/maps/search/?api=1&query=${encodedAddress}`;
+                url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`; // Google Maps URL 수정
             } else if (defaultNavApp === 'naver') {
                 url = `https://map.naver.com/v5/search/${encodedAddress}`;
             } else if (defaultNavApp === 'kakao') {
@@ -1171,7 +1201,6 @@
 
 
         // --- 이벤트 리스너 ---
-        // 설정 저장 라디오 버튼 변경 시 자동 저장
         navRadios.forEach(radio => {
             radio.addEventListener('change', saveSettings);
         });
@@ -1180,20 +1209,17 @@
             radio.addEventListener('change', saveSettings);
         });
 
-        // 초기화
         initCalendar();
 
-        // 페이지 로드 시 오늘 날짜의 스케줄 표시 및 선택
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             const todayFormatted = `${year}-${month}-${day}`;
-            selectedDate = todayFormatted; // 초기 선택 날짜 설정
-            displaySchedules(todayFormatted); // 오늘 날짜 스케줄 표시
+            selectedDate = todayFormatted;
+            displaySchedules(todayFormatted);
 
-            // 캘린더에서 오늘 날짜 셀을 찾아 'selected' 클래스 추가
             const todayCell = document.querySelector(`.calendar-days td[data-date="${todayFormatted}"]`);
             if (todayCell) {
                 todayCell.classList.add('selected');
