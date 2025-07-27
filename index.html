@@ -177,6 +177,7 @@
             border-collapse: collapse;
             text-align: center;
             table-layout: fixed;
+            height: 100%; /* 캘린더 테이블이 부모 컨테이너의 높이를 채우도록 */
         }
 
         .calendar-days th, .calendar-days td {
@@ -277,6 +278,7 @@
             word-break: break-word;
             flex-grow: 1; /* 남은 공간을 스케줄 요약이 차지하도록 */
             min-height: 0; /* flex item 내부 스크롤을 위해 필요 */
+            flex-shrink: 0; /* 스케줄 요약 컨테이너가 축소되지 않도록 */
         }
         .schedule-summary .schedule-count {
             display: block;
@@ -292,7 +294,7 @@
             padding: 3px 6px; /* 데스크탑 요약 항목 패딩 (증가) */
             margin-bottom: 3px;
             border-radius: 3px;
-            white-space: nowrap;
+            white-space: normal; /* 텍스트 줄바꿈 허용 */
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -315,8 +317,7 @@
                 height: auto; /* 모바일에서 높이 유동적으로 */
             }
             .calendar-section {
-                 /* 캘린더가 남은 세로 공간을 최대한 차지하도록 (추가) */
-                flex-grow: 1;
+                flex-grow: 1; /* 캘린더가 남은 세로 공간을 최대한 차지하도록 (추가) */
                 display: flex;
                 flex-direction: column;
                 padding: 10px; /* 캘린더 섹션 자체의 패딩 조정 */
@@ -344,13 +345,13 @@
 
             .schedule-list-section {
                 padding-top: 10px;
-                display: none; /* 스케줄이 있을 때만 JS로 block 처리 */
+                /* display: none; 제거 - JS에서 제어 */
             }
             /* 캘린더 테이블 셀 (th, td) 스타일 수정 */
             .calendar-days th, .calendar-days td {
-                padding: 2px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 (더 감소) */
+                padding: 2px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
                 font-size: 0.8em; /* 셀 내부 글자 크기 조정 */
-                min-height: 50px; /* 모바일에서 셀 최소 높이 조정 (더 감소) */
+                min-height: 60px; /* 모바일에서 셀 최소 높이 조정 (조금 더 확보) */
                 flex-grow: 1; /* 각 셀이 같은 너비를 가지도록 */
             }
             .calendar-days td {
@@ -359,20 +360,24 @@
             }
 
             .calendar-days td .day-number {
-                font-size: 1em; /* 날짜 숫자 크기 조정 (약간 증가) */
+                font-size: 1.1em; /* 날짜 숫자 크기 조정 (약간 증가) */
                 padding-right: 2px; /* 날짜 숫자 오른쪽 패딩 조정 */
             }
             .calendar-days td.holiday .holiday-name {
-                font-size: 0.6em; /* 공휴일 이름 폰트 크기 조정 (더 감소) */
+                font-size: 0.7em; /* 공휴일 이름 폰트 크기 조정 */
                 padding-right: 2px;
             }
             .schedule-summary {
-                font-size: 0.6em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
+                font-size: 0.7em; /* 모바일에서 스케줄 요약 폰트 크기 조정 */
                 margin-top: 2px; /* 스케줄 요약 위쪽 여백 조정 */
+                max-height: 2.5em; /* 최대 2줄 정도만 보이도록 (조절 필요) */
+                overflow: hidden;
+                text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
             }
             .schedule-summary p {
                 padding: 1px 3px; /* 요약 항목 패딩 조정 */
                 margin-bottom: 1px;
+                white-space: normal; /* 모바일에서 줄바꿈 다시 허용 */
             }
             .schedule-summary .schedule-count {
                 margin-top: 2px; /* "더 보기" 텍스트 위쪽 여백 조정 */
@@ -686,13 +691,14 @@
             </table>
         </section>
 
-        <section class="schedule-list-section" id="scheduleList">
-            <h2 id="scheduleListTitle">오늘의 스케줄</h2>
+        <section class="schedule-list-section" id="scheduleListContainer"> <h2 id="scheduleListTitle">오늘의 스케줄</h2>
             <div id="noScheduleMessage" style="display: none;">
                 <p>등록된 스케줄이 없습니다.</p>
                 <p>캘린더에서 날짜를 클릭하여 새로운 스케줄을 추가해보세요!</p>
             </div>
-            </section>
+            <div id="scheduleListContent">
+                </div>
+        </section>
     </main>
 
     <footer>
@@ -786,7 +792,9 @@
         const taskTypeInput = document.getElementById('taskType');
         const taskContentInput = document.getElementById('taskContent');
         const scheduleColorInput = document.getElementById('scheduleColor');
-        const scheduleListDiv = document.getElementById('scheduleList');
+        // scheduleListDiv를 scheduleListContent로 변경하여, scheduleListContainer와 구분
+        const scheduleListContainer = document.getElementById('scheduleListContainer');
+        const scheduleListContent = document.getElementById('scheduleListContent');
         const noScheduleMessage = document.getElementById('noScheduleMessage');
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
@@ -802,7 +810,7 @@
 
         const scheduleModal = document.getElementById('scheduleModal');
         const settingsModal = document.getElementById('settingsModal');
-        const scheduleListTitle = document.querySelector('#scheduleList h2');
+        const scheduleListTitle = document.querySelector('#scheduleListContainer h2'); // 선택자 업데이트
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
         const holidays = new Map([
@@ -929,8 +937,11 @@
 
                             // 첫 2개만 보여주고 나머지는 "+n개 더 보기"로 표시
                             const displayLimit = 2;
-                            for(let k = 0; k < Math.min(schedules[fullDate].length, displayLimit); k++) {
-                                const sch = schedules[fullDate][k];
+                            // 스케줄을 시간순으로 정렬하여 표시
+                            const sortedSchedules = [...schedules[fullDate]].sort((a, b) => a.time.localeCompare(b.time));
+
+                            for(let k = 0; k < Math.min(sortedSchedules.length, displayLimit); k++) {
+                                const sch = sortedSchedules[k];
                                 const p = document.createElement('p');
                                 p.textContent = `${sch.time} ${sch.location} (${sch.taskType})`;
                                 if (sch.color) {
@@ -940,8 +951,8 @@
                                 scheduleSummaryDiv.appendChild(p);
                             }
 
-                            if (schedules[fullDate].length > displayLimit) {
-                                const moreCount = schedules[fullDate].length - displayLimit;
+                            if (sortedSchedules.length > displayLimit) {
+                                const moreCount = sortedSchedules.length - displayLimit;
                                 const moreSpan = document.createElement('span');
                                 moreSpan.classList.add('schedule-count');
                                 moreSpan.textContent = `+${moreCount}개 더 보기`;
@@ -960,11 +971,11 @@
                             cell.classList.add('selected');
 
                             selectedDate = fullDate;
-                            displaySchedules(selectedDate); // 이 함수 내에서 scheduleListDiv의 display를 제어합니다.
+                            displaySchedules(selectedDate); // 이 함수 내에서 scheduleListContainer의 display를 제어합니다.
 
                             // 모바일 환경에서만 스케줄 목록으로 스크롤 (스케줄이 있는 경우)
                             if (window.innerWidth <= 768 && schedules[selectedDate] && schedules[selectedDate].length > 0) {
-                                document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                document.getElementById('scheduleListContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
                         });
 
@@ -1018,7 +1029,9 @@
             editingSchedule = null;
             // 해당 날짜에 이미 스케줄이 있다면, 가장 오래된 스케줄의 시간을 기본으로 채워준다 (선택 사항)
             if (schedules[date] && schedules[date].length > 0) {
-                scheduleTimeInput.value = schedules[date][0].time;
+                // 스케줄 중 가장 빠른 시간을 기본값으로 설정
+                const earliestSchedule = schedules[date].sort((a,b) => a.time.localeCompare(b.time))[0];
+                scheduleTimeInput.value = earliestSchedule.time;
             } else {
                 // 현재 시간을 기본값으로 설정 (선택 사항)
                 const now = new Date();
@@ -1036,16 +1049,21 @@
 
         function openSettingsModal() {
             const savedNav = localStorage.getItem('defaultNavApp') || 'none';
-            document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`).checked = true;
+            // ID를 정확히 찾아 checked 속성 설정
+            const navRadio = document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`);
+            if (navRadio) navRadio.checked = true;
 
             const savedTheme = localStorage.getItem('appTheme') || 'light';
-            document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`).checked = true;
+            const themeRadio = document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`);
+            if (themeRadio) themeRadio.checked = true;
 
             settingsModal.style.display = 'flex';
         }
 
         function closeSettingsModal() {
             settingsModal.style.display = 'none';
+            // 설정을 닫을 때 저장된 테마를 다시 적용
+            applyTheme(localStorage.getItem('appTheme') || 'light');
         }
 
         function saveSchedule() {
@@ -1067,7 +1085,7 @@
             }
 
             const newSchedule = {
-                id: editingSchedule ? editingSchedule.id : Date.now(),
+                id: editingSchedule ? editingSchedule.id : Date.now(), // 수정 시 기존 ID 유지, 신규 시 새 ID
                 date,
                 time,
                 location,
@@ -1086,14 +1104,23 @@
             }
 
             if (editingSchedule) {
-                const index = schedules[date].findIndex(s => s.id === editingSchedule.id);
-                if (index > -1) {
-                    schedules[date][index] = newSchedule;
-                    alert('스케줄이 수정되었습니다!');
+                // 수정 중인 스케줄이 다른 날짜로 변경되었을 경우
+                if (editingSchedule.date !== date) {
+                    // 이전 날짜에서 스케줄 제거
+                    schedules[editingSchedule.date] = schedules[editingSchedule.date].filter(s => s.id !== editingSchedule.id);
+                    if (schedules[editingSchedule.date].length === 0) {
+                        delete schedules[editingSchedule.date];
+                    }
+                    // 새로운 날짜에 스케줄 추가
+                    schedules[date].push(newSchedule);
+                } else {
+                    // 같은 날짜 내에서 수정
+                    const index = schedules[date].findIndex(s => s.id === editingSchedule.id);
+                    if (index > -1) {
+                        schedules[date][index] = newSchedule;
+                    }
                 }
-                editingSchedule = null;
-                saveScheduleBtn.textContent = '스케줄 추가';
-                cancelEditBtn.style.display = 'none';
+                alert('스케줄이 수정되었습니다!');
             } else {
                 schedules[date].push(newSchedule);
                 alert('스케줄이 추가되었습니다!');
@@ -1105,23 +1132,22 @@
 
         function displaySchedules(date) {
             scheduleListTitle.textContent = `${date}의 스케줄`;
-            scheduleListDiv.innerHTML = ''; // 기존 스케줄 목록 초기화
-            scheduleListDiv.appendChild(scheduleListTitle); // 제목 다시 추가
+            scheduleListContent.innerHTML = ''; // 기존 스케줄 목록 초기화 (내용만)
 
             const dailySchedules = schedules[date] || [];
 
             if (dailySchedules.length === 0) {
                 noScheduleMessage.style.display = 'block';
-                scheduleListDiv.appendChild(noScheduleMessage);
+                scheduleListContent.appendChild(noScheduleMessage); // 메시지를 내용 컨테이너에 추가
                 // 모바일에서 스케줄이 없을 경우 스케줄 목록 섹션 숨김
                 if (window.innerWidth <= 768) {
-                    scheduleListDiv.style.display = 'none';
+                    scheduleListContainer.style.display = 'none'; // 섹션 전체를 숨김
                 }
             } else {
                 noScheduleMessage.style.display = 'none';
                 // 스케줄이 있을 경우 스케줄 목록 섹션 표시 (모바일)
                 if (window.innerWidth <= 768) {
-                    scheduleListDiv.style.display = 'block'; // 'flex' 대신 'block'으로 변경
+                    scheduleListContainer.style.display = 'flex'; // 섹션 전체를 표시
                 }
                 dailySchedules.sort((a, b) => a.time.localeCompare(b.time));
                 dailySchedules.forEach(schedule => {
@@ -1142,40 +1168,34 @@
                         <p><strong>작업 종류:</strong> ${schedule.taskType}</p>
                         ${schedule.taskContent ? `<p><strong>작업 내용:</strong> ${schedule.taskContent}</p>` : ''}
                         <div class="action-buttons">
-                            <button class="edit-btn" data-id="${schedule.id}">수정</button>
-                            <button class="delete-btn" data-id="${schedule.id}">삭제</button>
+                            <button class="edit-btn" data-id="${schedule.id}" data-date="${schedule.date}">수정</button>
+                            <button class="delete-btn" data-id="${schedule.id}" data-date="${schedule.date}">삭제</button>
                         </div>
                     `;
-                    scheduleListDiv.appendChild(itemDiv);
+                    scheduleListContent.appendChild(itemDiv); // 내용을 scheduleListContent에 추가
                 });
 
-                scheduleListDiv.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
+                // 이벤트 위임을 사용하여 동적으로 생성된 요소에도 이벤트 적용
+                scheduleListContent.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-btn')) {
                         const idToDelete = parseInt(e.target.dataset.id);
-                        deleteSchedule(date, idToDelete);
-                    });
-                });
-                scheduleListDiv.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
+                        const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
+                        deleteSchedule(dateOfSchedule, idToDelete);
+                    } else if (e.target.classList.contains('edit-btn')) {
                         const idToEdit = parseInt(e.target.dataset.id);
-                        editSchedule(date, idToEdit);
-                    });
-                });
-                scheduleListDiv.querySelectorAll('.tel-link').forEach(span => {
-                    span.addEventListener('click', (e) => {
+                        const dateOfSchedule = e.target.dataset.date; // 스케줄의 실제 날짜
+                        editSchedule(dateOfSchedule, idToEdit);
+                    } else if (e.target.classList.contains('tel-link')) {
                         const phoneNumber = e.target.dataset.phone;
                         if (phoneNumber && phoneNumber !== '없음') {
                             window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`;
                         }
-                    });
-                });
-                scheduleListDiv.querySelectorAll('.nav-link').forEach(span => {
-                    span.addEventListener('click', (e) => {
+                    } else if (e.target.classList.contains('nav-link')) {
                         const address = e.target.dataset.address;
                         if (address && address !== '없음') {
                             openNavigationApp(address);
                         }
-                    });
+                    }
                 });
             }
         }
@@ -1187,8 +1207,8 @@
                     delete schedules[date];
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
-                displaySchedules(date);
-                renderCalendar();
+                displaySchedules(date); // 현재 선택된 날짜의 스케줄만 다시 표시
+                renderCalendar(); // 캘린더 전체를 다시 그려 스케줄 요약 업데이트
                 alert('스케줄이 삭제되었습니다.');
             }
         }
@@ -1222,10 +1242,14 @@
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
-            displaySchedules(scheduleDateInput.value);
+            // 모달 닫기
+            closeScheduleModal();
+            // 선택된 날짜의 스케줄 목록 다시 표시 (불필요할 수 있지만 안전하게 추가)
+            displaySchedules(selectedDate);
         }
 
         function clearAllInputs() {
+            // scheduleDateInput.value는 openScheduleModal에서 설정되므로 여기서 초기화하지 않음
             scheduleTimeInput.value = '';
             locationInput.value = '';
             companyNameInput.value = '';
@@ -1236,9 +1260,9 @@
             taskTypeInput.value = '';
             taskContentInput.value = '';
             scheduleColorInput.value = '#ffffff';
-            editingSchedule = null;
-            saveScheduleBtn.textContent = '스케줄 추가';
-            cancelEditBtn.style.display = 'none';
+            editingSchedule = null; // 초기화 시 editingSchedule도 null로 설정
+            saveScheduleBtn.textContent = '스케줄 추가'; // 버튼 텍스트 초기화
+            cancelEditBtn.style.display = 'none'; // 취소 버튼 숨김
         }
 
         function getContrastYIQ(hexcolor){
@@ -1329,23 +1353,28 @@
             radio.addEventListener('change', saveSettings);
         });
 
-        initCalendar();
-
+        // DOMContentLoaded 이후에 캘린더를 초기화하고 오늘 날짜를 선택하도록
         document.addEventListener('DOMContentLoaded', () => {
+            initCalendar(); // 캘린더를 먼저 렌더링
+
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             const todayFormatted = `${year}-${month}-${day}`;
+            
+            // selectedDate를 오늘 날짜로 설정하고
             selectedDate = todayFormatted;
-            displaySchedules(todayFormatted);
 
+            // 캘린더에서 오늘 날짜 셀을 찾아 'selected' 클래스 추가
             const todayCell = document.querySelector(`.calendar-days td[data-date="${todayFormatted}"]`);
             if (todayCell) {
                 todayCell.classList.add('selected');
             }
+            
+            // 선택된 날짜 (오늘)의 스케줄을 표시
+            displaySchedules(todayFormatted);
         });
-
     </script>
 </body>
 </html>
