@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>스케줄 관리 앱</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* 기본 스타일 */
         body {
@@ -239,17 +238,6 @@
         body.dark-theme .calendar-days td.holiday .day-number {
             color: #ff9999; /* 다크 테마 공휴일 숫자색 */
         }
-        /* 일/토요일 공휴일 배경색 */
-        .calendar-days td.holiday-weekend {
-            background-color: #ffe6e6; /* 기본 주말 공휴일 배경색 */
-        }
-        body.dark-theme .calendar-days td.holiday-weekend {
-            background-color: #4a343b; /* 다크 테마 주말 공휴일 배경색 */
-        }
-        body.dark-theme .calendar-days td.holiday-weekend .holiday-name {
-            color: #ff9999;
-        }
-
 
         /* 공휴일 이름 스타일 */
         .holiday-name {
@@ -281,13 +269,6 @@
         body.dark-theme .calendar-days td.holiday.has-schedule {
             background-color: #4a343b; /* 다크 테마 공휴일 스케줄 배경색 */
         }
-        /* 일/토요일 공휴일이면서 스케줄 있는 날짜 */
-        .calendar-days td.holiday-weekend.has-schedule {
-            background-color: #f7d0d0; /* 주말 공휴일 스케줄 배경색 */
-        }
-        body.dark-theme .calendar-days td.holiday-weekend.has-schedule {
-            background-color: #5b414a; /* 다크 테마 주말 공휴일 스케줄 배경색 */
-        }
 
 
         .schedule-summary {
@@ -311,13 +292,16 @@
             text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
         }
 
-        /* 스케줄 입력 폼 - 모달 내부에 배치 */
+        /* 스케줄 입력 폼 - 모달로 변경됨 */
         .schedule-form {
-            background-color: transparent; /* 모달 내부에 배치되므로 배경색 투명하게 */
-            padding: 0; /* 모달 내부에 배치되므로 패딩 제거 */
-            border-radius: 0; /* 모달 내부에 배치되므로 둥근 모서리 제거 */
-            box-shadow: none; /* 모달 내부에 배치되므로 그림자 제거 */
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+            /* 모달 내부에 배치되므로 마진 및 그림자 제거 */
             margin: 0;
+            box-shadow: none;
+            background-color: transparent;
         }
         body.dark-theme .schedule-form {
             background-color: transparent;
@@ -526,25 +510,16 @@
             color: #2980b9;
         }
 
-        /* 설정 섹션 (모달 내부에서 사용됨) */
+        /* 설정 섹션 */
         .settings-section {
-            background-color: transparent; /* 모달 컨텐츠가 배경을 가지므로 투명하게 */
-            padding: 0; /* 모달 컨텐츠가 이미 패딩을 가지므로 제거 */
-            margin: 0; /* 모달 내에서 마진 필요 없음 */
-            box-shadow: none; /* 모달 컨텐츠가 이미 그림자를 가지므로 중복 제거 */
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
         }
         body.dark-theme .settings-section {
-            background-color: transparent;
-        }
-        .settings-section h2 { /* 모달 내부 h2 폰트 크기 조정 */
-            font-size: 1.8em;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-            text-align: center; /* 설정 모달 제목 중앙 정렬 */
-        }
-        body.dark-theme .settings-section h2 {
-            border-bottom-color: #4a667f;
+            background-color: #3a506a;
         }
 
         .settings-option {
@@ -597,7 +572,7 @@
             border-top-color: #4a667f;
         }
 
-        /* 모달 공통 스타일 */
+        /* 모달 스타일 */
         .modal {
             display: none; /* 초기에는 숨김 */
             position: fixed; /* 화면에 고정 */
@@ -668,46 +643,6 @@
             color: #eee;
         }
 
-        /* 설정 버튼 스타일 */
-        .settings-button {
-            position: fixed; /* 화면 우측 상단에 고정 */
-            top: 20px;
-            right: 20px;
-            z-index: 1001; /* 모달 위에 오도록 z-index 설정 */
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 15px; /* 버튼 크기 조정 */
-            border-radius: 50%; /* 원형 버튼 */
-            cursor: pointer;
-            font-size: 1.5em; /* 아이콘 크기 조정 */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.2s ease, transform 0.2s ease;
-            display: flex; /* 아이콘 중앙 정렬 */
-            justify-content: center;
-            align-items: center;
-            width: 50px; /* 고정 너비 */
-            height: 50px; /* 고정 높이 */
-        }
-
-        .settings-button:hover {
-            background-color: #2980b9;
-            transform: rotate(15deg); /* 호버 시 회전 효과 */
-        }
-
-        body.dark-theme .settings-button {
-            background-color: #2c3e50;
-        }
-        body.dark-theme .settings-button:hover {
-            background-color: #34495e;
-        }
-
-        /* 설정 모달 스타일 (재정의) */
-        #settingsModal .modal-content { /* 설정 모달의 내용 박스 */
-            max-width: 500px; /* 설정 모달은 스케줄 모달보다 약간 작게 */
-        }
-
-
         /* 반응형 디자인 */
         @media (max-width: 768px) {
             .container {
@@ -742,14 +677,6 @@
             .button-group button {
                 padding: 10px 20px;
                 font-size: 1em;
-            }
-            .settings-button {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3em;
-                top: 15px;
-                right: 15px;
-                padding: 10px 12px;
             }
         }
 
@@ -791,14 +718,6 @@
             }
             .button-group button {
                 width: 100%; /* 버튼 너비 100% */
-            }
-            .settings-button {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2em;
-                top: 10px;
-                right: 10px;
-                padding: 8px 10px;
             }
         }
 
@@ -888,48 +807,38 @@
             <h2></h2> <p id="noScheduleMessage">선택된 날짜에 스케줄이 없습니다. 새로운 스케줄을 추가해보세요!</p>
         </section>
 
-        <div id="settingsModal" class="modal">
-            <div class="modal-content">
-                <span class="close-button" onclick="closeSettingsModal()">×</span>
-                <section class="settings-section">
-                    <h2>설정</h2>
-                    <div class="settings-option">
-                        <h3>기본 네비게이션 앱 선택</h3>
-                        <label>
-                            <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
-                        </label>
-                        <label>
-                            <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
-                        </label>
-                        <label>
-                            <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
-                        </label>
-                        <label>
-                            <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
-                        </label>
-                    </div>
-                    <div class="settings-option">
-                        <h3>테마 선택</h3>
-                        <label>
-                            <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
-                        </label>
-                        <label>
-                            <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
-                        </label>
-                    </div>
-                </section>
+        <section class="settings-section">
+            <h2>설정</h2>
+            <div class="settings-option">
+                <h3>기본 네비게이션 앱 선택</h3>
+                <label>
+                    <input type="radio" name="defaultNav" id="navNone" value="none"> 선택 안 함 (매번 선택)
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navGoogle" value="google"> Google 지도
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navNaver" value="naver"> 네이버 지도
+                </label>
+                <label>
+                    <input type="radio" name="defaultNav" id="navKakao" value="kakao"> 카카오맵
+                </label>
             </div>
-        </div>
-
+            <div class="settings-option">
+                <h3>테마 선택</h3>
+                <label>
+                    <input type="radio" name="theme" id="themeLight" value="light"> 라이트 테마
+                </label>
+                <label>
+                    <input type="radio" name="theme" id="themeDark" value="dark"> 다크 테마
+                </label>
+            </div>
+        </section>
     </div>
 
     <footer>
         <p>© 2025 나만의 스케줄러. 모든 권리 보유.</p>
     </footer>
-
-    <button class="settings-button" onclick="openSettingsModal()">
-        <i class="fas fa-cog"></i> </button>
-
 
     <script>
         const scheduleDateInput = document.getElementById('scheduleDate');
@@ -958,7 +867,6 @@
 
         // 모달 관련 요소 추가
         const scheduleModal = document.getElementById('scheduleModal');
-        const settingsModal = document.getElementById('settingsModal'); // 설정 모달 요소 추가
         const scheduleListTitle = document.querySelector('#scheduleList h2'); // 스케줄 목록 제목
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
@@ -1035,6 +943,7 @@
             renderCalendar();
             
             // 초기 스케줄 목록 제목 설정
+            // h2 태그가 이미 존재하므로 텍스트만 업데이트
             scheduleListTitle.textContent = `선택 날짜 스케줄 목록 (${formatDate(today)})`;
             
             // 오늘 날짜로 스케줄 표시 (초기 로딩 시)
@@ -1083,7 +992,6 @@
                             resetEditingState();
                             scheduleDateInput.value = formattedDate;
                             displaySchedulesForSelectedDate(formattedDate);
-                            closeSettingsModal(); // 스케줄 모달 열기 전에 혹시 열려있는 설정 모달 닫기
                             openScheduleModal(); // 모달 열기 함수 호출
                         };
 
@@ -1092,13 +1000,19 @@
                             cell.classList.add('today');
                         }
 
-                        if (holidays.has(formattedDate)) { 
+                        // 공휴일 확인 (일요일, 토요일이 아닌 경우에만 holiday 클래스 추가)
+                        // 일요일과 토요일은 이미 CSS에서 색상이 지정되어 있으므로 중복 적용 피함
+                        if (holidays.has(formattedDate)) { // holidays Map에서 날짜 확인
                             const holidayName = holidays.get(formattedDate);
-                            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 일/토요일이 아닌 경우에만 holiday 클래스 추가 (빨간 배경)
+                            // 일요일 또는 토요일이 아닌 경우에만 holiday 클래스 추가 (빨간 배경)
+                            // 일요일(0) 또는 토요일(6)이면서 공휴일일 경우, 해당 요일의 색상을 우선시하고 배경색만 변경
+                            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                                 cell.classList.add('holiday');
                             } else {
-                                cell.classList.add('holiday-weekend'); // 일/토요일이면서 공휴일
+                                // 일요일 또는 토요일 공휴일의 경우, 배경색만 변경
+                                cell.classList.add('holiday-weekend'); // 새로운 클래스 추가 (CSS에 정의 필요)
                             }
+                            // 공휴일 이름 추가 (일/토요일 공휴일도 이름은 표시)
                             cell.innerHTML += `<div class="holiday-name">${holidayName}</div>`;
                         }
 
@@ -1143,8 +1057,8 @@
             }
             resetEditingState();
             renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1); 
-            displaySchedulesForSelectedDate(formatDate(newDate)); 
+            const newDate = new Date(currentYear, currentMonth, 1); // 해당 월의 1일로 날짜 설정
+            displaySchedulesForSelectedDate(formatDate(newDate)); // 해당 월의 스케줄 목록도 업데이트 (달력 하단)
         }
 
         function nextMonth() {
@@ -1155,18 +1069,19 @@
             }
             resetEditingState();
             renderCalendar();
-            const newDate = new Date(currentYear, currentMonth, 1); 
-            displaySchedulesForSelectedDate(formatDate(newDate)); 
+            const newDate = new Date(currentYear, currentMonth, 1); // 해당 월의 1일로 날짜 설정
+            displaySchedulesForSelectedDate(formatDate(newDate)); // 해당 월의 스케줄 목록도 업데이트 (달력 하단)
         }
 
         function resetEditingState() {
             editingSchedule = null;
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
-            clearAllInputs(); 
+            clearAllInputs(); // 입력 필드 초기화
         }
 
         function clearAllInputs() {
+            // scheduleDateInput.value = ''; // 날짜는 선택된 날짜로 유지되므로 초기화하지 않음
             scheduleTimeInput.value = '';
             locationInput.value = '';
             companyNameInput.value = '';
@@ -1176,7 +1091,7 @@
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
-            editingSchedule = null; 
+            editingSchedule = null; // 수정 모드 해제
             saveScheduleBtn.textContent = '스케줄 추가';
             cancelEditBtn.style.display = 'none';
         }
@@ -1199,7 +1114,7 @@
             }
 
             const newSchedule = {
-                id: editingSchedule ? editingSchedule.id : Date.now(), 
+                id: editingSchedule ? editingSchedule.id : Date.now(), // 수정 시 기존 ID 유지, 아니면 새 ID 생성
                 date,
                 time,
                 location,
@@ -1218,12 +1133,14 @@
             }
 
             if (editingSchedule) {
+                // 수정 모드
                 const index = schedules[date].findIndex(s => s.id === editingSchedule.id);
                 if (index !== -1) {
                     schedules[date][index] = newSchedule;
                     alert('스케줄이 수정되었습니다!');
                 }
             } else {
+                // 추가 모드
                 schedules[date].push(newSchedule);
                 alert('스케줄이 추가되었습니다!');
             }
@@ -1231,18 +1148,21 @@
             localStorage.setItem('schedules', JSON.stringify(schedules));
             clearAllInputs();
             displaySchedulesForSelectedDate(date);
-            renderCalendar(); 
-            closeScheduleModal(); 
+            renderCalendar(); // 달력 업데이트 (스케줄 유무 표시)
+            closeScheduleModal(); // 저장 후 모달 닫기
         }
 
         function displaySchedulesForSelectedDate(selectedDate) {
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
             const schedulesForDay = schedules[selectedDate] || [];
 
-            while (scheduleListDiv.children.length > 2) { 
-                scheduleListDiv.removeChild(scheduleListDiv.children[1]); 
+            // 스케줄 목록 내용만 지우기 (h2 태그는 유지)
+            // noScheduleMessage는 항상 마지막 자식으로 유지
+            while (scheduleListDiv.children.length > 2) { // h2와 noScheduleMessage를 제외하고 모두 삭제
+                scheduleListDiv.removeChild(scheduleListDiv.children[1]); // 두 번째 자식부터 삭제
             }
 
+            // 제목 업데이트
             scheduleListTitle.textContent = `선택 날짜 스케줄 목록 (${selectedDate})`;
 
             if (schedulesForDay.length === 0) {
@@ -1250,9 +1170,10 @@
                 return;
             }
 
-            noScheduleMessage.style.display = 'none'; 
+            noScheduleMessage.style.display = 'none'; // 스케줄이 있으면 메시지 숨김
 
             schedulesForDay.sort((a, b) => {
+                // 시간 기준으로 정렬 (시간이 없으면 끝으로 보냄)
                 if (!a.time && !b.time) return 0;
                 if (!a.time) return 1;
                 if (!b.time) return -1;
@@ -1263,7 +1184,7 @@
             schedulesForDay.forEach(schedule => {
                 const scheduleItem = document.createElement('div');
                 scheduleItem.classList.add('schedule-item');
-                scheduleItem.dataset.id = schedule.id; 
+                scheduleItem.dataset.id = schedule.id; // 스케줄 ID 저장
 
                 scheduleItem.innerHTML = `
                     <p><strong>날짜:</strong> ${schedule.date}</p>
@@ -1282,12 +1203,17 @@
                         <button class="delete-btn" onclick="deleteSchedule(${schedule.id})">삭제</button>
                     </div>
                 `;
+                // noScheduleMessage 앞에 삽입
                 scheduleListDiv.insertBefore(scheduleItem, noScheduleMessage);
             });
         }
 
         function editSchedule(id) {
             const schedules = JSON.parse(localStorage.getItem('schedules')) || {};
+            const selectedDate = scheduleDateInput.value; // 현재 모달에 설정된 날짜가 아닐 수 있으므로 다시 가져옴
+
+            // 달력에서 클릭한 날짜의 스케줄을 가져오기 위해 현재 달력 날짜 대신,
+            // 수정 버튼을 누른 스케줄이 속한 날짜를 찾아야 함
             let scheduleToEdit = null;
             for (const dateKey in schedules) {
                 const found = schedules[dateKey].find(s => s.id === id);
@@ -1312,8 +1238,7 @@
 
                 saveScheduleBtn.textContent = '스케줄 수정';
                 cancelEditBtn.style.display = 'inline-block';
-                closeSettingsModal(); // 스케줄 모달 열기 전에 혹시 열려있는 설정 모달 닫기
-                openScheduleModal(); 
+                openScheduleModal(); // 수정 시에도 모달 열기
             } else {
                 alert('스케줄을 찾을 수 없습니다.');
             }
@@ -1321,7 +1246,7 @@
 
         function cancelEdit() {
             resetEditingState();
-            closeScheduleModal(); 
+            closeScheduleModal(); // 수정 취소 후 모달 닫기
         }
 
         function deleteSchedule(id) {
@@ -1329,15 +1254,16 @@
                 let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
                 let deletedFromDate = null;
 
+                // 모든 날짜를 순회하며 해당 ID를 가진 스케줄을 찾아서 삭제
                 for (const dateKey in schedules) {
                     const initialLength = schedules[dateKey].length;
                     schedules[dateKey] = schedules[dateKey].filter(s => s.id !== id);
                     if (schedules[dateKey].length < initialLength) {
                         deletedFromDate = dateKey;
                         if (schedules[dateKey].length === 0) {
-                            delete schedules[dateKey]; 
+                            delete schedules[dateKey]; // 해당 날짜에 스케줄이 없으면 키 삭제
                         }
-                        break; 
+                        break; // 스케줄을 찾아서 삭제했으면 루프 종료
                     }
                 }
                 
@@ -1345,9 +1271,10 @@
                 alert('스케줄이 삭제되었습니다!');
                 
                 if (deletedFromDate) {
-                    displaySchedulesForSelectedDate(deletedFromDate); 
-                    renderCalendar(); 
+                    displaySchedulesForSelectedDate(deletedFromDate); // 삭제된 날짜의 스케줄 목록 업데이트
+                    renderCalendar(); // 달력 업데이트
                 } else {
+                    // 선택된 날짜가 없거나 삭제할 스케줄을 못 찾았을 경우 대비
                     displaySchedulesForSelectedDate(scheduleDateInput.value); 
                     renderCalendar();
                 }
@@ -1355,7 +1282,7 @@
         }
 
         function callNumber(phoneNumber) {
-            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`; 
+            window.location.href = `tel:${phoneNumber.replace(/-/g, '')}`; // '-' 제거 후 전화 연결
         }
 
         function openNavigation(encodedAddress) {
@@ -1375,6 +1302,7 @@
                     break;
                 case 'none':
                 default:
+                    // 사용자에게 선택하도록 팝업
                     const navChoice = prompt('이동할 지도 앱을 선택하세요:\n1. Google 지도\n2. 네이버 지도\n3. 카카오맵');
                     if (navChoice === '1') {
                         url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
@@ -1407,11 +1335,13 @@
             const savedNav = localStorage.getItem('defaultNavApp') || 'none';
             const savedTheme = localStorage.getItem('theme') || 'light';
 
+            // 체크된 라디오 버튼을 찾아서 설정
             document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`).checked = true;
             document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`).checked = true;
             
             applyTheme(savedTheme);
 
+            // 라디오 버튼 변경 감지하여 설정 저장
             navRadios.forEach(radio => radio.addEventListener('change', saveSettings));
             themeRadios.forEach(radio => radio.addEventListener('change', saveSettings));
         }
@@ -1424,35 +1354,22 @@
             }
         }
 
-        // --- 모달 관련 함수 (스케줄 입력 모달) ---
+        // --- 모달 관련 함수 ---
         function openScheduleModal() {
-            scheduleModal.style.display = 'flex'; 
-            document.body.style.overflow = 'hidden'; 
+            scheduleModal.style.display = 'flex'; // flex로 설정하여 중앙 정렬 적용
+            document.body.style.overflow = 'hidden'; // 모달 열렸을 때 본문 스크롤 방지
         }
 
         function closeScheduleModal() {
             scheduleModal.style.display = 'none';
-            document.body.style.overflow = 'auto'; 
-            resetEditingState(); 
-        }
-
-        // --- 설정 모달 관련 함수 ---
-        function openSettingsModal() {
-            settingsModal.style.display = 'flex'; // flex로 설정하여 중앙 정렬 적용
-            document.body.style.overflow = 'hidden'; // 모달 열렸을 때 본문 스크롤 방지
-        }
-
-        function closeSettingsModal() {
-            settingsModal.style.display = 'none';
             document.body.style.overflow = 'auto'; // 모달 닫혔을 때 본문 스크롤 허용
+            resetEditingState(); // 모달 닫을 때 입력 필드 초기화 및 수정 모드 해제
         }
 
-        // 모든 모달의 외부 클릭 시 닫기
+        // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {
             if (event.target == scheduleModal) {
                 closeScheduleModal();
-            } else if (event.target == settingsModal) {
-                closeSettingsModal();
             }
         }
     </script>
