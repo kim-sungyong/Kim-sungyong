@@ -14,8 +14,8 @@
             background-color: #f4f7f6;
             color: #333;
             line-height: 1.6;
-            display: flex;
-            flex-direction: column;
+            display: flex; /* Flexbox 사용 */
+            flex-direction: column; /* 자식 요소들을 세로로 정렬 */
             min-height: 100vh; /* 화면 전체 높이 사용 */
             font-size: 16px; /* 기본 폰트 크기 설정 */
         }
@@ -95,7 +95,7 @@
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            flex-grow: 1;
+            flex-grow: 1; /* 남은 공간을 채우도록 */
             display: flex; /* 내부 요소들을 flex로 배치 */
             flex-direction: column; /* 세로 방향 정렬 */
             height: calc(100vh - 40px); /* 화면 높이에서 상하 마진 제외 */
@@ -186,13 +186,16 @@
             text-align: center;
             vertical-align: top; /* 스케줄 내용 상단 정렬 */
             border: 1px solid #eee;
-            /* min-height는 flex-grow와 함께 사용될 때 유연하게 조절됩니다. */
             /* height: 100%; 는 flex-grow: 1 일 때 각 셀이 남은 공간을 균등하게 차지하도록 합니다. */
             height: 100%; 
             cursor: pointer;
             transition: background-color 0.2s ease;
             position: relative;
             box-sizing: border-box; /* 패딩, 보더 포함 넓이 계산 */
+            display: flex; /* 내부 콘텐츠를 flex로 정렬 */
+            flex-direction: column; /* 세로 정렬 */
+            justify-content: flex-start; /* 상단 정렬 */
+            align-items: center; /* 수평 중앙 정렬 */
         }
 
         .calendar-days tr {
@@ -222,6 +225,7 @@
             display: block;
             margin-bottom: 5px;
             color: #2c3e50;
+            flex-shrink: 0; /* 날짜 번호는 크기가 줄어들지 않도록 */
         }
         body.dark-theme .calendar-days td .day-number {
             color: #ecf0f1;
@@ -272,6 +276,7 @@
             overflow: hidden; /* 넘치는 텍스트 숨김 */
             text-overflow: ellipsis; /* ... 표시 */
             display: block; /* 블록 요소로 만들어 줄바꿈 */
+            flex-shrink: 0; /* 공휴일 이름은 크기가 줄어들지 않도록 */
         }
         body.dark-theme .holiday-name {
             color: #ff9999;
@@ -287,6 +292,10 @@
             max-height: 4em; /* 최대 높이 설정하여 넘치면 ... */
             overflow: hidden;
             text-overflow: ellipsis;
+            flex-grow: 1; /* 남은 공간을 채우도록 */
+            width: 100%; /* 부모 너비에 맞춤 */
+            text-align: left; /* 요약 내용은 왼쪽 정렬 */
+            padding: 0 2px; /* 좌우 약간의 패딩 */
         }
         body.dark-theme .schedule-summary {
             color: #aebfd0;
@@ -717,7 +726,6 @@
                 padding: 8px 0;
             }
             .calendar-days td {
-                /* min-height: 100px; */ /* 이제 height: 100%와 flex-grow로 조절 */
                 padding: 5px;
             }
             .calendar-days td .day-number {
@@ -755,7 +763,6 @@
                 font-size: 0.8em;
             }
             .calendar-days td {
-                /* min-height: 80px; */ /* 이제 height: 100%와 flex-grow로 조절 */
                 padding: 3px;
             }
             .calendar-days td .day-number {
@@ -1401,8 +1408,24 @@
             const savedNav = localStorage.getItem('defaultNavApp') || 'none';
             const savedTheme = localStorage.getItem('theme') || 'light';
 
-            document.getElementById(`nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`).checked = true;
-            document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`).checked = true;
+            // 라디오 버튼의 id가 정확히 매치되도록 수정
+            const navRadioId = `nav${savedNav.charAt(0).toUpperCase() + savedNav.slice(1)}`;
+            const themeRadioId = `theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`;
+
+            const navRadioElement = document.getElementById(navRadioId);
+            if (navRadioElement) {
+                navRadioElement.checked = true;
+            } else {
+                document.getElementById('navNone').checked = true; // 기본값으로 '선택 안 함'
+            }
+            
+            const themeRadioElement = document.getElementById(themeRadioId);
+            if (themeRadioElement) {
+                themeRadioElement.checked = true;
+            } else {
+                document.getElementById('themeLight').checked = true; // 기본값으로 '라이트 테마'
+            }
+            
 
             applyTheme(savedTheme);
 
