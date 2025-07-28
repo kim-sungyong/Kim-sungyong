@@ -159,7 +159,7 @@
                 font-size: 0.6em; 
                 min-height: 80px; /* 모바일 셀 최소 높이 */
                 height: auto; 
-                overflow: hidden; /* 스케줄 개수 외 다른 내용 숨김 */
+                overflow: visible; /* ★★★ 변경: 넘치는 내용 숨기지 않음 ★★★ */
                 position: relative; 
                 vertical-align: top;
                 text-align: left;
@@ -180,24 +180,33 @@
             }
             .schedule-summary {
                 font-size: 0.7em;
-                margin-top: 5px; /* 날짜 아래로 공간 확보 */
+                /* 기존 margin-top 제거 */
                 max-height: none; 
                 overflow-y: hidden; /* 스크롤바 제거 */
-                padding-top: 0;
-                padding-bottom: 0;
-                display: flex;
+                /* 기존 padding-top, padding-bottom 제거 */
+                
+                /* ★★★ 변경: 절대 위치 및 중앙 정렬 ★★★ */
+                position: absolute; 
+                top: 50%; 
+                left: 50%; 
+                transform: translate(-50%, -50%); 
+                height: auto; /* 내용에 따라 높이 자동 조절 */
+                width: auto; /* 내용에 따라 너비 자동 조절 */
+                margin-top: 0; 
+                padding: 0;
+                display: flex !important; /* ★★★ 강제 표시 ★★★ */
                 justify-content: center; /* 개수 중앙 정렬 */
                 align-items: center;
-                height: 100%; /* 셀 높이에 맞춤 */
+                z-index: 2; /* 날짜 숫자보다 위에 오도록 */
             }
             .schedule-summary .schedule-count {
-                display: flex; /* 박스 형태로 표시 */
+                display: flex !important; /* ★★★ 강제 표시 ★★★ */
                 align-items: center;
                 justify-content: center;
                 min-width: 25px; /* 원형 또는 사각형 최소 크기 */
                 height: 25px; /* 원형 또는 사각형 최소 크기 */
-                background-color: var(--schedule-count-bg);
-                color: var(--schedule-count-text);
+                background-color: var(--schedule-count-bg) !important; /* ★★★ 배경색 강제 ★★★ */
+                color: var(--schedule-count-text) !important; /* ★★★ 텍스트 색상 강제 ★★★ */
                 border-radius: 50%; /* 원형으로 */
                 font-weight: bold;
                 font-size: 0.9em;
