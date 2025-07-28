@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>스케줄 관리 앱</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
 
@@ -25,6 +29,8 @@
             --weekend-color: #e74c3c; /* 일요일 날짜 색상 */
             --saturday-color: #3498db; /* 토요일 날짜 색상 */
             --schedule-summary-bg: #d0e8f2; /* 스케줄 요약 기본 배경 */
+            --schedule-count-bg: var(--primary-color); /* 스케줄 개수 배경색 */
+            --schedule-count-text: white; /* 스케줄 개수 텍스트 색상 */
         }
 
         body.dark-theme {
@@ -45,6 +51,8 @@
             --weekend-color: #e74c3c;
             --saturday-color: #3498db;
             --schedule-summary-bg: #5f7a9a;
+            --schedule-count-bg: var(--primary-color);
+            --schedule-count-text: white;
         }
 
         * {
@@ -119,35 +127,27 @@
             width: 65%;
         }
 
-        /* Schedule List Styles */
+        /* Schedule List Section (데스크톱에서는 보이지 않음) */
         .schedule-list-section {
-            background-color: var(--card-background);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            flex: 1; /* 스케줄 목록은 상대적으로 작게 */
-            min-width: 300px;
-            width: 35%;
+            display: none; /* 기본적으로 숨김 (모달로 대체) */
         }
 
 
-        /* ★★★ 모바일 미디어 쿼리 - 스케줄 텍스트 전체 표시를 위한 수정 ★★★ */
+        /* 모바일 미디어 쿼리 */
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.5rem;
             }
-            .calendar-section, .schedule-list-section {
+            .calendar-section {
                 max-width: 100%;
                 width: 100%;
                 min-width: unset;
+                padding: 15px;
             }
             main {
                 flex-direction: column;
                 padding: 15px;
                 gap: 15px;
-            }
-            .schedule-list-section {
-                padding-top: 10px;
             }
             
             .calendar-days th {
@@ -157,9 +157,9 @@
             .calendar-days td {
                 padding: 3px;
                 font-size: 0.6em; 
-                min-height: 120px; /* 최소 높이 유지 */
-                height: auto; /* ★★★ 내용에 따라 높이 자동 조절 ★★★ */
-                overflow: visible; /* ★★★ 넘치는 내용 숨기지 않음 ★★★ */
+                min-height: 80px; /* 모바일 셀 최소 높이 */
+                height: auto; 
+                overflow: hidden; /* 스케줄 개수 외 다른 내용 숨김 */
                 position: relative; 
                 vertical-align: top;
                 text-align: left;
@@ -167,43 +167,45 @@
             .calendar-days td .day-number {
                 font-size: 1em;
                 padding-right: 3px;
-                top: 5px; /* ★★★ 좌측 상단으로 이동 ★★★ */
+                top: 5px; 
                 left: 5px;
-                right: auto; /* 기존 right 속성 제거 */
+                right: auto; 
             }
             .calendar-days td.holiday .holiday-name {
                 font-size: 0.5em;
                 padding-right: 3px;
-                bottom: 5px; /* ★★★ 좌측 하단으로 이동 ★★★ */
+                bottom: 5px; 
                 left: 5px;
-                right: auto; /* 기존 right 속성 제거 */
+                right: auto; 
             }
             .schedule-summary {
                 font-size: 0.7em;
-                margin-top: 0;
-                max-height: none; /* ★★★ 높이 제한 없음 ★★★ */
-                overflow-y: visible; /* ★★★ 스크롤바 제거, 내용 전체 표시 ★★★ */
-                padding-top: 25px; /* 날짜 숫자 아래에서 스케줄 시작 */
-                padding-bottom: 5px;
-                scrollbar-width: none; /* Firefox 스크롤바 숨김 */
-            }
-            /* 스크롤바 스타일 (웹킷 브라우저용) */
-            .schedule-summary::-webkit-scrollbar {
-                display: none; /* 웹킷 스크롤바 숨김 */
-            }
-            .schedule-summary p {
-                padding: 1px 2px;
-                white-space: normal;
-                overflow: visible; /* ★★★ 넘치는 텍스트 숨기지 않음 ★★★ */
-                text-overflow: clip; /* ★★★ ... 표시 제거 ★★★ */
-                line-height: 1.1;
-                margin-bottom: 2px;
-                max-height: none; /* ★★★ 한 스케줄 항목 높이 제한 없음 ★★★ */
-                background-color: transparent; /* ★★★ 스케줄 항목 배경색 제거 ★★★ */
-                color: var(--text-color); /* 스케줄 텍스트 색상 */
+                margin-top: 5px; /* 날짜 아래로 공간 확보 */
+                max-height: none; 
+                overflow-y: hidden; /* 스크롤바 제거 */
+                padding-top: 0;
+                padding-bottom: 0;
+                display: flex;
+                justify-content: center; /* 개수 중앙 정렬 */
+                align-items: center;
+                height: 100%; /* 셀 높이에 맞춤 */
             }
             .schedule-summary .schedule-count {
-                display: none; /* ★★★ 더보기 텍스트 숨김 ★★★ */
+                display: flex; /* 박스 형태로 표시 */
+                align-items: center;
+                justify-content: center;
+                min-width: 25px; /* 원형 또는 사각형 최소 크기 */
+                height: 25px; /* 원형 또는 사각형 최소 크기 */
+                background-color: var(--schedule-count-bg);
+                color: var(--schedule-count-text);
+                border-radius: 50%; /* 원형으로 */
+                font-weight: bold;
+                font-size: 0.9em;
+                padding: 2px;
+            }
+            /* 스케줄 요약 텍스트는 모바일 캘린더에서 안보이게 */
+            .schedule-summary p { 
+                display: none; 
             }
         }
 
@@ -336,11 +338,11 @@
             color: var(--holiday-color);
         }
 
-        /* 스케줄 요약 */
+        /* 스케줄 요약 (데스크톱용 - 간략 표시) */
         .schedule-summary {
             font-size: 0.9em;
             margin-top: 2px;
-            overflow-y: auto;
+            overflow-y: hidden; /* 넘치는 내용 숨김 */
             max-height: calc(100% - 65px); /* 데스크톱용 높이 */
             padding-right: 5px;
             word-break: break-word;
@@ -350,13 +352,10 @@
             padding-top: 35px;
             padding-bottom: 25px;
             box-sizing: border-box;
+            display: block; /* 모바일에서 flex로 바뀜 */
         }
         .schedule-summary .schedule-count {
-            display: block;
-            text-align: center;
-            margin-top: 5px;
-            font-weight: bold;
-            color: var(--primary-color);
+            display: none; /* 데스크톱에서는 스케줄 개수 숨김 */
         }
 
         .schedule-summary p {
@@ -364,19 +363,53 @@
             padding: 3px 6px;
             margin-bottom: 3px;
             border-radius: 3px;
-            white-space: normal;
-            overflow: visible;
-            text-overflow: clip;
+            white-space: nowrap; /* 한 줄로 표시 */
+            overflow: hidden; /* 넘치는 텍스트 숨김 */
+            text-overflow: ellipsis; /* ...으로 표시 */
             line-height: 1.3;
+            max-height: none; /* 이전 설정 유지 */
         }
 
-        /* Schedule List Styles */
-        .schedule-list-section h2 {
-            margin-bottom: 15px;
+
+        /* Schedule Detail Modal (새로 추가) */
+        #scheduleDetailModal {
+            display: none; /* 기본적으로 숨김 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* 내용 많으면 스크롤 */
+            background-color: var(--modal-background);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #scheduleDetailModal .modal-content {
+            background-color: var(--card-background);
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px; /* 상세 보기 모달 최대 너비 */
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            max-height: 90vh; /* 화면 높이의 90% 제한 */
+            overflow-y: auto; /* 모달 내용이 길면 스크롤 */
+        }
+
+        #scheduleDetailModal .schedule-list-container {
+            margin-top: 15px;
+        }
+
+        #scheduleDetailModal .schedule-list-container h3 {
+            margin-bottom: 10px;
             color: var(--primary-color);
         }
 
-        #noScheduleMessage {
+        #scheduleDetailModal .schedule-list-container #noDetailScheduleMessage {
             text-align: center;
             color: var(--text-color);
             padding: 20px;
@@ -451,8 +484,8 @@
             color: var(--secondary-color);
         }
 
-        /* Modals */
-        .modal {
+        /* Modals (기존 스케줄 추가/수정 모달) */
+        #scheduleModal { /* 스케줄 추가/수정 모달 ID */
             display: none;
             position: fixed;
             z-index: 1000;
@@ -665,7 +698,7 @@
             </table>
         </section>
 
-        <section class="schedule-list-section" id="scheduleList">
+        <section class="schedule-list-section" id="scheduleList" style="display: none;">
             <h2 id="scheduleListTitle">오늘의 스케줄</h2>
             <div id="noScheduleMessage" style="display: none;">
                 <p>등록된 스케줄이 없습니다.</p>
@@ -734,6 +767,19 @@
         </div>
     </div>
 
+    <div id="scheduleDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeScheduleDetailModal()">×</span>
+            <h2 id="detailModalTitle"></h2>
+            <div class="schedule-list-container" id="scheduleDetailListContainer">
+                <div id="noDetailScheduleMessage" style="display: none;">
+                    <p>선택된 날짜에 등록된 스케줄이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeSettingsModal()">×</span>
@@ -765,8 +811,11 @@
         const taskTypeInput = document.getElementById('taskType');
         const taskContentInput = document.getElementById('taskContent');
         const scheduleColorInput = document.getElementById('scheduleColor');
-        const scheduleListDiv = document.getElementById('scheduleList');
-        const noScheduleMessage = document.getElementById('noScheduleMessage');
+        
+        // ★★★ 스케줄 목록 섹션은 이제 사용하지 않음 ★★★
+        // const scheduleListDiv = document.getElementById('scheduleList'); 
+        // const noScheduleMessage = document.getElementById('noScheduleMessage');
+
         const currentMonthYearHeader = document.getElementById('currentMonthYear');
         const calendarTableBody = document.querySelector('#calendar tbody');
 
@@ -779,9 +828,14 @@
         const navRadios = document.querySelectorAll('input[name="defaultNav"]');
         const themeRadios = document.querySelectorAll('input[name="theme"]');
 
-        const scheduleModal = document.getElementById('scheduleModal');
-        const settingsModal = document.getElementById('settingsModal');
-        const scheduleListTitle = document.querySelector('#scheduleList h2');
+        const scheduleModal = document.getElementById('scheduleModal'); // 스케줄 추가/수정 모달
+        const settingsModal = document.getElementById('settingsModal'); // 설정 모달
+
+        // ★★★ 스케줄 상세 보기 모달 관련 요소들 ★★★
+        const scheduleDetailModal = document.getElementById('scheduleDetailModal');
+        const detailModalTitle = document.getElementById('detailModalTitle');
+        const scheduleDetailListContainer = document.getElementById('scheduleDetailListContainer');
+        const noDetailScheduleMessage = document.getElementById('noDetailScheduleMessage');
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
         const holidays = new Map([
@@ -904,38 +958,36 @@
                             dayNumberSpan.style.color = 'var(--saturday-color)';
                         }
 
-                        // 스케줄 요약 표시 및 색상 적용
+                        // ★★★ 스케줄 개수 표시 ★★★
                         if (schedules[fullDate] && schedules[fullDate].length > 0) {
                             cell.classList.add('has-schedule');
                             const scheduleSummaryDiv = document.createElement('div');
                             scheduleSummaryDiv.classList.add('schedule-summary');
                             
-                            // ★★★ displayLimit 제거, 모든 스케줄 표시 ★★★
-                            schedules[fullDate].sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
+                            const scheduleCountSpan = document.createElement('span');
+                            scheduleCountSpan.classList.add('schedule-count');
+                            scheduleCountSpan.textContent = schedules[fullDate].length; // 스케줄 개수
+                            scheduleSummaryDiv.appendChild(scheduleCountSpan);
 
-                            schedules[fullDate].forEach(sch => {
+                            // 데스크톱 버전에서는 첫 번째 스케줄만 요약해서 표시 (선택 사항)
+                            if (window.innerWidth > 768 && schedules[fullDate].length > 0) {
+                                const firstSchedule = schedules[fullDate].sort((a,b) => a.time.localeCompare(b.time))[0];
                                 const p = document.createElement('p');
-                                // 시간과 함께 장소 또는 작업 종류를 표시
-                                p.textContent = `${sch.time} ${sch.location || sch.taskType}`; 
-                                if (sch.color) {
-                                    // 스케줄 색상을 텍스트 색상으로 적용 (스크린샷처럼 배경색 없이)
-                                    p.style.color = sch.color; 
+                                p.textContent = `${firstSchedule.time} ${firstSchedule.location || firstSchedule.taskType}`;
+                                if (firstSchedule.color && getContrastYIQ(firstSchedule.color) === 'black') {
+                                    p.style.backgroundColor = firstSchedule.color;
+                                    p.style.color = 'black'; // 배경색이 밝으면 글씨는 검정
+                                } else if (firstSchedule.color) {
+                                     p.style.backgroundColor = firstSchedule.color;
+                                    p.style.color = 'white'; // 배경색이 어두우면 글씨는 흰색
                                 }
                                 scheduleSummaryDiv.appendChild(p);
-                            });
-
-                            // ★★★ 더보기 텍스트 숨김 (CSS에서도 처리) ★★★
-                            // if (schedules[fullDate].length > displayLimit) {
-                            //     const moreCount = schedules[fullDate].length - displayLimit;
-                            //     const moreSpan = document.createElement('span');
-                            //     moreSpan.classList.add('schedule-count');
-                            //     moreSpan.textContent = `+${moreCount}개 더 보기`;
-                            //     scheduleSummaryDiv.appendChild(moreSpan);
-                            // }
+                            }
 
                             cell.appendChild(scheduleSummaryDiv);
                         }
 
+                        // ★★★ 날짜 클릭 시 스케줄 상세 모달 열기 ★★★
                         cell.addEventListener('click', () => {
                             const previouslySelected = document.querySelector('.calendar-days td.selected');
                             if (previouslySelected) {
@@ -944,11 +996,7 @@
                             cell.classList.add('selected');
 
                             selectedDate = fullDate;
-                            displaySchedules(selectedDate);
-                            // 모바일 환경에서만 스케줄 목록으로 스크롤
-                            if (window.innerWidth <= 768) {
-                                document.getElementById('scheduleList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
+                            openScheduleDetailModal(selectedDate); // 상세 모달 열기
                         });
 
                         if (selectedDate === fullDate) {
@@ -961,8 +1009,8 @@
                 calendarTableBody.appendChild(row);
                 if (date > daysInMonth) break;
             }
-            // 현재 선택된 날짜에 대한 스케줄을 다시 표시하여 캘린더 업데이트 반영
-            displaySchedules(selectedDate);
+            // 캘린더 업데이트 후 기존 스케줄 목록은 업데이트하지 않음
+            // displaySchedules(selectedDate);
         }
 
         function prevMonth() {
@@ -983,7 +1031,7 @@
             renderCalendar();
         }
 
-        // --- 스케줄 모달 관련 기능 ---
+        // --- 스케줄 추가/수정 모달 관련 기능 ---
         function openScheduleModal(date) {
             scheduleModal.style.display = 'flex';
             if (date) {
@@ -1070,8 +1118,11 @@
             schedules[date].sort((a, b) => a.time.localeCompare(b.time)); // 스케줄 저장 시 정렬
             localStorage.setItem('schedules', JSON.stringify(schedules));
             renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트
-            displaySchedules(selectedDate); // 선택된 날짜 스케줄 목록 업데이트
             closeScheduleModal();
+            // 스케줄 추가/수정 후 현재 열려있는 상세 모달이 있다면 업데이트
+            if (scheduleDetailModal.style.display === 'flex' && selectedDate === date) {
+                openScheduleDetailModal(selectedDate);
+            }
         }
 
         function editSchedule(id, date) {
@@ -1094,6 +1145,7 @@
                 saveScheduleBtn.onclick = saveSchedule; // 저장 함수는 동일하게 사용
                 cancelEditBtn.style.display = 'inline-block'; // 수정 취소 버튼 보이게
                 scheduleModal.style.display = 'flex';
+                closeScheduleDetailModal(); // 상세 보기 모달이 열려있다면 닫기
             }
         }
 
@@ -1101,6 +1153,10 @@
             editingSchedule = null;
             closeScheduleModal();
             clearAllInputs();
+            // 수정 취소 후 상세 모달이 열려있었다면 다시 열어주기 (선택 사항)
+            // if (selectedDate && schedules[selectedDate]) {
+            //     openScheduleDetailModal(selectedDate);
+            // }
         }
 
         function deleteSchedule(id, date) {
@@ -1111,35 +1167,29 @@
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
                 renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트
-                displaySchedules(selectedDate); // 스케줄 목록 업데이트
+                openScheduleDetailModal(selectedDate); // 스케줄 목록 업데이트 (열려있는 모달)
             }
         }
 
-        function displaySchedules(date) {
-            scheduleListTitle.textContent = `${formatDateForTitle(date)} 스케줄`; // 날짜 포맷 적용
+        // ★★★ 스케줄 상세 보기 모달 관련 함수 ★★★
+        function openScheduleDetailModal(date) {
+            detailModalTitle.textContent = `${formatDateForTitle(date)} 스케줄`;
             const dailySchedules = schedules[date] || [];
-            
+
             // 기존 스케줄 목록 내용 초기화
-            const existingScheduleItems = scheduleListDiv.querySelectorAll('.schedule-item');
-            existingScheduleItems.forEach(item => item.remove());
-            
-            // "등록된 스케줄이 없습니다" 메시지 위치 재조정 (h2 다음에 위치하도록)
-            const noScheduleMsgElement = document.getElementById('noScheduleMessage');
-            if (noScheduleMsgElement) {
-                noScheduleMsgElement.remove(); // 기존 메시지 있으면 제거
-            }
-            
+            scheduleDetailListContainer.innerHTML = ''; // 기존 목록 내용 모두 지우기
+
             if (dailySchedules.length === 0) {
-                noScheduleMessage.style.display = 'block';
-                scheduleListDiv.appendChild(noScheduleMessage);
+                noDetailScheduleMessage.style.display = 'block';
+                scheduleDetailListContainer.appendChild(noDetailScheduleMessage);
             } else {
-                noScheduleMessage.style.display = 'none';
+                noDetailScheduleMessage.style.display = 'none';
                 dailySchedules.sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
                 dailySchedules.forEach(sch => {
                     const scheduleItem = document.createElement('div');
                     scheduleItem.classList.add('schedule-item');
                     if (sch.color) {
-                         // 스케줄 색상에 따른 border-left 색상 변경 (기본 primary-color 대신)
+                         // 스케줄 색상에 따른 border-left 색상 변경
                         scheduleItem.style.borderLeft = `5px solid ${sch.color}`;
                     }
 
@@ -1159,9 +1209,14 @@
                             <button class="delete-btn" onclick="deleteSchedule(${sch.id}, '${sch.date}')">삭제</button>
                         </div>
                     `;
-                    scheduleListDiv.appendChild(scheduleItem);
+                    scheduleDetailListContainer.appendChild(scheduleItem);
                 });
             }
+            scheduleDetailModal.style.display = 'flex'; // 모달 표시
+        }
+
+        function closeScheduleDetailModal() {
+            scheduleDetailModal.style.display = 'none';
         }
 
         // 날짜를 "YYYY년 MM월 DD일" 형식으로 포맷
@@ -1217,7 +1272,7 @@
             const encodedAddress = encodeURIComponent(address);
             switch (app) {
                 case "google":
-                    url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                    url = `https://maps.google.com/?q=${encodedAddress}`;
                     break;
                 case "naver":
                     // 네이버 지도 앱 설치 여부 확인 후 스킴 또는 웹 URL 사용
@@ -1231,8 +1286,6 @@
                     break;
                 case "kakao":
                     // 카카오맵 앱 설치 여부 확인 후 스킴 또는 웹 URL 사용
-                    // 주의: 카카오맵 앱 연동 시에는 카카오 개발자 사이트에서 발급받은 JS API KEY가 필요합니다.
-                    // 현재 앱은 키가 없으므로 웹 링크로 연결합니다.
                     url = `https://map.kakao.com/link/search/${encodedAddress}`;
                     break;
                 default:
@@ -1318,11 +1371,15 @@
             if (event.target === settingsModal) {
                 closeSettingsModal();
             }
+            if (event.target === scheduleDetailModal) { // ★★★ 상세 보기 모달 추가 ★★★
+                closeScheduleDetailModal();
+            }
         });
 
         // 앱 초기화
         initCalendar();
-        displaySchedules(selectedDate); // 초기 로드 시 오늘 날짜 스케줄 표시
+        // 초기 로드 시 선택된 날짜에 대한 스케줄 상세 모달은 열지 않음 (클릭 시 열리도록)
+        // displaySchedules(selectedDate);
     </script>
 </body>
 </html>
