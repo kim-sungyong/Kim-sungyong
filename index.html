@@ -131,7 +131,7 @@
         }
 
 
-        /* Mobile specific adjustments */
+        /* ★★★ 수정된 모바일 미디어 쿼리 ★★★ */
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.5rem;
@@ -139,7 +139,7 @@
             .calendar-section, .schedule-list-section {
                 max-width: 100%;
                 width: 100%;
-                min-width: unset; /* 모바일에서는 최소 너비 제한 해제 */
+                min-width: unset;
             }
             main {
                 flex-direction: column;
@@ -151,37 +151,53 @@
             }
             
             .calendar-days th {
-                padding: 2px 3px; /* 모바일에서도 패딩을 더 줄여 요일 칸 높이 조정 */
-                font-size: 1.1em; /* 모바일 요일 폰트 크기 조정 */
+                padding: 2px 3px;
+                font-size: 1.1em;
             }
             .calendar-days td {
-                padding: 3px; /* 모바일에서 셀 패딩을 더 줄여 글자가 잘리지 않도록 */
-                font-size: 0.9em; /* 셀 내부 글자 크기 조정 */
-                min-height: 90px; /* ★★★ 모바일에서 셀 최소 높이 조정 (여기 수정됨) ★★★ */
-                height: auto; /* 고정 높이 대신 내용에 따라 자동 높이 */
+                padding: 3px;
+                font-size: 0.8em; /* 폰트 크기를 약간 더 줄여 공간 확보 */
+                min-height: 120px; /* 최소 높이 */
+                height: 120px;    /* 고정 높이로 설정 */
+                overflow: hidden; /* 셀 자체의 내용이 넘칠 경우 숨김 (스케줄 요약은 자체 스크롤) */
+                position: relative; /* 자식 요소의 absolute 위치 기준 */
+                vertical-align: top; /* 내용을 상단에 정렬 */
+                text-align: left; /* 내용 왼쪽 정렬 */
             }
             .calendar-days td .day-number {
-                font-size: 1em; /* 날짜 숫자 크기 조정 */
-                padding-right: 3px; /* 날짜 숫자 오른쪽 패딩 조정 */
-                top: 5px; /* 모바일에서도 상단 우측 정렬 */
+                font-size: 1em;
+                padding-right: 3px;
+                top: 5px;
             }
             .calendar-days td.holiday .holiday-name {
-                font-size: 0.6em; /* 공휴일 이름 폰트 크기 조정 */
+                font-size: 0.6em;
                 padding-right: 3px;
-                bottom: 5px; /* 모바일에서도 하단 우측 정렬 */
+                bottom: 5px;
             }
             .schedule-summary {
-                font-size: 0.6em; /* 모바일에서 스케줄 요약 폰트 크기 더 줄이기 */
-                margin-top: 0; /* 모바일에서는 마진 제거 */
-                max-height: calc(100% - 40px); /* 모바일에서 스케줄 요약 최대 높이 제한 */
-                overflow-y: auto; /* 스케줄 많으면 스크롤 */
-                padding-top: 25px; /* 모바일 날짜 숫자가 들어갈 공간 확보 */
-                padding-bottom: 15px; /* 모바일 공휴일 이름이 들어갈 공간 확보 */
+                font-size: 0.7em; /* 스케줄 요약 폰트 크기를 약간 키웁니다. */
+                margin-top: 0;
+                max-height: calc(100% - 45px); /* day-number와 holiday-name 공간을 고려하여 max-height 조정 (40px -> 45px) */
+                overflow-y: auto;
+                padding-top: 25px;
+                padding-bottom: 15px;
+                scrollbar-width: thin; /* Firefox */
+                scrollbar-color: var(--primary-color) transparent; /* Firefox */
             }
-            /* ★★★ 수정된 부분: 모바일에서 schedule-summary p ★★★ */
+            /* 스크롤바 스타일 (웹킷 브라우저용) */
+            .schedule-summary::-webkit-scrollbar {
+                width: 4px;
+            }
+            .schedule-summary::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 4px;
+            }
+            .schedule-summary::-webkit-scrollbar-track {
+                background-color: transparent;
+            }
             .schedule-summary p {
-                padding: 1px 3px; /* 요약 항목 패딩 조정 */
-                white-space: normal; /* 모바일에서도 줄바꿈 허용 */
+                padding: 1px 3px;
+                white-space: normal;
                 overflow: visible;
                 text-overflow: clip;
                 line-height: 1.2;
@@ -341,7 +357,7 @@
             color: var(--primary-color);
         }
 
-        /* ★★★ 수정된 부분: schedule-summary p ★★★ */
+        /* ★★★ 수정된 부분: schedule-summary p (줄바꿈 허용) ★★★ */
         .schedule-summary p {
             background-color: var(--schedule-summary-bg);
             padding: 3px 6px;
