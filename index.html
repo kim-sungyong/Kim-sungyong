@@ -152,17 +152,17 @@
             
             .calendar-days th {
                 padding: 2px 3px;
-                font-size: 1em; /* 모바일 요일 폰트 크기 조정 */
+                font-size: 1em; /* 모바일 요일 폰트 크기 유지 */
             }
             .calendar-days td {
                 padding: 3px;
-                font-size: 0.65em; /* ★★★ 스케줄 텍스트가 더 잘 보이도록 폰트 크기 더 축소 ★★★ */
-                min-height: 120px; /* 최소 높이 유지 */
-                height: 120px;    /* ★★★ 모바일에서도 셀 높이를 고정하여 바탕화면 형식 유지 ★★★ */
+                font-size: 0.6em; /* ★★★ 셀 내의 전체 폰트 크기를 더 줄여 공간 확보 ★★★ */
+                min-height: 120px; 
+                height: 120px;    /* ★★★ 모바일 셀 높이 고정 (바탕화면 형식) ★★★ */
                 overflow: hidden; /* 셀 전체의 넘치는 내용은 숨김 */
-                position: relative; /* 자식 요소의 absolute 위치 기준 */
-                vertical-align: top; /* 내용을 상단에 정렬 */
-                text-align: left; /* 내용 왼쪽 정렬 */
+                position: relative; 
+                vertical-align: top;
+                text-align: left;
             }
             .calendar-days td .day-number {
                 font-size: 1em;
@@ -170,18 +170,20 @@
                 top: 5px;
             }
             .calendar-days td.holiday .holiday-name {
-                font-size: 0.55em; /* 공휴일 이름 폰트 크기 조정 */
+                font-size: 0.5em; /* 공휴일 이름 폰트 크기 더 줄임 */
                 padding-right: 3px;
                 bottom: 5px;
             }
             .schedule-summary {
-                font-size: 0.7em; /* 스케줄 요약 폰트 크기 */
+                font-size: 0.7em; /* 스케줄 요약 폰트 크기는 유지 (p 태그에서 조정) */
                 margin-top: 0;
-                /* 셀 높이 120px - (날짜숫자+공휴일이름 공간 약 40px) = 80px */
-                max-height: calc(100% - 40px); /* ★★★ 날짜/공휴일 이름 공간을 고려한 max-height ★★★ */
+                /* max-height 계산 조정: 날짜/공휴일 이름 공간을 최소화하고 스케줄 내용 공간 최대화 */
+                /* day-number(top: 5px) + holiday-name(bottom: 5px) + 스케줄 상하 패딩 (각 5px 정도) = 약 10px + (날짜 숫자, 공휴일 이름 자체 높이) */
+                /* -> 셀 높이 120px에서 상하 여백을 고려한 최적의 max-height */
+                max-height: calc(100% - 25px); /* ★★★ 날짜 숫자와 공휴일 이름 간격을 최소화하여 스케줄 공간 확보 ★★★ */
                 overflow-y: auto;
-                padding-top: 25px; /* 날짜 숫자가 들어갈 공간 확보 */
-                padding-bottom: 15px; /* 공휴일 이름이 들어갈 공간 확보 */
+                padding-top: 25px; /* 날짜 숫자 아래에서 시작 */
+                padding-bottom: 5px; /* 공휴일 이름 위까지 */
                 scrollbar-width: thin; /* Firefox */
                 scrollbar-color: var(--primary-color) transparent; /* Firefox */
             }
@@ -197,12 +199,16 @@
                 background-color: transparent;
             }
             .schedule-summary p {
-                padding: 1px 3px;
-                white-space: normal; /* 텍스트가 넘치면 자동으로 줄바꿈 */
-                overflow: visible; /* 넘치는 부분 숨기지 않음 */
-                text-overflow: clip; /* ...으로 표시하지 않음 */
-                line-height: 1.2; /* 줄 간격 조정 */
-                margin-bottom: 2px; /* 스케줄 항목 간 간격 */
+                padding: 1px 2px; /* ★★★ 스케줄 항목 내부 패딩 최소화 ★★★ */
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                line-height: 1.1; /* ★★★ 줄 간격을 더 좁게 하여 더 많은 줄 표시 ★★★ */
+                margin-bottom: 2px; /* 스케줄 항목 간 간격 유지 */
+                /* max-height: 2.2em; */ /* 한 스케줄 항목이 2줄 정도만 보이도록 제한 (주석 처리하여 최대한 표시) */
+            }
+            .schedule-summary .schedule-count {
+                font-size: 0.7em; /* 더보기 텍스트 크기 조정 */
             }
         }
 
