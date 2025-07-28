@@ -185,11 +185,12 @@
         
         /* 📱 모바일 (기본) 달력 셀 스타일 */
         .calendar-days td {
-            min-height: 85px; /* 모바일 각 셀의 최소 높이 확보 */
+            min-height: 95px; /* ✨ 수정: 85px에서 95px로 높이 확보 */
             height: auto; 
             cursor: pointer;
             transition: background-color 0.2s;
             overflow: hidden; /* 넘치는 내용 숨김 */
+            padding: 5px; /* ✨ 추가: 셀 자체에 약간의 패딩 추가 */
         }
 
         .calendar-days td:hover {
@@ -208,10 +209,11 @@
             position: absolute;
             top: 5px; 
             left: 8px; /* 날짜 숫자를 셀의 좌측 상단으로 이동 */
-            display: block;
-            z-index: 5; /* ✨ 스케줄 개수 박스보다 높게 (최상단) */
+            display: block; /* ✨ 명시: 블록 요소로 표시 */
+            z-index: 10; /* ✨ 수정: 날짜 숫자를 모든 다른 요소보다 훨씬 높게 설정 (최상단 보장) */
             padding: 2px 5px; /* 터치 영역 보완 */
             border-radius: 3px;
+            color: var(--text-color); /* ✨ 추가: 날짜 숫자가 기본 텍스트 색상을 따르도록 명시 */
         }
 
         /* 요일별 색상 (날짜 숫자) */
@@ -252,18 +254,18 @@
         }
 
         .calendar-days td.holiday .holiday-name {
-            display: block;
+            display: block; /* ✨ 명시: 블록 요소로 표시 */
             font-size: 0.75em; /* 모바일 공휴일 이름 크기 */
             color: var(--holiday-color);
             position: absolute;
-            bottom: 30px; /* 스케줄 개수 박스 위, 날짜 아래 */
+            bottom: 35px; /* ✨ 수정: 스케줄 개수 박스 위 + 여백 7px 정도 */
             left: 8px; /* 좌측 정렬 */
             right: 8px;
             text-align: left;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            z-index: 3; /* ✨ 날짜 숫자보다 낮고, 스케줄 개수보다 높게 */
+            z-index: 4; /* ✨ 수정: 스케줄 개수보다 낮고, 날짜보다는 낮게 */
         }
         .calendar-days td.holiday-weekend .holiday-name {
             color: var(--holiday-color);
@@ -272,7 +274,7 @@
         /* === ⭐️ 스케줄 개수 (모바일용) === */
         /* 기본적으로 숨겨져 있다가, 모바일 미디어 쿼리에서 활성화 */
         .calendar-days td .schedule-count { 
-            display: flex; /* Flexbox로 중앙 정렬 */
+            display: flex; /* ✨ 명시: Flexbox로 중앙 정렬 */
             align-items: center;
             justify-content: center;
             width: 28px; /* 원형 크기 */
@@ -288,7 +290,7 @@
             bottom: 5px; /* 셀 하단에서 5px 위 */
             left: 50%; /* 가로 중앙 */
             transform: translateX(-50%); /* 정확한 중앙 정렬 */
-            z-index: 4; /* ✨ 날짜 숫자보다 낮고, 공휴일 이름보다 높게 */
+            z-index: 5; /* ✨ 수정: 날짜 숫자보다 낮지만 공휴일 이름보다는 높게 */
             box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* 그림자 추가로 돋보이게 */
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
