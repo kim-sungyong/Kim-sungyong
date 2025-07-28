@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스케줄 관리 앱</title>
+    <title>나의 스케줄</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -12,28 +12,30 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
 
+        /* === 🎨 테마 및 색상 변수 설정 === */
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --accent-color: #e74c3c;
-            --text-color: #333;
-            --background-color: #f4f7f6;
-            --card-background: #ffffff;
-            --border-color: #ddd;
-            --hover-color: #ecf0f1;
-            --modal-background: rgba(0, 0, 0, 0.5);
+            --primary-color: #3498db; /* 주 색상 (파랑) */
+            --secondary-color: #2ecc71; /* 보조 색상 (초록) */
+            --accent-color: #e74c3c; /* 강조 색상 (빨강) */
+            --text-color: #333; /* 기본 텍스트 색상 */
+            --background-color: #f4f7f6; /* 앱 배경색 */
+            --card-background: #ffffff; /* 카드/모달 배경색 */
+            --border-color: #ddd; /* 경계선 색상 */
+            --hover-color: #ecf0f1; /* 호버/선택 색상 */
+            --modal-background: rgba(0, 0, 0, 0.5); /* 모달 오버레이 */
             --button-bg: var(--primary-color);
             --button-text: white;
             --input-border: #ccc;
             --today-bg: #ffeaa7; /* 오늘 날짜 배경 */
-            --holiday-color: var(--accent-color); /* 공휴일 날짜 색상 */
-            --weekend-color: #e74c3c; /* 일요일 날짜 색상 */
-            --saturday-color: #3498db; /* 토요일 날짜 색상 */
-            --schedule-summary-bg: #d0e8f2; /* 스케줄 요약 기본 배경 */
-            --schedule-count-bg: var(--primary-color); /* 스케줄 개수 배경색 */
-            --schedule-count-text: white; /* 스케줄 개수 텍스트 색상 */
+            --holiday-color: var(--accent-color); /* 공휴일 날짜/이름 색상 */
+            --weekend-color: var(--accent-color); /* 일요일 날짜 색상 */
+            --saturday-color: var(--primary-color); /* 토요일 날짜 색상 */
+            --schedule-summary-bg: #d0e8f2; /* 스케줄 요약 배경 (데스크톱) */
+            --schedule-count-bg: var(--primary-color); /* 스케줄 개수 배경 (모바일) */
+            --schedule-count-text: white; /* 스케줄 개수 텍스트 (모바일) */
         }
 
+        /* 🌙 다크 테마 */
         body.dark-theme {
             --primary-color: #8e44ad;
             --secondary-color: #27ae60;
@@ -56,6 +58,7 @@
             --schedule-count-text: white;
         }
 
+        /* === ⭐️ 기본 스타일 === */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -71,13 +74,13 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            padding: 0;
         }
 
+        /* === 🚀 Header (상단 바) === */
         header {
             background-color: var(--primary-color);
             color: white;
-            padding: 1rem;
+            padding: 0.8rem 1rem; /* 패딩 조정 */
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             display: flex;
@@ -88,18 +91,24 @@
 
         header h1 {
             flex-grow: 1;
-            font-size: 1.8rem;
+            font-size: 1.6rem; /* 모바일에서 더 작은 크기 */
+            margin: 0 10px; /* 버튼과의 간격 */
         }
 
         .settings-button, .add-schedule-button {
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.6rem; /* 버튼 아이콘 크기 */
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 5px;
             transition: background-color 0.2s;
+            display: flex; /* 아이콘 중앙 정렬 */
+            align-items: center;
+            justify-content: center;
+            min-width: 44px; /* 최소 터치 영역 */
+            min-height: 44px; /* 최소 터치 영역 */
         }
 
         .settings-button:hover, .add-schedule-button:hover {
@@ -108,108 +117,22 @@
 
         main {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-            width: 100%;
-            margin: 0;
+            flex-direction: column; /* 모바일 기본: 세로 정렬 */
+            gap: 15px; /* 요소 간 간격 */
+            padding: 15px;
             flex-grow: 1;
             overflow-y: auto;
         }
 
-        /* Calendar Styles */
+        /* === 📅 Calendar Styles === */
         .calendar-section {
             background-color: var(--card-background);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            flex: 2; /* 달력이 스케줄 목록보다 더 넓게 */
-            min-width: 400px;
-            width: 65%;
+            padding: 15px; /* 모바일 패딩 */
+            width: 100%; /* 모바일 전체 너비 */
         }
 
-        /* Schedule List Section (데스크톱에서는 보이지 않음) */
-        .schedule-list-section {
-            display: none; /* 기본적으로 숨김 (모달로 대체) */
-        }
-
-
-        /* 모바일 미디어 쿼리 */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.5rem;
-            }
-            .calendar-section {
-                max-width: 100%;
-                width: 100%;
-                min-width: unset;
-                padding: 15px;
-            }
-            main {
-                flex-direction: column;
-                padding: 15px;
-                gap: 15px;
-            }
-            
-            .calendar-days th {
-                padding: 2px 3px;
-                font-size: 1em;
-            }
-            .calendar-days td {
-                padding: 3px;
-                font-size: 0.6em; 
-                min-height: 80px; /* 모바일 셀 최소 높이 */
-                height: auto; 
-                overflow: visible; /* 넘치는 내용 숨기지 않음 */
-                position: relative; 
-                vertical-align: top;
-                text-align: left;
-            }
-            .calendar-days td .day-number {
-                font-size: 1em;
-                padding-right: 3px;
-                top: 5px; 
-                left: 5px;
-                right: auto; 
-            }
-            .calendar-days td.holiday .holiday-name {
-                font-size: 0.5em;
-                padding-right: 3px;
-                bottom: 5px; 
-                left: 5px;
-                right: auto; 
-            }
-            
-            /* ★★★ 모바일에서 schedule-summary (텍스트 요약)는 숨김 ★★★ */
-            .schedule-summary {
-                display: none; 
-            }
-
-            /* ★★★ 모바일에서 schedule-count (개수 박스)만 별도로 스타일링 ★★★ */
-            .calendar-days td .schedule-count { 
-                display: flex !important; /* ★★★ 강제 표시 ★★★ */
-                align-items: center;
-                justify-content: center;
-                min-width: 25px; 
-                height: 25px; 
-                background-color: var(--schedule-count-bg) !important; /* ★★★ 배경색 강제 ★★★ */
-                color: var(--schedule-count-text) !important; /* ★★★ 텍스트 색상 강제 ★★★ */
-                border-radius: 50%; /* 원형으로 */
-                font-weight: bold;
-                font-size: 0.9em;
-                padding: 2px;
-                
-                /* ★★★ 새로운 위치 지정: 셀의 하단 중앙 ★★★ */
-                position: absolute; 
-                bottom: 5px; /* 셀 하단에서 5px 위 */
-                left: 50%; /* 가로 중앙 */
-                transform: translateX(-50%); /* 정확한 중앙 정렬 */
-                z-index: 3; /* 날짜 숫자나 공휴일 이름 위에 오도록 */
-            }
-        }
-
-
-        /* 데스크톱 스타일 */
         .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -224,8 +147,9 @@
             padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem; /* 모바일 버튼 폰트 */
             transition: background-color 0.2s;
+            min-width: 70px; /* 버튼 최소 너비 */
         }
 
         .calendar-header button:hover {
@@ -233,7 +157,7 @@
         }
 
         #currentMonthYear {
-            font-size: 1.5rem;
+            font-size: 1.3rem; /* 모바일 월/년도 폰트 */
             font-weight: bold;
         }
 
@@ -241,31 +165,31 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            table-layout: fixed; /* 모든 열의 너비를 균일하게 강제합니다. */
+            table-layout: fixed; /* 모든 열 너비 균일 */
         }
 
         .calendar-days th,
         .calendar-days td {
-            padding: 5px;
             border: 1px solid var(--border-color);
-            position: relative;
+            position: relative; /* 자식 요소 절대 위치 기준 */
             vertical-align: top;
+            padding: 0; /* 패딩은 내부 요소에서 관리 */
         }
 
         .calendar-days th {
             background-color: var(--hover-color);
             font-weight: normal;
-            padding: 3px 5px;
-            font-size: 1.2em;
+            padding: 8px 0; /* 상하 패딩 */
+            font-size: 0.9em; /* 요일 폰트 */
         }
         
+        /* 📱 모바일 (기본) 달력 셀 스타일 */
         .calendar-days td {
-            min-height: 150px; /* 각 날짜 셀의 최소 높이 (데스크톱) */
-            height: 150px; /* 고정 높이를 주어 셀 크기를 키웁니다. (데스크톱) */
-            padding: 10px;
+            min-height: 85px; /* 모바일 각 셀의 최소 높이 확보 */
+            height: auto; 
             cursor: pointer;
             transition: background-color 0.2s;
-            text-align: left;
+            overflow: hidden; /* 넘치는 내용 숨김 */
         }
 
         .calendar-days td:hover {
@@ -277,18 +201,20 @@
             cursor: default;
         }
 
+        /* 날짜 숫자 */
         .calendar-days td .day-number {
-            font-size: 1.5em;
+            font-size: 1.2em; /* 모바일 날짜 숫자 크기 */
             font-weight: bold;
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 5px; 
+            left: 8px; /* ✨ 날짜 숫자를 셀의 좌측 상단으로 이동 */
             display: block;
-            z-index: 1;
-            padding-right: 5px;
+            z-index: 2; /* 스케줄 정보 위에 */
+            padding: 2px 5px; /* 터치 영역 보완 */
+            border-radius: 3px;
         }
 
-        /* Day of week colors */
+        /* 요일별 색상 (날짜 숫자) */
         .calendar-days th:first-child, /* 일요일 */
         .calendar-days td:nth-child(1) .day-number {
             color: var(--weekend-color);
@@ -299,11 +225,13 @@
             color: var(--saturday-color);
         }
 
+        /* 오늘 날짜 */
         .calendar-days td.today {
             background-color: var(--today-bg);
             border: 2px solid var(--primary-color);
         }
 
+        /* 선택된 날짜 */
         .calendar-days td.selected {
             background-color: var(--primary-color);
             color: white;
@@ -314,10 +242,10 @@
             color: white;
         }
         .calendar-days td.selected .holiday-name {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.8); /* 선택 시 공휴일 이름 색상 */
         }
 
-
+        /* 공휴일 스타일 */
         .calendar-days td.holiday .day-number,
         .calendar-days td.holiday-weekend .day-number {
             color: var(--holiday-color);
@@ -325,179 +253,156 @@
 
         .calendar-days td.holiday .holiday-name {
             display: block;
-            font-size: 0.9em;
+            font-size: 0.75em; /* 모바일 공휴일 이름 크기 */
             color: var(--holiday-color);
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            z-index: 1;
-            padding-right: 5px;
+            bottom: 30px; /* ✨ 스케줄 개수 박스 위, 날짜 아래 */
+            left: 8px; /* ✨ 좌측 정렬 */
+            right: 8px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 3;
         }
         .calendar-days td.holiday-weekend .holiday-name {
             color: var(--holiday-color);
         }
 
-        /* 스케줄 요약 (데스크톱용) */
-        .schedule-summary {
-            font-size: 0.9em;
-            margin-top: 2px;
-            overflow-y: hidden; /* 넘치는 내용 숨김 */
-            max-height: calc(100% - 65px); /* 데스크톱용 높이 */
-            padding-right: 5px;
-            word-break: break-word;
-            position: relative; /* 데스크톱에서는 상대 위치 유지 */
-            top: 0; 
-            left: 0; 
-            padding-top: 35px; /* 날짜 숫자 공간 확보 */
-            padding-bottom: 25px; /* 하단 공간 확보 */
-            box-sizing: border-box;
-            display: block; /* 데스크톱에서는 블록으로 표시 */
-        }
-        /* 데스크톱에서는 schedule-count 숨김 */
-        .schedule-summary .schedule-count,
-        .calendar-days td > .schedule-count:not(.mobile-visible) { /* td의 직접 자식인 .schedule-count를 데스크톱에서 숨김 */
-            display: none; 
-        }
-
-        .schedule-summary p {
-            background-color: var(--schedule-summary-bg);
-            padding: 3px 6px;
-            margin-bottom: 3px;
-            border-radius: 3px;
-            white-space: nowrap; /* 한 줄로 표시 */
-            overflow: hidden; /* 넘치는 텍스트 숨김 */
-            text-overflow: ellipsis; /* ...으로 표시 */
-            line-height: 1.3;
-            max-height: none; 
-        }
-
-
-        /* Schedule Detail Modal (새로 추가) */
-        #scheduleDetailModal {
-            display: none; /* 기본적으로 숨김 */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto; /* 내용 많으면 스크롤 */
-            background-color: var(--modal-background);
-            justify-content: center;
+        /* === ⭐️ 스케줄 개수 (모바일용) === */
+        /* 기본적으로 숨겨져 있다가, 모바일 미디어 쿼리에서 활성화 */
+        .calendar-days td .schedule-count { 
+            display: flex; /* ✨ Flexbox로 중앙 정렬 */
             align-items: center;
-        }
-
-        #scheduleDetailModal .modal-content {
-            background-color: var(--card-background);
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 600px; /* 상세 보기 모달 최대 너비 */
-            position: relative;
-            animation: fadeIn 0.3s ease-out;
-            max-height: 90vh; /* 화면 높이의 90% 제한 */
-            overflow-y: auto; /* 모달 내용이 길면 스크롤 */
-        }
-
-        #scheduleDetailModal .schedule-list-container {
-            margin-top: 15px;
-        }
-
-        #scheduleDetailModal .schedule-list-container h3 {
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-
-        #scheduleDetailModal .schedule-list-container #noDetailScheduleMessage {
-            text-align: center;
-            color: var(--text-color);
-            padding: 20px;
-            border: 1px dashed var(--border-color);
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        .schedule-item {
-            background-color: var(--hover-color);
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 5px solid var(--primary-color);
-            position: relative;
+            justify-content: center;
+            width: 28px; /* ✨ 원형 크기 */
+            height: 28px; /* ✨ 원형 크기 */
+            background-color: var(--schedule-count-bg); /* ✨ 배경색 */
+            color: var(--schedule-count-text); /* ✨ 텍스트 색상 */
+            border-radius: 50%; /* ✨ 원형 */
+            font-weight: bold;
+            font-size: 0.9em; /* 폰트 사이즈 */
+            padding: 2px;
+            
+            position: absolute; 
+            bottom: 5px; /* ✨ 셀 하단에서 5px 위 */
+            left: 50%; /* ✨ 가로 중앙 */
+            transform: translateX(-50%); /* 정확한 중앙 정렬 */
+            z-index: 4; /* ✨ 다른 요소 위에 확실히 표시 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* ✨ 그림자 추가로 돋보이게 */
+            cursor: pointer;
             transition: transform 0.2s ease-in-out;
         }
-
-        .schedule-item:hover {
-            transform: translateY(-3px);
+        
+        .calendar-days td .schedule-count:hover {
+            transform: translateX(-50%) translateY(-2px);
         }
 
-        .schedule-item p {
-            margin-bottom: 5px;
+        /* === 🚫 스케줄 요약 (모바일에서는 숨김) === */
+        .schedule-summary {
+            display: none !important; /* 모바일에서 스케줄 요약 텍스트는 강제 숨김 */
         }
 
-        .schedule-item p strong {
-            color: var(--primary-color);
+        /* === 💻 데스크톱 (769px 이상) 스타일 === */
+        @media (min-width: 769px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            main {
+                flex-direction: row; /* 데스크톱: 가로 정렬 */
+                padding: 20px;
+                gap: 20px;
+            }
+            .calendar-section {
+                flex: 2; /* 달력이 스케줄 목록보다 더 넓게 */
+                min-width: 600px; /* 최소 너비 */
+                padding: 20px;
+            }
+            .calendar-header button {
+                font-size: 1rem;
+            }
+            #currentMonthYear {
+                font-size: 1.5rem;
+            }
+
+            .calendar-days td {
+                min-height: 150px; /* 데스크톱 각 셀의 최소 높이 */
+                height: 150px; /* 고정 높이 */
+                padding: 10px; /* 데스크톱 셀 패딩 */
+            }
+            .calendar-days td .day-number {
+                font-size: 1.5em; /* 데스크톱 날짜 숫자 크기 */
+                top: 10px;
+                right: 10px; /* 데스크톱: 우측 상단 */
+                left: auto;
+            }
+            .calendar-days td.holiday .holiday-name {
+                font-size: 0.9em;
+                bottom: 10px; /* 데스크톱: 우측 하단 */
+                right: 10px;
+                left: auto;
+                text-align: right;
+            }
+
+            /* 데스크톱에서는 스케줄 개수 숨김 */
+            .calendar-days td .schedule-count { 
+                display: none !important; 
+            }
+
+            /* 데스크톱에서는 스케줄 요약 표시 */
+            .schedule-summary {
+                display: block !important; /* 데스크톱에서 스케줄 요약 표시 */
+                font-size: 0.9em;
+                margin-top: 2px;
+                overflow-y: hidden; /* 넘치는 내용 숨김 */
+                max-height: calc(100% - 65px); /* 날짜/공휴일 공간 제외 */
+                padding-right: 5px;
+                word-break: break-word;
+                position: relative; 
+                top: 0; 
+                left: 0; 
+                padding-top: 35px; /* 날짜 숫자 공간 확보 */
+                padding-bottom: 25px; /* 하단 공간 확보 */
+                box-sizing: border-box;
+            }
+            .schedule-summary p {
+                background-color: var(--schedule-summary-bg);
+                padding: 3px 6px;
+                margin-bottom: 3px;
+                border-radius: 3px;
+                white-space: nowrap; 
+                overflow: hidden;
+                text-overflow: ellipsis; 
+                line-height: 1.3;
+            }
+            /* 데스크톱에서 스케줄 목록 섹션 표시 (선택 사항, 현재는 모달로 대체) */
+            /* .schedule-list-section {
+                display: block; 
+                flex: 1; 
+                min-width: 300px;
+                background-color: var(--card-background);
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+            } */
         }
 
-        .action-buttons {
-            margin-top: 10px;
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
 
-        .action-buttons button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s;
-        }
-
-        .action-buttons .edit-btn {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-
-        .action-buttons .edit-btn:hover {
-            background-color: #28a745;
-        }
-
-        .action-buttons .delete-btn {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .action-buttons .delete-btn:hover {
-            background-color: #c0392b;
-        }
-
-        .tel-link, .nav-link {
-            color: var(--primary-color);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .tel-link:hover, .nav-link:hover {
-            color: var(--secondary-color);
-        }
-
-        /* Modals (기존 스케줄 추가/수정 모달) */
-        #scheduleModal { /* 스케줄 추가/수정 모달 ID */
-            display: none;
+        /* === 💡 Modals (공통 스타일) === */
+        .modal {
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
+            overflow-y: auto;
             background-color: var(--modal-background);
+            display: flex; /* Flexbox로 컨텐츠 중앙 정렬 */
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease-out; /* 모달 애니메이션 */
         }
 
         .modal-content {
@@ -506,26 +411,39 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 500px;
+            width: 95%; /* 모바일에서 거의 전체 너비 */
+            max-width: 500px; /* 데스크톱 최대 너비 */
             position: relative;
-            animation: fadeIn 0.3s ease-out;
+            max-height: 90vh; /* 화면 높이의 90% 제한 */
+            overflow-y: auto; /* 내용이 길면 스크롤 */
+            animation: slideInUp 0.3s ease-out;
         }
 
+        /* 모달 열릴 때 애니메이션 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
 
         .close-button {
             color: var(--text-color);
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
+            top: 10px; /* 상단 여백 줄임 */
+            right: 15px; /* 우측 여백 */
+            font-size: 30px; /* 닫기 버튼 크기 키움 */
             font-weight: bold;
             cursor: pointer;
             transition: color 0.2s;
+            min-width: 44px; /* 최소 터치 영역 */
+            min-height: 44px; /* 최소 터치 영역 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .close-button:hover,
@@ -538,10 +456,11 @@
             margin-bottom: 20px;
             color: var(--primary-color);
             text-align: center;
+            font-size: 1.5rem; /* 모달 제목 크기 */
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* 입력 필드 그룹 간격 */
         }
 
         .input-group label {
@@ -549,6 +468,7 @@
             margin-bottom: 5px;
             font-weight: bold;
             color: var(--text-color);
+            font-size: 0.95rem; /* 라벨 폰트 크기 */
         }
 
         .input-group input[type="date"],
@@ -559,17 +479,19 @@
         .input-group textarea,
         .input-group input[type="color"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px; /* 입력 필드 패딩 키움 */
             border: 1px solid var(--input-border);
-            border-radius: 5px;
+            border-radius: 8px; /* 둥근 모서리 */
             font-size: 1em;
             background-color: var(--background-color);
             color: var(--text-color);
+            appearance: none; /* iOS 기본 스타일 제거 */
         }
 
         .input-group input[type="color"] {
-            height: 40px;
+            height: 45px; /* 색상 선택기 높이 */
             padding: 0;
+            cursor: pointer;
         }
 
         .checkbox-group {
@@ -584,27 +506,23 @@
 
         .modal-buttons {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            flex-direction: column; /* 모바일: 버튼 세로 정렬 */
+            gap: 10px; /* 버튼 간 간격 */
             margin-top: 20px;
         }
 
         .modal-buttons button {
             padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px; /* 둥근 모서리 */
             cursor: pointer;
             font-size: 1.1em;
-            transition: background-color 0.2s;
-            flex-grow: 1;
+            transition: background-color 0.2s, transform 0.1s;
+            flex-grow: 1; /* 가득 채우기 */
         }
-
-        @media (min-width: 480px) {
-            .modal-buttons button {
-                flex-grow: 0;
-            }
+        .modal-buttons button:active {
+            transform: translateY(1px); /* 클릭 시 살짝 눌리는 효과 */
         }
-
 
         .modal-buttons .save-button {
             background-color: var(--primary-color);
@@ -627,14 +545,127 @@
         .modal-buttons .cancel-button {
             background-color: #e67e22;
             color: white;
-            display: none;
+            display: none; /* 기본적으로 숨김 */
         }
 
         .modal-buttons .cancel-button:hover {
             background-color: #d35400;
         }
+        
+        /* 데스크톱 (넓은 화면)에서 버튼 가로 정렬 */
+        @media (min-width: 480px) { /* 조금 더 넓은 모바일/태블릿 가로 모드 */
+            .modal-buttons {
+                flex-direction: row; 
+                justify-content: flex-end;
+            }
+            .modal-buttons button {
+                flex-grow: 0; /* 가득 채우지 않음 */
+            }
+        }
 
-        /* Settings Modal Specific Styles */
+
+        /* === 📄 스케줄 상세 모달 전용 스타일 === */
+        #scheduleDetailModal .modal-content {
+            /* 상세 모달은 스케줄 추가 모달보다 약간 더 넓어도 됨 */
+            max-width: 600px; 
+        }
+
+        #scheduleDetailModal .schedule-list-container {
+            margin-top: 15px;
+        }
+
+        #scheduleDetailModal .schedule-list-container h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        #scheduleDetailModal .schedule-list-container #noDetailScheduleMessage {
+            text-align: center;
+            color: var(--text-color);
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .schedule-item {
+            background-color: var(--hover-color);
+            border-radius: 8px; /* 둥근 모서리 */
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid var(--primary-color); /* 색상 강조 */
+            position: relative;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .schedule-item p {
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .schedule-item p strong {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap; /* 버튼이 많을 경우 줄바꿈 */
+        }
+
+        .action-buttons button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .action-buttons button:active {
+            transform: translateY(1px);
+        }
+
+        .action-buttons .edit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .action-buttons .edit-btn:hover {
+            background-color: #28a745;
+        }
+
+        .action-buttons .delete-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .action-buttons .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* 전화/내비게이션 링크 스타일 */
+        .tel-link, .nav-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: bold; /* 좀 더 강조 */
+        }
+
+        .tel-link:hover, .nav-link:hover {
+            color: var(--secondary-color);
+        }
+
+        /* === ⚙️ 설정 모달 전용 스타일 === */
         .settings-option {
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
@@ -645,6 +676,7 @@
         .settings-option h3 {
             margin-bottom: 10px;
             color: var(--primary-color);
+            font-size: 1.1rem;
         }
 
         .settings-option label {
@@ -655,8 +687,10 @@
 
         .settings-option input[type="radio"] {
             margin-right: 8px;
+            transform: scale(1.1); /* 라디오 버튼 크기 키움 */
         }
 
+        /* === 🦶 Footer === */
         footer {
             text-align: center;
             padding: 15px;
@@ -665,6 +699,7 @@
             color: var(--text-color);
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
+            font-size: 0.85rem;
         }
     </style>
 </head>
@@ -699,22 +734,20 @@
             </table>
         </section>
 
-        
-<section class="schedule-list-section" id="scheduleList" style="display: none;">
-            <h2 id="scheduleListTitle">오늘의 스케줄</h2>
+        <section class="schedule-list-section" id="scheduleList" style="display: none;">
+            <h2 id="scheduleListTitle">선택된 날짜의 스케줄</h2>
             <div id="noScheduleMessage" style="display: none;">
                 <p>등록된 스케줄이 없습니다.</p>
-                <p>캘린더에서 날짜를 클릭하여 새로운 스케줄을 추가해보세요!</p>
+                <p>캘린더에서 날짜를 클릭하거나 '+' 버튼을 눌러 스케줄을 추가해보세요!</p>
             </div>
-            </section>
+        </section>
     </main>
 
     <footer>
         <p>© 2024 Schedule Manager. All rights reserved.</p>
     </footer>
 
-    
-<div id="scheduleModal" class="modal">
+    <div id="scheduleModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeScheduleModal()">×</span>
             <h2>스케줄 등록/수정</h2>
@@ -770,8 +803,7 @@
         </div>
     </div>
 
-    
-<div id="scheduleDetailModal" class="modal">
+    <div id="scheduleDetailModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeScheduleDetailModal()">×</span>
             <h2 id="detailModalTitle"></h2>
@@ -782,7 +814,6 @@
             </div>
         </div>
     </div>
-
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
@@ -830,13 +861,13 @@
 
         const scheduleModal = document.getElementById('scheduleModal'); // 스케줄 추가/수정 모달
         const settingsModal = document.getElementById('settingsModal'); // 설정 모달
-
-        const scheduleDetailModal = document.getElementById('scheduleDetailModal');
+        const scheduleDetailModal = document.getElementById('scheduleDetailModal'); // 스케줄 상세 모달
         const detailModalTitle = document.getElementById('detailModalTitle');
         const scheduleDetailListContainer = document.getElementById('scheduleDetailListContainer');
         const noDetailScheduleMessage = document.getElementById('noDetailScheduleMessage');
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
+        // (이 부분은 이전 코드와 동일하며, 정확성을 위해 유지)
         const holidays = new Map([
             // 2024년 공휴일
             ['2024-01-01', '신정'],
@@ -895,7 +926,7 @@
         let schedules = JSON.parse(localStorage.getItem('schedules')) || {};
         // 현재 날짜를 기본 선택 날짜로 설정
         const todayFormatted = new Date().toISOString().split('T')[0];
-        let selectedDate = todayFormatted;
+        let selectedDate = todayFormatted; // 전역 변수로 관리
 
         // --- 초기화 및 캘린더 렌더링 ---
         function initCalendar() {
@@ -903,27 +934,30 @@
             currentYear = today.getFullYear();
             currentMonth = today.getMonth(); // 0-11
             renderCalendar();
-            loadSettings();
+            loadSettings(); // 설정 불러오기 및 테마 적용
         }
 
         function renderCalendar() {
             calendarTableBody.innerHTML = '';
             currentMonthYearHeader.textContent = `${currentYear}년 ${currentMonth + 1}월`;
 
-            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // 이번 달 1일의 요일 (0: 일, 6: 토)
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // 이번 달의 마지막 날짜
 
             let date = 1;
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 6; i++) { // 최대 6주까지 표시
                 const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
+                for (let j = 0; j < 7; j++) { // 일주일 7일
                     const cell = document.createElement('td');
 
                     if (i === 0 && j < firstDayOfMonth) {
+                        // 빈 칸 (이전 달 날짜)
                         cell.classList.add('empty-day');
                     } else if (date > daysInMonth) {
+                        // 빈 칸 (다음 달 날짜)
                         cell.classList.add('empty-day');
                     } else {
+                        // 유효한 날짜
                         const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                         cell.dataset.date = fullDate;
 
@@ -951,41 +985,42 @@
                             if (j === 0 || j === 6) { // 일요일 또는 토요일인 공휴일
                                 cell.classList.add('holiday-weekend');
                             }
-                        } else if (j === 0) { // 일요일
-                            dayNumberSpan.style.color = 'var(--weekend-color)';
-                        } else if (j === 6) { // 토요일
-                            dayNumberSpan.style.color = 'var(--saturday-color)';
+                        } else {
+                             // 공휴일이 아니면서 일요일, 토요일은 기본 색상 적용
+                            if (j === 0) { // 일요일
+                                dayNumberSpan.style.color = 'var(--weekend-color)';
+                            } else if (j === 6) { // 토요일
+                                dayNumberSpan.style.color = 'var(--saturday-color)';
+                            }
                         }
 
-                        // ★★★ 스케줄 개수 및 요약 표시 로직 변경 ★★★
+                        // ★★★ 스케줄 개수 및 요약 표시 로직 (모바일/데스크톱 분리) ★★★
                         if (schedules[fullDate] && schedules[fullDate].length > 0) {
                             cell.classList.add('has-schedule');
 
-                            // 스케줄 개수 박스는 항상 td의 직접 자식으로 생성
+                            // 모바일: 스케줄 개수만 표시
                             const scheduleCountSpan = document.createElement('span');
                             scheduleCountSpan.classList.add('schedule-count');
                             scheduleCountSpan.textContent = schedules[fullDate].length; 
-                            cell.appendChild(scheduleCountSpan); // td의 직접 자식으로 추가
+                            cell.appendChild(scheduleCountSpan); 
 
-                            // 데스크톱 (넓은 화면)에서만 스케줄 요약 텍스트를 담을 div 생성
-                            if (window.innerWidth > 768) {
-                                const scheduleSummaryDiv = document.createElement('div');
-                                scheduleSummaryDiv.classList.add('schedule-summary');
-                                
-                                // 첫 번째 스케줄 요약 텍스트 추가
-                                const firstSchedule = schedules[fullDate].sort((a,b) => a.time.localeCompare(b.time))[0];
+                            // 데스크톱: 스케줄 요약 텍스트 표시
+                            // (모바일에서는 CSS로 display:none 처리)
+                            const scheduleSummaryDiv = document.createElement('div');
+                            scheduleSummaryDiv.classList.add('schedule-summary');
+                            
+                            // 스케줄 시간 순으로 정렬 후 상위 2~3개만 표시 (공간 제약 고려)
+                            const sortedSchedules = schedules[fullDate].sort((a,b) => a.time.localeCompare(b.time));
+                            sortedSchedules.slice(0, 3).forEach(sch => { // 최대 3개까지만 표시
                                 const p = document.createElement('p');
-                                p.textContent = `${firstSchedule.time} ${firstSchedule.location || firstSchedule.taskType}`;
-                                if (firstSchedule.color && getContrastYIQ(firstSchedule.color) === 'black') {
-                                    p.style.backgroundColor = firstSchedule.color;
-                                    p.style.color = 'black'; 
-                                } else if (firstSchedule.color) {
-                                     p.style.backgroundColor = firstSchedule.color;
-                                    p.style.color = 'white'; 
+                                p.textContent = `${sch.time} ${sch.location || sch.taskType}`;
+                                if (sch.color) {
+                                    p.style.backgroundColor = sch.color;
+                                    p.style.color = getContrastYIQ(sch.color);
                                 }
                                 scheduleSummaryDiv.appendChild(p);
-                                cell.appendChild(scheduleSummaryDiv); // schedule-summary div를 td에 추가
-                            }
+                            });
+                            cell.appendChild(scheduleSummaryDiv);
                         }
 
                         // 날짜 클릭 시 스케줄 상세 모달 열기
@@ -996,10 +1031,11 @@
                             }
                             cell.classList.add('selected');
 
-                            selectedDate = fullDate;
+                            selectedDate = fullDate; // 클릭된 날짜를 전역 변수에 저장
                             openScheduleDetailModal(selectedDate); // 상세 모달 열기
                         });
 
+                        // 현재 선택된 날짜에 selected 클래스 추가
                         if (selectedDate === fullDate) {
                             cell.classList.add('selected');
                         }
@@ -1031,23 +1067,16 @@
         }
 
         // --- 스케줄 추가/수정 모달 관련 기능 ---
-        function openScheduleModal(date) {
+        function openScheduleModal(dateToPrepopulate) {
             scheduleModal.style.display = 'flex';
-            if (date) {
-                scheduleDateInput.value = date;
+            // 모달 초기화
+            clearAllInputs();
+            
+            if (dateToPrepopulate) {
+                scheduleDateInput.value = dateToPrepopulate;
             } else {
                 scheduleDateInput.value = todayFormatted; // 날짜가 지정되지 않으면 오늘 날짜로
             }
-            scheduleTimeInput.value = '';
-            locationInput.value = '';
-            companyNameInput.value = '';
-            addressInput.value = '';
-            phoneNumberInput.value = '';
-            paymentAmountInput.value = '0';
-            paymentStatusInput.checked = false;
-            taskTypeInput.value = '';
-            taskContentInput.value = '';
-            scheduleColorInput.value = '#ffffff'; // 기본 색상
             
             saveScheduleBtn.textContent = '스케줄 추가';
             saveScheduleBtn.onclick = saveSchedule;
@@ -1069,7 +1098,7 @@
             paymentStatusInput.checked = false;
             taskTypeInput.value = '';
             taskContentInput.value = '';
-            scheduleColorInput.value = '#ffffff';
+            scheduleColorInput.value = '#ffffff'; // 기본 색상
         }
 
         function saveSchedule() {
@@ -1105,8 +1134,9 @@
                 // 수정 모드: 기존 스케줄 찾아서 업데이트
                 const oldDate = editingSchedule.date;
                 schedules[oldDate] = schedules[oldDate].filter(sch => sch.id !== editingSchedule.id);
+                // 만약 원래 날짜에 스케줄이 더 이상 없으면 해당 날짜 키 삭제
                 if (schedules[oldDate].length === 0) {
-                    delete schedules[oldDate]; // 해당 날짜에 스케줄 없으면 삭제
+                    delete schedules[oldDate]; 
                 }
                 schedules[date].push(newSchedule);
             } else {
@@ -1114,7 +1144,7 @@
                 schedules[date].push(newSchedule);
             }
 
-            schedules[date].sort((a, b) => a.time.localeCompare(b.time)); // 스케줄 저장 시 정렬
+            schedules[date].sort((a, b) => a.time.localeCompare(b.time)); // 스케줄 저장 시 시간 순으로 정렬
             localStorage.setItem('schedules', JSON.stringify(schedules));
             renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트
             closeScheduleModal();
@@ -1144,7 +1174,7 @@
                 saveScheduleBtn.onclick = saveSchedule; // 저장 함수는 동일하게 사용
                 cancelEditBtn.style.display = 'inline-block'; // 수정 취소 버튼 보이게
                 scheduleModal.style.display = 'flex';
-                closeScheduleDetailModal(); // 상세 보기 모달이 열려있다면 닫기
+                closeScheduleDetailModal(); // 상세 보기 모달이 열려있다면 닫기 (겹치지 않게)
             }
         }
 
@@ -1152,10 +1182,10 @@
             editingSchedule = null;
             closeScheduleModal();
             clearAllInputs();
-            // 수정 취소 후 상세 모달이 열려있었다면 다시 열어주기 (선택 사항)
-            // if (selectedDate && schedules[selectedDate]) {
-            //     openScheduleDetailModal(selectedDate);
-            // }
+            // 수정 취소 후, 원래 열려있던 상세 모달이 있다면 다시 열어주기
+            if (selectedDate && schedules[selectedDate]) {
+                 openScheduleDetailModal(selectedDate);
+            }
         }
 
         function deleteSchedule(id, date) {
@@ -1165,18 +1195,18 @@
                     delete schedules[date]; // 해당 날짜에 스케줄이 없으면 키 자체를 삭제
                 }
                 localStorage.setItem('schedules', JSON.stringify(schedules));
-                renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트
+                renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트 (특히 스케줄 개수)
                 openScheduleDetailModal(selectedDate); // 스케줄 목록 업데이트 (열려있는 모달)
             }
         }
 
-        // 스케줄 상세 보기 모달 관련 함수
+        // --- 스케줄 상세 보기 모달 관련 함수 ---
         function openScheduleDetailModal(date) {
             detailModalTitle.textContent = `${formatDateForTitle(date)} 스케줄`;
             const dailySchedules = schedules[date] || [];
 
             // 기존 스케줄 목록 내용 초기화
-            scheduleDetailListContainer.innerHTML = ''; // 기존 목록 내용 모두 지우기
+            scheduleDetailListContainer.innerHTML = ''; 
 
             if (dailySchedules.length === 0) {
                 noDetailScheduleMessage.style.display = 'block';
@@ -1224,7 +1254,7 @@
             return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`;
         }
 
-        // 색상 밝기에 따라 텍스트 색상을 검정 또는 흰색으로 결정
+        // 색상 밝기에 따라 텍스트 색상을 검정 또는 흰색으로 결정 (가독성 위해)
         function getContrastYIQ(hexcolor) {
             const r = parseInt(hexcolor.substr(1, 2), 16);
             const g = parseInt(hexcolor.substr(3, 2), 16);
@@ -1271,18 +1301,32 @@
             const encodedAddress = encodeURIComponent(address);
             switch (app) {
                 case "google":
-                    url = `http://maps.google.com/maps?q=${encodedAddress}`;
+                    // Google Maps URL Scheme for searching address
+                    // Note: 'q' for query, 'daddr' for destination address
+                    // For Android: geo:0,0?q=address
+                    // For iOS: comgooglemaps://?q=address
+                    // For web: https://www.google.com/maps/search/address
+                    // Using universal web link which usually redirects to app if installed
+                    url = `https://www.google.com/maps/search/${encodedAddress}`;
                     break;
                 case "naver":
-                    if (/android/i.test(navigator.userAgent)) {
-                        url = `intent://search?query=${encodedAddress}&appScheme=NMAP&action=android.intent.action.VIEW&_package=com.nhn.android.nmap#Intent;scheme=nmap;end;`;
-                    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-                        url = `nmap://search?query=${encodedAddress}`;
+                    // Naver Map URL Scheme. Requires app to be installed.
+                    // Fallback to web URL for desktop or if app not installed/scheme fails.
+                    if (/android|iphone|ipad|ipod/i.test(navigator.userAgent)) {
+                        // iOS: nmap://search?query=address
+                        // Android: intent://search?query=address&appScheme=NMAP&action=android.intent.action.VIEW&_package=com.nhn.android.nmap#Intent;scheme=nmap;end;
+                        // For simplicity, using a more general approach or direct web link.
+                        // For robust app deep-linking, need to check if app is installed first.
+                        // Here, just opening a universal web link for reliability.
+                        url = `https://map.naver.com/v5/search/${encodedAddress}`;
                     } else {
                         url = `https://map.naver.com/v5/search/${encodedAddress}`;
                     }
                     break;
                 case "kakao":
+                    // KakaoMap URL Scheme.
+                    // Same as Naver, complex to handle all deep-linking scenarios.
+                    // Using web link for reliability.
                     url = `https://map.kakao.com/link/search/${encodedAddress}`;
                     break;
                 default:
@@ -1295,7 +1339,7 @@
         // --- 설정 모달 관련 기능 ---
         function openSettingsModal() {
             settingsModal.style.display = 'flex';
-            loadSettings(); // 현재 설정 불러와서 표시
+            loadSettings(); // 현재 설정 불러와서 UI에 반영
         }
 
         function closeSettingsModal() {
@@ -1329,47 +1373,26 @@
         function loadSettings() {
             // 내비게이션 앱 설정 불러오기
             const savedNavApp = localStorage.getItem('defaultNavApp') || 'none';
-            // ID가 'navGoogle', 'navNaver', 'navKakao', 'navNone' 중 하나임을 가정
-            const navRadioId = `nav${savedNavApp.charAt(0).toUpperCase() + savedNavApp.slice(1)}`;
-            const navRadioElement = document.getElementById(navRadioId);
+            const navRadioElement = document.getElementById(`nav${savedNavApp.charAt(0).toUpperCase() + savedNavApp.slice(1)}`);
             if (navRadioElement) {
                 navRadioElement.checked = true;
             }
 
             // 테마 설정 불러오기
             const savedTheme = localStorage.getItem('appTheme') || 'light';
-            // ID가 'themeLight', 'themeDark' 중 하나임을 가정
-            const themeRadioId = `theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`;
-            const themeRadioElement = document.getElementById(themeRadioId);
+            const themeRadioElement = document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`);
             if (themeRadioElement) {
                 themeRadioElement.checked = true;
             }
-            applyTheme(savedTheme);
+            applyTheme(savedTheme); // 불러온 테마 적용
         }
-
-        // 색상 팔레트 추가 (이전에는 없던 부분, 필요 시 추가)
-        // const colorPalette = document.getElementById('colorPalette'); // HTML에 추가 필요
-        // function setupColorPalette() {
-        //     const colors = ['#FFC0CB', '#FFD700', '#ADFF2F', '#87CEEB', '#DDA0DD', '#FFA07A']; // 예시 색상
-        //     colors.forEach(color => {
-        //         const div = document.createElement('div');
-        //         div.style.backgroundColor = color;
-        //         div.classList.add('color-box');
-        //         div.addEventListener('click', () => {
-        //             scheduleColorInput.value = color;
-        //         });
-        //         colorPalette.appendChild(div);
-        //     });
-        // }
-        // setupColorPalette();
-
 
         function applyTheme(theme) {
             document.body.classList.remove('light-theme', 'dark-theme');
             document.body.classList.add(`${theme}-theme`);
         }
 
-        // 라디오 버튼 변경 시 설정 자동 저장
+        // 라디오 버튼 변경 시 설정 자동 저장 (실시간 적용)
         navRadios.forEach(radio => {
             radio.addEventListener('change', saveSettings);
         });
