@@ -178,12 +178,11 @@
                 font-size: 0.7em; /* 스케줄 요약 폰트 크기는 유지 (p 태그에서 조정) */
                 margin-top: 0;
                 /* max-height 계산 조정: 날짜/공휴일 이름 공간을 최소화하고 스케줄 내용 공간 최대화 */
-                /* day-number(top: 5px) + holiday-name(bottom: 5px) + 스케줄 상하 패딩 (각 5px 정도) = 약 10px + (날짜 숫자, 공휴일 이름 자체 높이) */
-                /* -> 셀 높이 120px에서 상하 여백을 고려한 최적의 max-height */
-                max-height: calc(100% - 25px); /* ★★★ 날짜 숫자와 공휴일 이름 간격을 최소화하여 스케줄 공간 확보 ★★★ */
+                /* 셀 높이 120px에서 상단 날짜 숫자(약 25px)와 하단 공휴일 이름(약 20px) 공간을 뺀 나머지 */
+                max-height: calc(100% - 45px); /* ★★★ 날짜 숫자와 공휴일 이름 간격을 더 정확하게 빼서 스케줄 공간 확보 ★★★ */
                 overflow-y: auto;
-                padding-top: 25px; /* 날짜 숫자 아래에서 시작 */
-                padding-bottom: 5px; /* 공휴일 이름 위까지 */
+                padding-top: 25px; /* 날짜 숫자 아래에서 스케줄 시작 */
+                padding-bottom: 5px; /* 스케줄 하단 여백 최소화 */
                 scrollbar-width: thin; /* Firefox */
                 scrollbar-color: var(--primary-color) transparent; /* Firefox */
             }
@@ -200,12 +199,12 @@
             }
             .schedule-summary p {
                 padding: 1px 2px; /* ★★★ 스케줄 항목 내부 패딩 최소화 ★★★ */
-                white-space: normal;
-                overflow: visible;
-                text-overflow: clip;
+                white-space: normal; /* 텍스트가 넘치면 자동으로 줄바꿈 */
+                overflow: hidden; /* ★★★ 넘치는 텍스트 숨김 (이전에는 visible이었음) ★★★ */
+                text-overflow: ellipsis; /* ★★★ 넘치는 텍스트 ...으로 표시 ★★★ */
                 line-height: 1.1; /* ★★★ 줄 간격을 더 좁게 하여 더 많은 줄 표시 ★★★ */
                 margin-bottom: 2px; /* 스케줄 항목 간 간격 유지 */
-                /* max-height: 2.2em; */ /* 한 스케줄 항목이 2줄 정도만 보이도록 제한 (주석 처리하여 최대한 표시) */
+                max-height: 2.2em; /* ★★★ 한 스케줄 항목이 2줄 정도만 보이도록 제한 (조절 가능) ★★★ */
             }
             .schedule-summary .schedule-count {
                 font-size: 0.7em; /* 더보기 텍스트 크기 조정 */
@@ -789,9 +788,7 @@
         const scheduleListTitle = document.querySelector('#scheduleList h2');
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
-        const holidays = new Map([
-            // 2024년 공휴일
-            ['2024-01-01', '신정'],
+        const holidays = new Map([            // 2024년 공휴일            ['2024-01-01', '신정'],
             ['2024-02-09', '설날'],
             ['2024-02-10', '설날'],
             ['2024-02-11', '설날'],
@@ -1074,6 +1071,7 @@
                 schedules[date].push(newSchedule);
             }
 
+            schedules[date].sort((a, b) => a.time.localeCompare(b.time)); // 스케줄 저장 시 정렬
             localStorage.setItem('schedules', JSON.stringify(schedules));
             renderCalendar(); // 캘린더 다시 그려서 스케줄 요약 업데이트
             displaySchedules(selectedDate); // 선택된 날짜 스케줄 목록 업데이트
@@ -1122,12 +1120,22 @@
         }
 
         function displaySchedules(date) {
-            scheduleListTitle.textContent = `${date} 스케줄`;
+            scheduleListTitle.textContent = `${formatDateForTitle(date)} 스케줄`; // 날짜 포맷 적용
             const dailySchedules = schedules[date] || [];
-            scheduleListDiv.innerHTML = `<h2 id="scheduleListTitle">${formatDateForTitle(date)} 스케줄</h2>`; // 제목 유지
-
+            
+            // 기존 스케줄 목록 내용 초기화
+            const existingScheduleItems = scheduleListDiv.querySelectorAll('.schedule-item');
+            existingScheduleItems.forEach(item => item.remove());
+            
+            // "등록된 스케줄이 없습니다" 메시지 위치 재조정 (h2 다음에 위치하도록)
+            const noScheduleMsgElement = document.getElementById('noScheduleMessage');
+            if (noScheduleMsgElement) {
+                noScheduleMsgElement.remove(); // 기존 메시지 있으면 제거
+            }
+            
             if (dailySchedules.length === 0) {
                 noScheduleMessage.style.display = 'block';
+                scheduleListDiv.appendChild(noScheduleMessage);
             } else {
                 noScheduleMessage.style.display = 'none';
                 dailySchedules.sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
@@ -1217,9 +1225,6 @@
                     break;
                 case "naver":
                     // 네이버 지도 앱 설치 여부 확인 후 스킴 또는 웹 URL 사용
-                    // 안드로이드: intent://search?query=주소&appScheme=NMAP&action=android.intent.action.VIEW&_package=com.nhn.android.nmap#Intent;scheme=nmap;end;
-                    // iOS: nmap://search?query=주소
-                    // 웹: https://map.naver.com/v5/search/${encodedAddress}
                     if (/android/i.test(navigator.userAgent)) {
                         url = `intent://search?query=${encodedAddress}&appScheme=NMAP&action=android.intent.action.VIEW&_package=com.nhn.android.nmap#Intent;scheme=nmap;end;`;
                     } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
@@ -1230,9 +1235,6 @@
                     break;
                 case "kakao":
                     // 카카오맵 앱 설치 여부 확인 후 스킴 또는 웹 URL 사용
-                    // 안드로이드: intent://map?q=주소&appkey=YOUR_APP_KEY#Intent;scheme=kakaomap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=net.daum.android.map;end;
-                    // iOS: kakaomap://search?q=주소
-                    // 웹: https://map.kakao.com/link/search/${encodedAddress}
                     // 주의: 카카오맵 앱 연동 시에는 카카오 개발자 사이트에서 발급받은 JS API KEY가 필요합니다.
                     // 현재 앱은 키가 없으므로 웹 링크로 연결합니다.
                     url = `https://map.kakao.com/link/search/${encodedAddress}`;
@@ -1281,11 +1283,21 @@
         function loadSettings() {
             // 내비게이션 앱 설정 불러오기
             const savedNavApp = localStorage.getItem('defaultNavApp') || 'none';
-            document.getElementById(`nav${savedNavApp.charAt(0).toUpperCase() + savedNavApp.slice(1)}`).checked = true;
+            // ID가 'navGoogle', 'navNaver', 'navKakao', 'navNone' 중 하나임을 가정
+            const navRadioId = `nav${savedNavApp.charAt(0).toUpperCase() + savedNavApp.slice(1)}`;
+            const navRadioElement = document.getElementById(navRadioId);
+            if (navRadioElement) {
+                navRadioElement.checked = true;
+            }
 
             // 테마 설정 불러오기
             const savedTheme = localStorage.getItem('appTheme') || 'light';
-            document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`).checked = true;
+            // ID가 'themeLight', 'themeDark' 중 하나임을 가정
+            const themeRadioId = `theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`;
+            const themeRadioElement = document.getElementById(themeRadioId);
+            if (themeRadioElement) {
+                themeRadioElement.checked = true;
+            }
             applyTheme(savedTheme);
         }
 
