@@ -207,9 +207,9 @@
             font-weight: bold;
             position: absolute;
             top: 5px; 
-            left: 8px; /* ✨ 날짜 숫자를 셀의 좌측 상단으로 이동 */
+            left: 8px; /* 날짜 숫자를 셀의 좌측 상단으로 이동 */
             display: block;
-            z-index: 5; /* ✨ 스케줄 개수 박스보다 높게 */
+            z-index: 5; /* ✨ 스케줄 개수 박스보다 높게 (최상단) */
             padding: 2px 5px; /* 터치 영역 보완 */
             border-radius: 3px;
         }
@@ -256,14 +256,14 @@
             font-size: 0.75em; /* 모바일 공휴일 이름 크기 */
             color: var(--holiday-color);
             position: absolute;
-            bottom: 30px; /* ✨ 스케줄 개수 박스 위, 날짜 아래 */
-            left: 8px; /* ✨ 좌측 정렬 */
+            bottom: 30px; /* 스케줄 개수 박스 위, 날짜 아래 */
+            left: 8px; /* 좌측 정렬 */
             right: 8px;
             text-align: left;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            z-index: 3;
+            z-index: 3; /* ✨ 날짜 숫자보다 낮고, 스케줄 개수보다 높게 */
         }
         .calendar-days td.holiday-weekend .holiday-name {
             color: var(--holiday-color);
@@ -272,24 +272,24 @@
         /* === ⭐️ 스케줄 개수 (모바일용) === */
         /* 기본적으로 숨겨져 있다가, 모바일 미디어 쿼리에서 활성화 */
         .calendar-days td .schedule-count { 
-            display: flex; /* ✨ Flexbox로 중앙 정렬 */
+            display: flex; /* Flexbox로 중앙 정렬 */
             align-items: center;
             justify-content: center;
-            width: 28px; /* ✨ 원형 크기 */
-            height: 28px; /* ✨ 원형 크기 */
-            background-color: var(--schedule-count-bg); /* ✨ 배경색 */
-            color: var(--schedule-count-text); /* ✨ 텍스트 색상 */
-            border-radius: 50%; /* ✨ 원형 */
+            width: 28px; /* 원형 크기 */
+            height: 28px; /* 원형 크기 */
+            background-color: var(--schedule-count-bg); /* 배경색 */
+            color: var(--schedule-count-text); /* 텍스트 색상 */
+            border-radius: 50%; /* 원형 */
             font-weight: bold;
             font-size: 0.9em; /* 폰트 사이즈 */
             padding: 2px;
             
             position: absolute; 
-            bottom: 5px; /* ✨ 셀 하단에서 5px 위 */
-            left: 50%; /* ✨ 가로 중앙 */
+            bottom: 5px; /* 셀 하단에서 5px 위 */
+            left: 50%; /* 가로 중앙 */
             transform: translateX(-50%); /* 정확한 중앙 정렬 */
-            z-index: 4; /* ✨ 날짜 숫자보다 낮지만, 충분히 높게 */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* ✨ 그림자 추가로 돋보이게 */
+            z-index: 4; /* ✨ 날짜 숫자보다 낮고, 공휴일 이름보다 높게 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* 그림자 추가로 돋보이게 */
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
         }
@@ -399,7 +399,7 @@
             background-color: var(--card-background);
             margin: auto;
             padding: 30px;
-            padding-bottom: 80px; /* ✨ 하단 버튼 영역을 위한 추가 패딩 */
+            padding-bottom: 80px; /* 하단 버튼 영역을 위한 추가 패딩 */
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             width: 95%; /* 모바일에서 거의 전체 너비 */
@@ -500,8 +500,8 @@
             flex-direction: column; /* 모바일: 버튼 세로 정렬 */
             gap: 10px; /* 버튼 간 간격 */
             margin-top: 20px;
-            position: absolute; /* ✨ 모달 하단 고정 */
-            bottom: 20px; /* ✨ 패딩 바깥쪽으로 */
+            position: absolute; /* 모달 하단 고정 */
+            bottom: 20px; /* 패딩 바깥쪽으로 */
             left: 20px;
             right: 20px;
             width: calc(100% - 40px); /* 패딩 제외한 너비 */
@@ -933,7 +933,7 @@
             currentMonth = today.getMonth(); // 0-11
             renderCalendar();
             loadSettings(); // 설정 불러오기 및 테마 적용
-            // ★ 모든 모달을 초기 상태에서 숨김
+            // 모든 모달을 초기 상태에서 숨김
             scheduleModal.style.display = 'none';
             settingsModal.style.display = 'none';
             scheduleDetailModal.style.display = 'none';
@@ -996,7 +996,7 @@
                             }
                         }
 
-                        // ★★★ 스케줄 개수 및 요약 표시 로직 (모바일/데스크톱 분리) ★★★
+                        // 스케줄 개수 및 요약 표시 로직 (모바일/데스크톱 분리)
                         if (schedules[fullDate] && schedules[fullDate].length > 0) {
                             cell.classList.add('has-schedule');
 
@@ -1303,7 +1303,7 @@
             const encodedAddress = encodeURIComponent(address);
             switch (app) {
                 case "google":
-                    url = `http://maps.google.com/maps?q=${encodedAddress}`;
+                    url = `http://maps.google.com/?q=${encodedAddress}`;
                     break;
                 case "naver":
                     url = `https://map.naver.com/v5/search/${encodedAddress}`;
