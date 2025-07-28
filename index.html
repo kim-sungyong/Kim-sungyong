@@ -178,8 +178,13 @@
                 padding-top: 25px; /* 모바일 날짜 숫자가 들어갈 공간 확보 */
                 padding-bottom: 15px; /* 모바일 공휴일 이름이 들어갈 공간 확보 */
             }
+            /* ★★★ 수정된 부분: 모바일에서 schedule-summary p ★★★ */
             .schedule-summary p {
                 padding: 1px 3px; /* 요약 항목 패딩 조정 */
+                white-space: normal; /* 모바일에서도 줄바꿈 허용 */
+                overflow: visible;
+                text-overflow: clip;
+                line-height: 1.2;
             }
         }
 
@@ -336,14 +341,16 @@
             color: var(--primary-color);
         }
 
+        /* ★★★ 수정된 부분: schedule-summary p ★★★ */
         .schedule-summary p {
             background-color: var(--schedule-summary-bg);
             padding: 3px 6px;
             margin-bottom: 3px;
             border-radius: 3px;
-            white-space: nowrap; /* 한 줄로 표시 */
-            overflow: hidden; /* 넘치는 부분 숨김 */
-            text-overflow: ellipsis; /* ...으로 표시 */
+            white-space: normal; /* 텍스트가 넘치면 자동으로 줄바꿈 */
+            overflow: visible; /* 넘치는 부분 숨기지 않음 */
+            text-overflow: clip; /* ...으로 표시하지 않음 */
+            line-height: 1.3; /* 줄 간격 조정 */
         }
 
         /* Schedule List Styles */
@@ -894,7 +901,8 @@
                             for(let k = 0; k < Math.min(schedules[fullDate].length, displayLimit); k++) {
                                 const sch = schedules[fullDate][k];
                                 const p = document.createElement('p');
-                                p.textContent = `${sch.time} ${sch.location || sch.taskType}`; // 장소 또는 작업종류 표시
+                                // 시간과 함께 장소 또는 작업 종류를 표시
+                                p.textContent = `${sch.time} ${sch.location || sch.taskType}`; 
                                 if (sch.color) {
                                     p.style.backgroundColor = sch.color;
                                     p.style.color = getContrastYIQ(sch.color);
