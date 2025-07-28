@@ -209,7 +209,7 @@
             top: 5px; 
             left: 8px; /* ✨ 날짜 숫자를 셀의 좌측 상단으로 이동 */
             display: block;
-            z-index: 2; /* 스케줄 정보 위에 */
+            z-index: 5; /* ✨ 스케줄 개수 박스보다 높게 */
             padding: 2px 5px; /* 터치 영역 보완 */
             border-radius: 3px;
         }
@@ -288,7 +288,7 @@
             bottom: 5px; /* ✨ 셀 하단에서 5px 위 */
             left: 50%; /* ✨ 가로 중앙 */
             transform: translateX(-50%); /* 정확한 중앙 정렬 */
-            z-index: 4; /* ✨ 다른 요소 위에 확실히 표시 */
+            z-index: 4; /* ✨ 날짜 숫자보다 낮지만, 충분히 높게 */
             box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* ✨ 그림자 추가로 돋보이게 */
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
@@ -334,7 +334,8 @@
                 font-size: 1.5em; /* 데스크톱 날짜 숫자 크기 */
                 top: 10px;
                 right: 10px; /* 데스크톱: 우측 상단 */
-                left: auto;
+                left: auto; /* 좌측 정렬 해제 */
+                z-index: 2; /* 데스크톱에서는 스케줄 요약 아래에 있어도 됨 */
             }
             .calendar-days td.holiday .holiday-name {
                 font-size: 0.9em;
@@ -375,16 +376,6 @@
                 text-overflow: ellipsis; 
                 line-height: 1.3;
             }
-            /* 데스크톱에서 스케줄 목록 섹션 표시 (선택 사항, 현재는 모달로 대체) */
-            /* .schedule-list-section {
-                display: block; 
-                flex: 1; 
-                min-width: 300px;
-                background-color: var(--card-background);
-                border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-            } */
         }
 
 
@@ -397,7 +388,6 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto;
             background-color: var(--modal-background);
             display: flex; /* Flexbox로 컨텐츠 중앙 정렬 */
             justify-content: center;
@@ -409,6 +399,7 @@
             background-color: var(--card-background);
             margin: auto;
             padding: 30px;
+            padding-bottom: 80px; /* ✨ 하단 버튼 영역을 위한 추가 패딩 */
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             width: 95%; /* 모바일에서 거의 전체 너비 */
@@ -509,6 +500,11 @@
             flex-direction: column; /* 모바일: 버튼 세로 정렬 */
             gap: 10px; /* 버튼 간 간격 */
             margin-top: 20px;
+            position: absolute; /* ✨ 모달 하단 고정 */
+            bottom: 20px; /* ✨ 패딩 바깥쪽으로 */
+            left: 20px;
+            right: 20px;
+            width: calc(100% - 40px); /* 패딩 제외한 너비 */
         }
 
         .modal-buttons button {
@@ -831,6 +827,9 @@
                 <label><input type="radio" name="theme" id="themeLight" value="light" checked> 라이트 모드</label>
                 <label><input type="radio" name="theme" id="themeDark" value="dark"> 다크 모드</label>
             </div>
+            <div class="modal-buttons">
+                <button class="save-button" onclick="closeSettingsModal()">설정 저장</button>
+            </div>
         </div>
     </div>
 
@@ -867,7 +866,6 @@
         const noDetailScheduleMessage = document.getElementById('noDetailScheduleMessage');
 
         // --- 한국 공휴일 데이터 (2024, 2025, 2026년 하드코딩) ---
-        // (이 부분은 이전 코드와 동일하며, 정확성을 위해 유지)
         const holidays = new Map([
             // 2024년 공휴일
             ['2024-01-01', '신정'],
@@ -935,6 +933,10 @@
             currentMonth = today.getMonth(); // 0-11
             renderCalendar();
             loadSettings(); // 설정 불러오기 및 테마 적용
+            // ★ 모든 모달을 초기 상태에서 숨김
+            scheduleModal.style.display = 'none';
+            settingsModal.style.display = 'none';
+            scheduleDetailModal.style.display = 'none';
         }
 
         function renderCalendar() {
@@ -1301,32 +1303,12 @@
             const encodedAddress = encodeURIComponent(address);
             switch (app) {
                 case "google":
-                    // Google Maps URL Scheme for searching address
-                    // Note: 'q' for query, 'daddr' for destination address
-                    // For Android: geo:0,0?q=address
-                    // For iOS: comgooglemaps://?q=address
-                    // For web: https://www.google.com/maps/search/address
-                    // Using universal web link which usually redirects to app if installed
-                    url = `https://www.google.com/maps/search/${encodedAddress}`;
+                    url = `http://maps.google.com/maps?q=${encodedAddress}`;
                     break;
                 case "naver":
-                    // Naver Map URL Scheme. Requires app to be installed.
-                    // Fallback to web URL for desktop or if app not installed/scheme fails.
-                    if (/android|iphone|ipad|ipod/i.test(navigator.userAgent)) {
-                        // iOS: nmap://search?query=address
-                        // Android: intent://search?query=address&appScheme=NMAP&action=android.intent.action.VIEW&_package=com.nhn.android.nmap#Intent;scheme=nmap;end;
-                        // For simplicity, using a more general approach or direct web link.
-                        // For robust app deep-linking, need to check if app is installed first.
-                        // Here, just opening a universal web link for reliability.
-                        url = `https://map.naver.com/v5/search/${encodedAddress}`;
-                    } else {
-                        url = `https://map.naver.com/v5/search/${encodedAddress}`;
-                    }
+                    url = `https://map.naver.com/v5/search/${encodedAddress}`;
                     break;
                 case "kakao":
-                    // KakaoMap URL Scheme.
-                    // Same as Naver, complex to handle all deep-linking scenarios.
-                    // Using web link for reliability.
                     url = `https://map.kakao.com/link/search/${encodedAddress}`;
                     break;
                 default:
